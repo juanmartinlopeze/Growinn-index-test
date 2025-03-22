@@ -1,0 +1,9 @@
+@import 'tailwindcss';
+
+@layer base {
+	:root {
+		--default-font-family: 'Roboto', sans-serif;
+		--bg-light: #ffffff;
+		--bg-dark: #111111;
+	}
+}
