@@ -12,6 +12,13 @@ dist
 dist-ssr
 *.local
 
+# Ignorar node_modules y .env en Backend y Frontend
+Backend/node_modules/
+Frontend/node_modules/
+
+Backend/.env
+Frontend/.env
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
