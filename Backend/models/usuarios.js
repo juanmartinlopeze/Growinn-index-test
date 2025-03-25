@@ -1,19 +1,28 @@
-const { DataTypes } = require('sequelize');
-const sequelize = require('../db'); // Importa la conexión a la base de datos
+const { DataTypes } = require("sequelize");
+const sequelize = require("../db");
 
-const Usuario = sequelize.define('usuarios', {
-  id: {
-    type: DataTypes.INTEGER,
-    autoIncrement: true,
-    primaryKey: true,
+const Usuario = sequelize.define(
+  "usuarios",
+  {
+    id: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true,
+    },
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    email: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
+    },
   },
-  name: {
-    type: DataTypes.STRING,
-    allowNull: false,
+  {
+    tableName: "usuarios",
+    timestamps: false,
   }
-}, {
-  tableName: 'usuarios', // Nombre de la tabla en la base de datos
-  timestamps: false // Cambia a "true" si quieres createdAt y updatedAt
-});
+);
 
 module.exports = Usuario;

@@ -1,19 +1,20 @@
+require('dotenv').config();
 const { Sequelize } = require('sequelize');
 
-// Usa la variable de entorno o pon la URL manualmente
-const sequelize = new Sequelize(process.env.DATABASE_URL || 'postgresql://innlab_db_test_user:AU33AwxaoeZBCrCjdAWWoYP2NkXfWqdj@dpg-cvh10dvnoe9s73f0hdlg-a/innlab_db_test', {
-  dialect: 'postgres',
-  dialectOptions: {
-    ssl: {
-      require: true,
-      rejectUnauthorized: false, // Necesario en Render
-    }
-  },
-  logging: false,
-});
+const sequelize = new Sequelize(
+  process.env.DB_NAME,
+  process.env.DB_USER,
+  process.env.DB_PASSWORD,
+  {
+    host: process.env.DB_HOST,
+    port: process.env.DB_PORT,
+    dialect: 'postgres',
+    logging: false
+  }
+);
 
 sequelize.authenticate()
-  .then(() => console.log('✅ Conectado a PostgreSQL en Render'))
-  .catch(err => console.error('❌ Error al conectar a PostgreSQL:', err));
+  .then(() => console.log('✅ Conectado a PostgreSQL en local'))
+  .catch(err => console.error('❌ Error de conexión:', err));
 
 module.exports = sequelize;
