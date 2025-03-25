@@ -1,33 +1,32 @@
-// Requerir dependencias
 const express = require('express');
-const cors = require('cors');
-const dotenv = require('dotenv');
+const sequelize = require('./db');
+const Usuario = require('./models/usuarios');
 
-// Configuración de dotenv para cargar variables de entorno
-dotenv.config();
-
-// Inicializar la app de express
 const app = express();
 
-// Usar middlewares
-app.use(cors());
-app.use(express.json());
+app.use(express.json()); // Para recibir JSON en las peticiones
 
-// Requerir la configuración de la base de datos
-const sequelize = require('./config/db'); // Aquí se importa la configuración de la base de datos
-
-// Ruta de prueba
-app.get('/', (req, res) => {
-  res.send('¡Servidor en funcionamiento!');
+// 🟢 Obtener todos los usuarios
+app.get('/usuarios', async (req, res) => {
+  try {
+    const usuarios = await Usuario.findAll();
+    res.json(usuarios);
+  } catch (error) {
+    res.status(500).json({ error: 'Error al obtener los usuarios' });
+  }
 });
 
-// Conectar al servidor de base de datos si es necesario
-// Ya lo hemos hecho con el `require('./config/db')`
+// 🟢 Guardar un nuevo usuario
+app.post('/usuarios', async (req, res) => {
+  try {
+    const { name } = req.body;
+    const nuevoUsuario = await Usuario.create({ name });
+    res.status(201).json(nuevoUsuario);
+  } catch (error) {
+    res.status(500).json({ error: 'Error al crear el usuario' });
+  }
+});
 
-// Puerto donde el servidor escuchará
-const PORT = process.env.PORT || 5000;
-
-// Iniciar el servidor
-app.listen(PORT, () => {
-  console.log(`Servidor corriendo en el puerto ${PORT}`);
+app.listen(3000, () => {
+  console.log('🚀 Servidor corriendo en http://localhost:3000');
 });
