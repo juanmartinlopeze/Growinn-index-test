@@ -1,6 +1,6 @@
 const areasData = [
 	{
-		name: 'Administration',
+		name: 'Area 1',
 		roles: [
 			{ hierarchy: 'J1', position: null, employees: null },
 			{ hierarchy: 'J2', position: null, employees: null },
@@ -9,7 +9,7 @@ const areasData = [
 		],
 	},
 	{
-		name: 'Finance',
+		name: 'Area 2',
 		roles: [
 			{ hierarchy: 'J1', position: null, employees: null },
 			{ hierarchy: 'J2', position: null, employees: null },
@@ -18,7 +18,7 @@ const areasData = [
 		],
 	},
 	{
-		name: 'Operations',
+		name: 'Area 3',
 		roles: [
 			{ hierarchy: 'J1', position: null, employees: null },
 			{ hierarchy: 'J2', position: null, employees: null },
@@ -27,7 +27,7 @@ const areasData = [
 		],
 	},
 	{
-		name: 'Sales',
+		name: 'Area 4',
 		roles: [
 			{ hierarchy: 'J1', position: null, employees: null },
 			{ hierarchy: 'J2', position: null, employees: null },
@@ -36,7 +36,7 @@ const areasData = [
 		],
 	},
 	{
-		name: 'Human Resources',
+		name: 'Area 5',
 		roles: [
 			{ hierarchy: 'J1', position: null, employees: null },
 			{ hierarchy: 'J2', position: null, employees: null },
@@ -45,7 +45,7 @@ const areasData = [
 		],
 	},
 	{
-		name: 'Marketing',
+		name: 'Area 6',
 		roles: [
 			{ hierarchy: 'J1', position: null, employees: null },
 			{ hierarchy: 'J2', position: null, employees: null },

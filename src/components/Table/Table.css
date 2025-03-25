@@ -132,6 +132,19 @@ td span .role-name {
 	border-radius: 5px;
 }
 
+.modal-content form{
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+}
+
+.modal-buttons{
+	display: flex;
+	flex-direction: row;
+	gap: 10px;
+}
+
 .modal-content button:hover {
 	background: white;
 	color: #f56f10;
