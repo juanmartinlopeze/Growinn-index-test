@@ -1,14 +1,11 @@
 import './App.css'
-import { Table } from './components/Table/Table'
-import {CrearUsuario} from './components/Usuarios/CrearUsuario'
+import AppRouter from './router/AppRouter'
+
 
 function App() {
 	return (
 		<>
-			<Table />
-			<CrearUsuario/>
-
-			
+			<AppRouter />
 		</>
 	)
 }
