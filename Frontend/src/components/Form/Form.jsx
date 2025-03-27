@@ -1,5 +1,5 @@
 import "./Form.css";
-export function Form({ questions }) {
+export function Form({ questions,onInputChange,formData }) {
   return (
     <div className="hierachy-form">
       {questions.map((question) => (
@@ -12,6 +12,8 @@ export function Form({ questions }) {
             className="questionnaire-forms"
             type="text"
             placeholder={question.placeholder}
+            value={formData[question.field]|| ""}
+            onChange={(e) => onInputChange(question.field, e.target.value)}
           />
         </div>
       ))}
