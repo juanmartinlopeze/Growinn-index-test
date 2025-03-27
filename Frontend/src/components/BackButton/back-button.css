@@ -9,13 +9,13 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 8px; /* Ajusta el espacio interno según sea necesario */
+    padding: 8px; 
     background-color: transparent;
     cursor: pointer;
     transition: background-color 0.3s ease;
 }
 
 .back-button:hover {
-    background-color: rgba(0, 0, 0, 0.1); /* Efecto hover opcional */
+    background-color: rgba(0, 0, 0, 0.1); 
 }
 

@@ -6,8 +6,8 @@ export function NextButton({ text, to, onClick, className }) {
   const navigate = useNavigate();
 
   const handleClick = () => {
-    if (onClick) onClick(); // Ejecuta la función onClick si está definida
-    navigate(to); // Navega a la ruta especificada
+    if (onClick) onClick(); 
+    navigate(to); 
   };
 
   return (

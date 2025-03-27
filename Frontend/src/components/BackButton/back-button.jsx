@@ -6,11 +6,11 @@ export function BackButton({ to, onClick, className }) {
   const navigate = useNavigate();
 
   const handleClick = () => {
-    if (onClick) onClick(); // Ejecuta la función onClick si está definida
+    if (onClick) onClick(); 
     if (to) {
-      navigate(to); // Navega a la ruta especificada en la prop `to`
+      navigate(to); 
     } else {
-      navigate(-1); // Navega hacia atrás en el historial si no se especifica `to`
+      navigate(-1); 
     }
   };
 
