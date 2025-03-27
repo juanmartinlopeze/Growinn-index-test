@@ -69,7 +69,7 @@ export function InnlabForm() {
         />
         <div className="buttons-container">
           <BackButton />
-          <NextButton text="Siguiente" onClick={handleSubmit} />
+          <NextButton text="Siguiente" to="/datos_prueba" onClick={handleSubmit} />
         </div>
       </div>
     </section>

@@ -1,0 +1,160 @@
+.table-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: Arial, sans-serif;
+}
+
+.area-row {
+    background-color: #f2f2f2;
+    border-radius: 30px;
+    border: 8px solid white;
+    padding: 4px 16px;
+}
+
+.area-name {
+    display: flex;
+    justify-content: space-between;
+}
+
+.jerarquia {
+    background-color: #f2f2f2;
+    border-radius: 30px;
+    border: 8px solid white;
+    padding: 4px 32px;
+}
+
+.jerarquia div {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    font-size: 38px;
+    font-weight: 100;
+}
+
+td {
+    text-align: center;
+    padding: 10px;
+}
+
+td button {
+    width: 100%;
+    padding: 8px 40px;
+    background: white;
+    border: 2px solid #f56f10;
+    color: #f56f10;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 20px;
+    cursor: pointer;
+}
+
+.btn-disabled {
+    opacity: 20%;
+    pointer-events: none;
+    border: 2px solid gray;
+    color: gray;
+}
+
+td button:hover {
+    background: #f56f10;
+    color: white;
+}
+
+td span {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    background-color: #f56f10;
+    color: white;
+    font-weight: bold;
+    padding: 10px 15px;
+    border-radius: 20px;
+    white-space: nowrap;
+    width: 100%;
+    font-weight: 100;
+}
+
+td span .role-name {
+    font-weight: bold;
+}
+
+.modal-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    width: 300px;
+    text-align: center;
+}
+
+.modal-content label {
+    display: block;
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+.modal-content input {
+    width: 90%;
+    padding: 8px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.modal-content button {
+    margin-top: 15px;
+    background: #f56f10;
+    color: white;
+    border: 2px solid #f56f10;
+    padding: 10px 15px;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.modal-content form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-buttons {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+}
+
+.modal-content button:hover {
+    background: white;
+    color: #f56f10;
+    border: 2px solid #f56f10;
+}
+  .navigation-buttons{
+    display: flex;
+    width: 1125px;
+    justify-content: flex-end; /* Alinea los botones al extremo derecho */
+    align-items: center; /* Centra los botones verticalmente */
+    gap: 24px; /* Espacio entre los botones */
+    box-sizing: border-box; /* Asegura que el padding y el borde se incluyan en las dimensiones */
+  }
