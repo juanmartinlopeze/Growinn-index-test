@@ -1,10 +1,11 @@
 import './App.css'
-import { Table } from './components/Table/Table'
+import AppRouter from './router/AppRouter'
+
 
 function App() {
 	return (
 		<>
-			<Table />
+			<AppRouter />
 		</>
 	)
 }
