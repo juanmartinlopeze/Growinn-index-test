@@ -1,0 +1,8 @@
+.buttons-container {
+    display: flex;
+    width: 1125px;
+    justify-content: flex-end; /* Alinea los botones al extremo derecho */
+    align-items: center; /* Centra los botones verticalmente */
+    gap: 24px; /* Espacio entre los botones */
+    box-sizing: border-box; /* Asegura que el padding y el borde se incluyan en las dimensiones */
+}

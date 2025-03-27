@@ -1,0 +1,29 @@
+.button-icon {
+    display: flex;
+    height: 30px;
+    align-items: flex-start;
+    gap: 8px;
+    width: 26px;
+    height: 26px;
+}
+
+.custom-button {
+    border-radius: 50px;
+    border: 1px solid var(--neutral-gray, #D9D9D9);
+    color: var(--neutral-black, #090011);
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 130%; 
+    padding: 10px 20px; 
+    cursor: pointer; 
+    background-color: transparent; 
+    transition: background-color 0.3s ease; 
+}
+.button-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+}   
+
+

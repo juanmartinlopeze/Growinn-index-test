@@ -1,0 +1,40 @@
+.hierachy-form{
+    display: flex;
+width: 866px;
+flex-direction: column;
+align-items: flex-start;
+gap: 28px;
+}
+.form-header {
+    display: flex;
+    align-items: center;
+    gap: 12px; /* Espacio entre el título y el ícono */
+  }
+
+.form-group {
+     display: flex;
+    align-items: center;
+    gap: 12px; /* Espacio entre el título y el ícono */
+}
+
+
+.form-icon img {
+    width: 25px;
+    height: 25px;
+}
+
+.questionnaire-forms {
+    display: flex;
+    padding: 12px 26px;
+    gap: 29px;
+    border-radius: 10px;
+    border: 1px solid #050505;
+    background: rgba(206, 206, 206, 0.10);
+    box-shadow: 0px 0px 10px 0px rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(40px);
+    width: 130px;
+    height: 40px;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 170%; /* 27.2px */
+  }
