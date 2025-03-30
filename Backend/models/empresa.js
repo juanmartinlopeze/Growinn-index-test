@@ -27,6 +27,10 @@ const Empresa = sequelize.define(
     type: DataTypes.INTEGER,
     allowNull: false,
   },
+  area_nombres: {
+    type: DataTypes.JSON,
+    allowNull: true,
+  },
 });
 
 module.exports = Empresa;

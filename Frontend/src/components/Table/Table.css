@@ -103,8 +103,12 @@ td span .role-name {
 	background: white;
 	padding: 20px;
 	border-radius: 10px;
-	width: 300px;
+	width: 500px;
 	text-align: center;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
 }
 
 .modal-content label {
@@ -121,8 +125,53 @@ td span .role-name {
 	border-radius: 5px;
 }
 
-.modal-content button {
-	margin-top: 15px;
+.modal-content form {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+}
+
+.modal-buttons {
+	display: flex;
+	flex-direction: row;
+	gap: 10px;
+	margin-top: 20px;
+}
+
+#blank {
+	background-color: white;
+	pointer-events: none;
+}
+
+/* Botones individuales dentro del modal */
+.modal-content .delete-button {
+	background: #ffe5e5;
+	color: #d60000;
+	padding: 10px 15px;
+	font-weight: bold;
+	cursor: pointer;
+	border-radius: 5px;
+}
+
+.modal-content .delete-button:hover {
+  background: #f8cfcf;
+}
+
+.modal-content .cancel-button {
+	background: #e0e0e0;
+	color: #333;
+	padding: 10px 15px;
+	font-weight: bold;
+	cursor: pointer;
+	border-radius: 5px;
+}
+
+.modal-content .cancel-button:hover {
+  background: #d0d0d0;
+}
+
+.modal-content .submit-button {
 	background: #f56f10;
 	color: white;
 	border: 2px solid #f56f10;
@@ -132,26 +181,22 @@ td span .role-name {
 	border-radius: 5px;
 }
 
-.modal-content form{
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	justify-content: center;
+.modal-content .submit-button:hover {
+  background: #e8630e;
 }
 
-.modal-buttons{
-	display: flex;
-	flex-direction: row;
-	gap: 10px;
-}
-
-.modal-content button:hover {
-	background: white;
-	color: #f56f10;
+.add-subcargo-button{
+	background: #f56f10;
+	color: white;
 	border: 2px solid #f56f10;
+	padding: 10px 15px;
+	font-weight: bold;
+	cursor: pointer;
+	border-radius: 5px;
+	width: 100px;
+	margin-top:20px
 }
 
-#blank {
-	background-color: white;
-	pointer-events: none;
+.add-subcargo-button:hover {
+  background: #e8630e;
 }
