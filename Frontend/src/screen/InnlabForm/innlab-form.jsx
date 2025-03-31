@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Form } from "../../components/Form/Form";
 import { NextButton } from "../../components/NextButton/next_button";
 import { BackButton } from "../../components/BackButton/back-button";
+import { TitleSection } from "../../components/TitleSection/TitleSection";
 import "./innlab-form.css";
 
 export function InnlabForm() {
@@ -73,7 +74,8 @@ export function InnlabForm() {
     }
   };
   return (
-    <section className="forms-container">
+    <section className="container">
+      <TitleSection title="Jerarquías y cargos" />
       <div>
         <Form
           questions={questions}

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { NextButton } from "../../components/NextButton/next_button";
 import { BackButton } from "../../components/BackButton/back-button";
 import { Table } from "../../components/Table/Table";
+import { TitleSection } from "../../components/TitleSection/TitleSection";
 import "./datos_prueba.css";
 
 export function DatosPrueba() {
@@ -29,10 +30,9 @@ export function DatosPrueba() {
   }, []);
 
   return (
-    <div>
-      <h1>Resultados de la Encuesta</h1>
+    <section className="container">
+      <TitleSection title="Tabla de Jerarquías y cargos" />
 
-      {/* Barra superior con el número de empleados */}
       <div className="employees-bar">
         <p>Total de empleados: {empleados}</p>
       </div>
@@ -40,9 +40,9 @@ export function DatosPrueba() {
       <Table/>
 
       <section className="navigation-buttons">
-        <BackButton to="/" className="back-button" />
-        <NextButton to="/otra-pagina" className="next-button" />
+        <BackButton to="/"/>
+        <NextButton text='Siguiente' to="/otra-pagina" className="next-button" />
       </section>
-    </div>
+    </section>
   );
 }

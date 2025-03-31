@@ -26,6 +26,10 @@ export function Table() {
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#000000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M13.73 4a2 2 0 0 0-3.46 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/></svg>
   );
 
+  const edit_svg = (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pencil-icon lucide-pencil"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></svg>
+  );
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -233,7 +237,7 @@ export function Table() {
               <tr key={i}>
                 <th className="area-row">
                   <div className="area-name" onClick={() => openAreaModal(i, area.name)} style={{ cursor: 'pointer' }}>
-                    {area.name}{svg}
+                    {area.name}{edit_svg}
                   </div>
                 </th>
                 {area.roles.map((role, ri) => (
@@ -268,7 +272,7 @@ export function Table() {
                 <div className="subcargos-section">
                   <label>Subcargos:</label>
                   {subcargos.map((sub, index) => (
-                    <div key={index} className="subcargo-item">
+                    <div key={index} className="subcargo-item" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                       <input
                         value={sub.name || ''}
                         onChange={e => {
@@ -286,6 +290,7 @@ export function Table() {
                           updated[index].employees = parseInt(e.target.value);
                           setSubcargos(updated);
                         }}
+                        style={{ width: '80px' }}
                         placeholder="Empleados"
                       />
                       <button type="button" onClick={() => {
@@ -294,7 +299,7 @@ export function Table() {
                       }}>✕</button>
                     </div>
                   ))}
-                  <button type="button" onClick={() => setSubcargos([...subcargos, { name: '', employees: '' }])}>
+                  <button type="button" className='add-subcargo-button' onClick={() => setSubcargos([...subcargos, { name: '', employees: '' }])}>
                     Añadir Subcargo
                   </button>
                 </div>

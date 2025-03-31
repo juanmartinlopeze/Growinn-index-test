@@ -1,0 +1,13 @@
+.title{
+    color: #090011;
+    font-size: 21px;
+    font-family: Arial, sans-serif;
+    font-style: italic;
+    font-weight: 400;
+    line-height: 25.20px;
+    word-wrap: break-word
+}
+
+.title-section{
+    border-bottom: 2px solid #f56f10;
+}
