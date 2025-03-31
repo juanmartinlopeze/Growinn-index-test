@@ -1,9 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const sequelize = require("./db");
-const Empresa = require("./models/empresa");
-const Usuario = require("./models/usuarios");
-const Rol = require("./models/rol");
+const { Empresa, Rol } = require("./models/associations");
 
 const app = express();
 app.use(express.json());
@@ -71,9 +69,6 @@ app.put("/empresas/:id", async (req, res) => {
   const { id } = req.params;
   const { areas_nombres } = req.body;
 
-  console.log("✏️ Actualizando empresa ID:", id);
-  console.log("📦 Nuevos nombres de áreas:", areas_nombres);
-
   try {
     const [updatedRows] = await Empresa.update(
       { areas_nombres },
@@ -92,23 +87,15 @@ app.put("/empresas/:id", async (req, res) => {
   }
 });
 
-// Crear rol
 app.post("/roles", async (req, res) => {
   try {
-    const { area, jerarquia, position, employees, subcargos } = req.body;
+    const { area, jerarquia, position, employees, subcargos, empresaId } = req.body;
 
-    if (!area || !jerarquia || !position || !employees || !subcargos) {
+    if (!area || !jerarquia || !position || !employees || !empresaId) {
       return res.status(400).json({ error: "Faltan datos requeridos" });
     }
 
-    const rol = await Rol.create({
-      area,
-      jerarquia,
-      position,
-      employees,
-      subcargos
-    });
-
+    const rol = await Rol.create({ area, jerarquia, position, employees, subcargos, empresaId });
     res.status(201).json(rol);
   } catch (error) {
     console.error("Error al crear rol:", error);
@@ -116,15 +103,19 @@ app.post("/roles", async (req, res) => {
   }
 });
 
-// Obtener todos los roles
-app.get("/roles", async (req, res) => {
+app.get("/roles/:empresaId", async (req, res) => {
+  const { empresaId } = req.params;
+  console.log("🔍 Buscando roles para empresaId:", empresaId);
   try {
-    const roles = await Rol.findAll();
+    const roles = await Rol.findAll({ where: { empresaId } });
     res.status(200).json(roles);
-  } catch (error) {
-    res.status(500).json({ error: "Error al obtener roles" });
+  } catch (err) {
+    console.error("Error al obtener roles:", err);
+    res.status(500).json({ error: "Error al obtener roles", detalle: err.message });
   }
 });
+
+
 
 // Iniciar servidor
 app.listen(3000, () => {

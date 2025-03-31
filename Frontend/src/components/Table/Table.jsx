@@ -23,47 +23,78 @@ export function Table() {
   );
 
   const pyramid_svg = (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-triangle-icon lucide-triangle"><path d="M13.73 4a2 2 0 0 0-3.46 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/></svg>
-  )
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#000000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M13.73 4a2 2 0 0 0-3.46 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/></svg>
+  );
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('http://localhost:3000/empresas');
-        const data = await response.json();
-
-        if (data.length > 0) {
-          const latest = data[data.length - 1];
-          setEmpresaId(latest.id);
+        const empresasRes = await fetch('http://localhost:3000/empresas');
+        const empresas = await empresasRes.json();
+  
+        if (empresas.length > 0) {
+          const latest = empresas[empresas.length - 1];
+          const empresaId = latest.id;
+          setEmpresaId(empresaId);
+  
           const areaNames = latest.areas_nombres || [];
-          const generatedAreas = Array.from({ length: latest.areas }, (_, i) => ({
-            name: areaNames[i] || `Área ${i + 1}`,
-            roles: ['J1', 'J2', 'J3', 'J4'].map(hierarchy => ({
-              hierarchy,
-              position: null,
-              employees: null
-            }))
-          }));
+  
+          const rolesRes = await fetch(`http://localhost:3000/roles/${empresaId}`);
+          if (!rolesRes.ok) throw new Error("Error cargando roles");
+          const roles = await rolesRes.json();
+  
+          const generatedAreas = Array.from({ length: latest.areas }, (_, i) => {
+            const name = areaNames[i] || `Área ${i + 1}`;
+            const rolesForArea = roles.filter(r => r.area === name);
+  
+            const rolesData = ['J1', 'J2', 'J3', 'J4'].map(j => {
+              const role = rolesForArea.find(r => r.jerarquia === j);
+              return role
+                ? {
+                    hierarchy: j,
+                    position: role.position,
+                    employees: role.employees,
+                    subcargos: role.subcargos || []
+                  }
+                : {
+                    hierarchy: j,
+                    position: null,
+                    employees: null,
+                    subcargos: []
+                  };
+            });
+  
+            return {
+              name,
+              roles: rolesData
+            };
+          });
+  
           setTableData(generatedAreas);
         }
       } catch (err) {
-        console.error('Error fetching data:', err);
+        console.error('❌ Error al cargar datos:', err.message);
       }
     };
+  
     fetchData();
   }, []);
+  
+  
 
-  function toggleModal(areaName = null, hierarchy = null, existingPosition = '', existingEmployees = '') {
+  function toggleModal(areaName = null, hierarchy = null) {
     const area = tableData.find(a => a.name === areaName);
     const role = area?.roles.find(r => r.hierarchy === hierarchy);
   
     setSelectedArea(areaName);
     setSelectedHierarchy(hierarchy);
-    setPosition(existingPosition);
-    setEmployees(existingEmployees);
+    setPosition(role?.position || '');
+    setEmployees(role?.employees || '');
     setSubcargos(role?.subcargos || []);
     setModal(true);
   }
+  
+  
 
   const openAreaModal = (index, name) => {
     setAreaIndex(index);
@@ -78,17 +109,13 @@ export function Table() {
     setAreaModal(false);
 
     const nombres = updatedData.map(area => area.name);
-    console.log("➡️ Nombres a actualizar:", nombres);
     if (empresaId) {
       try {
         await fetch(`http://localhost:3000/empresas/${empresaId}`, {
           method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json'
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ areas_nombres: nombres })
         });
-        alert("Nombre del área actualizado exitosamente ✅");
       } catch (err) {
         console.error('Error al actualizar nombres de áreas:', err);
       }
@@ -105,7 +132,7 @@ export function Table() {
 
     const employeeNumber = Number(employees);
     if (isNaN(employeeNumber) || employeeNumber <= 0) {
-      alert("Ingresa un número válido de empleados");
+      alert("Número inválido de empleados");
       return;
     }
 
@@ -114,22 +141,19 @@ export function Table() {
       jerarquia: selectedHierarchy,
       position,
       employees: employeeNumber,
-      subcargos
+      subcargos,
+      empresaId
     };
 
     try {
       const response = await fetch('http://localhost:3000/roles', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newRole)
       });
 
       const responseData = await response.json();
-      if (!response.ok) {
-        throw new Error(responseData.message || 'Error al guardar en el backend');
-      }
+      if (!response.ok) throw new Error(responseData.message);
 
       setTableData(prevData =>
         prevData.map(area => {
@@ -137,7 +161,9 @@ export function Table() {
             return {
               ...area,
               roles: area.roles.map(role =>
-                role.hierarchy === selectedHierarchy ? { ...role, position, employees: employeeNumber } : role
+                role.hierarchy === selectedHierarchy
+                  ? { ...role, position, employees: employeeNumber, subcargos }
+                  : role
               )
             };
           }
@@ -145,19 +171,19 @@ export function Table() {
         })
       );
 
+      setModal(false);
       setPosition('');
       setEmployees('');
-      setSubcargos([]);
       setSelectedArea(null);
       setSelectedHierarchy(null);
-      setModal(false);
+      setSubcargos([]);
     } catch (error) {
-      console.error('Error al guardar en el backend:', error);
-      alert('Hubo un error al guardar los datos. Intenta nuevamente.');
+      console.error('❌ Error al guardar:', error);
+      alert('Error al guardar los datos');
     }
   }
 
-  function handleDelete() {
+  const handleDelete = () => {
     setTableData(prevData =>
       prevData.map(area => {
         if (area.name === selectedArea) {
@@ -165,7 +191,7 @@ export function Table() {
             ...area,
             roles: area.roles.map(role =>
               role.hierarchy === selectedHierarchy
-                ? { ...role, position: null, employees: null }
+                ? { ...role, position: null, employees: null, subcargos: [] }
                 : role
             )
           };
@@ -173,56 +199,42 @@ export function Table() {
         return area;
       })
     );
-
+    setModal(false);
     setPosition('');
     setEmployees('');
     setSelectedArea(null);
     setSelectedHierarchy(null);
     setSubcargos([]);
-    setModal(false);
-  }
-
-  const handleAddSubcargo = () => {
-    setSubcargos([...subcargos, ""]);
-  };
-
-  const handleSubcargoChange = (index, value) => {
-    const updated = [...subcargos];
-    updated[index] = value;
-    setSubcargos(updated);
   };
 
   return (
     <>
       <div className="table-container">
         <table>
-        <thead>
-          <tr>
-            <th id="blank"></th>
-            {['J1', 'J2', 'J3', 'J4'].map(j => {
-              // Calcular empleados actuales por jerarquía
-              const empleadosActuales = tableData.reduce((acc, area) => {
-                const role = area.roles.find(r => r.hierarchy === j);
-                return acc + (role?.employees || 0);
-              }, 0);
-
-              // Mostrar número fijo temporal de requeridos mientras el backend lo conecta
-              const jerarquiaTotal = 0; // Esto se actualizará con backend más adelante
-
-              return (
-                <th key={j} className="jerarquia">
-                  <div>{j}{pyramid_svg}</div>
-                  <div style={{ fontSize: '12px', color: 'gray' }}>({empleadosActuales} / {jerarquiaTotal})</div>
-                </th>
-              );
-            })}
-          </tr>
-        </thead>
+          <thead>
+            <tr>
+              <th id="blank"></th>
+              {['J1', 'J2', 'J3', 'J4'].map(j => {
+                const empleadosActuales = tableData.reduce((acc, area) => {
+                  const role = area.roles.find(r => r.hierarchy === j);
+                  return acc + (role?.employees || 0);
+                }, 0);
+                return (
+                  <th key={j} className="jerarquia">
+                    <div>{j}{pyramid_svg}</div>
+                    <div style={{ fontSize: '12px', color: 'gray' }}>({empleadosActuales})</div>
+                  </th>
+                );
+              })}
+            </tr>
+          </thead>
           <tbody>
             {tableData.map((area, i) => (
               <tr key={i}>
                 <th className="area-row">
-                  <div className="area-name" onClick={() => openAreaModal(i, area.name)} style={{ cursor: 'pointer' }}>{area.name}{svg}</div>
+                  <div className="area-name" onClick={() => openAreaModal(i, area.name)} style={{ cursor: 'pointer' }}>
+                    {area.name}{svg}
+                  </div>
                 </th>
                 {area.roles.map((role, ri) => (
                   <td key={ri}>
@@ -231,9 +243,7 @@ export function Table() {
                         <p className="role-name">{role.position}</p> | <p>{role.employees}</p>
                       </span>
                     ) : (
-                      <button onClick={() => toggleModal(area.name, role.hierarchy)}>
-                        +
-                      </button>
+                      <button onClick={() => toggleModal(area.name, role.hierarchy)}>+</button>
                     )}
                   </td>
                 ))}
@@ -243,6 +253,7 @@ export function Table() {
         </table>
       </div>
 
+      {/* Modal de cargo */}
       {modal && (
         <div className="modal-container">
           <div className="overlay">
@@ -252,11 +263,12 @@ export function Table() {
                 <label htmlFor="position">Cargo</label>
                 <input value={position} onChange={e => setPosition(e.target.value)} placeholder="Nombre del cargo" id="position" />
                 <label htmlFor="employees">Empleados</label>
-                <input value={employees} onChange={e => setEmployees(e.target.value)} placeholder="Cantidad de empleados" type="number" id="employees" />
+                <input value={employees} onChange={e => setEmployees(e.target.value)} type="number" placeholder="Cantidad de empleados" id="employees" />
+
                 <div className="subcargos-section">
                   <label>Subcargos:</label>
                   {subcargos.map((sub, index) => (
-                    <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <div key={index} className="subcargo-item">
                       <input
                         value={sub.name || ''}
                         onChange={e => {
@@ -265,7 +277,6 @@ export function Table() {
                           setSubcargos(updated);
                         }}
                         placeholder={`Subcargo ${index + 1}`}
-                        style={{ flexGrow: 1 }}
                       />
                       <input
                         type="number"
@@ -276,28 +287,18 @@ export function Table() {
                           setSubcargos(updated);
                         }}
                         placeholder="Empleados"
-                        style={{ width: '80px' }}
                       />
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const updated = subcargos.filter((_, i) => i !== index);
-                          setSubcargos(updated);
-                        }}
-                        style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'gray', fontWeight: 'bold' }}
-                      >
-                        ✕
-                      </button>
+                      <button type="button" onClick={() => {
+                        const updated = subcargos.filter((_, i) => i !== index);
+                        setSubcargos(updated);
+                      }}>✕</button>
                     </div>
                   ))}
-                  <button
-                    type="button"
-                    onClick={() => setSubcargos([...subcargos, { name: '', employees: '' }])}
-                    className="add-subcargo-button"
-                  >
+                  <button type="button" onClick={() => setSubcargos([...subcargos, { name: '', employees: '' }])}>
                     Añadir Subcargo
                   </button>
                 </div>
+
                 <div className="modal-buttons">
                   <button type="submit" className='submit-button'>Guardar</button>
                   <button type="button" onClick={handleDelete} className="delete-button">Eliminar</button>
@@ -309,12 +310,13 @@ export function Table() {
         </div>
       )}
 
+      {/* Modal de nombre del área */}
       {areaModal && (
         <div className="modal-container">
           <div className="overlay">
             <div className="modal-content">
               <h3>Editar nombre del área</h3>
-              <input value={areaName} onChange={(e) => setAreaName(e.target.value)} placeholder="Nuevo nombre del área" />
+              <input value={areaName} onChange={e => setAreaName(e.target.value)} placeholder="Nuevo nombre del área" />
               <div className="modal-buttons">
                 <button onClick={handleSaveAreaName} className="submit-button">Guardar</button>
                 <button onClick={() => setAreaModal(false)} className="cancel-button">Cancelar</button>

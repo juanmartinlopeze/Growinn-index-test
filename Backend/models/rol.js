@@ -1,5 +1,6 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../db");
+const Empresa = require("./empresa");
 
 const Rol = sequelize.define("Rol", {
   area: {
@@ -19,8 +20,12 @@ const Rol = sequelize.define("Rol", {
     allowNull: false,
   },
   subcargos: {
-    type: DataTypes.STRING,
+    type: DataTypes.JSON,
     allowNull: true,
+  },
+  empresaId: { 
+    type: DataTypes.INTEGER,
+    allowNull: false,
   }
 });
 
