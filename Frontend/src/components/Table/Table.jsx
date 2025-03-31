@@ -35,7 +35,7 @@ export function Table() {
         if (data.length > 0) {
           const latest = data[data.length - 1];
           setEmpresaId(latest.id);
-          const areaNames = latest.area_nombres || [];
+          const areaNames = latest.areas_nombres || [];
           const generatedAreas = Array.from({ length: latest.areas }, (_, i) => ({
             name: areaNames[i] || `Área ${i + 1}`,
             roles: ['J1', 'J2', 'J3', 'J4'].map(hierarchy => ({
@@ -78,6 +78,7 @@ export function Table() {
     setAreaModal(false);
 
     const nombres = updatedData.map(area => area.name);
+    console.log("➡️ Nombres a actualizar:", nombres);
     if (empresaId) {
       try {
         await fetch(`http://localhost:3000/empresas/${empresaId}`, {
@@ -85,8 +86,9 @@ export function Table() {
           headers: {
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify({ area_nombres: nombres })
+          body: JSON.stringify({ areas_nombres: nombres })
         });
+        alert("Nombre del área actualizado exitosamente ✅");
       } catch (err) {
         console.error('Error al actualizar nombres de áreas:', err);
       }

@@ -31,15 +31,27 @@ export function InnlabForm() {
   };
 
   const handleSubmit = async () => {
+    const totalAreas = Number(formData.areas || 0);
+  
+    const payload = {
+      empleados: Number(formData.empleados),
+      jerarquia1: Number(formData.jerarquia1),
+      jerarquia2: Number(formData.jerarquia2),
+      jerarquia3: Number(formData.jerarquia3),
+      jerarquia4: Number(formData.jerarquia4),
+      areas: totalAreas,
+      areas_nombres: Array.from({ length: totalAreas }, (_, i) => `Área ${i + 1}`)
+    };
+  
     try {
       const response = await fetch("http://localhost:3000/empresas", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
-
+  
       if (response.ok) {
         alert("Formulario enviado exitosamente");
         setFormData({
@@ -51,6 +63,8 @@ export function InnlabForm() {
           areas: "",
         });
       } else {
+        const errorData = await response.json();
+        console.error("Error:", errorData);
         alert("Error al enviar el formulario");
       }
     } catch (error) {
@@ -58,7 +72,6 @@ export function InnlabForm() {
       alert("Error al enviar el formulario");
     }
   };
-
   return (
     <section className="forms-container">
       <div>

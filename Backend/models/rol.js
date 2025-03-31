@@ -19,7 +19,7 @@ const Rol = sequelize.define("Rol", {
     allowNull: false,
   },
   subcargos: {
-    type: DataTypes.JSON,
+    type: DataTypes.STRING,
     allowNull: true,
   }
 });
