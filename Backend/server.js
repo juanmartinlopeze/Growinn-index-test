@@ -2,10 +2,13 @@ const express = require("express");
 const cors = require("cors");
 const sequelize = require("./db");
 const { Empresa, Rol } = require("./models/associations");
+const excelRoute = require("./routes/excelroute");
 
 const app = express();
 app.use(express.json());
 app.use(cors());
+
+app.use("/", excelRoute);
 
 // Sincronizar la base de datos sin eliminar datos existentes
 sequelize.sync({ alter: true }).then(() => {
@@ -109,36 +112,35 @@ app.get("/ping", (req, res) => {
   res.send("pong");
 });
 
-// ✅ Ruta para obtener roles por empresa
-app.get("/roles/empresa/:empresaId", async (req, res) => {
-  const { empresaId } = req.params;
-  console.log("🔍 Buscando roles para empresa:", empresaId);
-  try {
-    const roles = await Rol.findAll({ where: { empresaId } });
-    res.status(200).json(roles);
-  } catch (error) {
-    console.error("❌ Error al obtener roles:", error);
-    res.status(500).json({ error: "Error al obtener roles" });
-  }
-});
+
 
 // ✅ Ruta para eliminar rol por ID
-app.delete("/roles/:id", async (req, res) => {
-  const { id } = req.params;
-  console.log("🗑️ RUTA DELETE FUNCIONANDO - ID recibido:", id);
-  try {
-    const deleted = await Rol.destroy({ where: { id } });
+app.delete("/roles/:rolId/subcargos/:subcargoName", async (req, res) => {
+  const { rolId, subcargoName } = req.params;
+  console.log("🧹 Eliminando subcargo:", subcargoName, "del rol", rolId);
 
-    if (deleted === 0) {
-      return res.status(404).json({ error: "Rol no encontrado" });
+  try {
+    const rol = await Rol.findByPk(rolId);
+    if (!rol) return res.status(404).json({ error: "Rol no encontrado" });
+
+    const subcargos = rol.subcargos || [];
+    const nuevosSubcargos = subcargos.filter(sub => sub.name !== subcargoName);
+
+    if (nuevosSubcargos.length === subcargos.length) {
+      return res.status(404).json({ error: "Subcargo no encontrado" });
     }
 
-    res.status(200).json({ message: "Rol eliminado correctamente" });
+    rol.subcargos = nuevosSubcargos;
+    await rol.save();
+
+    res.json({ message: "Subcargo eliminado correctamente", rol });
   } catch (error) {
-    console.error("❌ Error al eliminar rol:", error);
-    res.status(500).json({ error: "Error al eliminar rol" });
+    console.error("❌ Error al eliminar subcargo:", error);
+    res.status(500).json({ error: "Error interno al eliminar subcargo" });
   }
 });
+
+
 
 // Iniciar servidor
 app.listen(3000, () => {
