@@ -37,7 +37,7 @@ export function Table() {
           setTotalEmpleados(latest.empleados);
 
           const areaNames = latest.areas_nombres || [];
-          const rolesRes = await fetch(`http://localhost:3000/roles/${empresaId}`);
+          const rolesRes = await fetch(`http://localhost:3000/roles/empresa/${empresaId}`);
           if (!rolesRes.ok) throw new Error("Error cargando roles");
           const roles = await rolesRes.json();
 
@@ -330,10 +330,51 @@ export function Table() {
                         style={{ width: '80px' }}
                         placeholder="Empleados"
                       />
-                      <button type="button" onClick={() => {
-                        const updated = subcargos.filter((_, i) => i !== index);
-                        setSubcargos(updated);
-                      }}>✕</button>
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          const confirm = window.confirm(`¿Eliminar el subcargo "${sub.name}"?`);
+                          if (!confirm) return;
+
+                          try {
+                            // Encontrar el rol real en la tabla
+                            const rolId = await (async () => {
+                              const res = await fetch(`http://localhost:3000/roles/empresa/${empresaId}`);
+                              const allRoles = await res.json();
+                              const rol = allRoles.find(
+                                r =>
+                                  r.area === selectedArea &&
+                                  r.jerarquia === selectedHierarchy &&
+                                  r.position === position
+                              );
+                              return rol?.id;
+                            })();
+
+                            if (!rolId) {
+                              alert("⚠️ No se pudo encontrar el rol en la base de datos.");
+                              return;
+                            }
+
+                            const res = await fetch(`http://localhost:3000/roles/${rolId}/subcargos/${encodeURIComponent(sub.name)}`, {
+                              method: 'DELETE',
+                            });
+
+                            const data = await res.json();
+                            if (!res.ok) throw new Error(data.error || "Error al eliminar");
+
+                            const updated = [...subcargos];
+                            updated.splice(index, 1);
+                            setSubcargos(updated);
+
+                            alert("✅ Subcargo eliminado correctamente");
+                          } catch (error) {
+                            console.error("❌ Error eliminando subcargo:", error);
+                            alert("❌ Error al eliminar subcargo");
+                          }
+                        }}
+                      >
+                        ✕
+                      </button>
                     </div>
                   ))}
                   <button type="button" className='add-subcargo-button' onClick={() => setSubcargos([...subcargos, { name: '', employees: '' }])}>

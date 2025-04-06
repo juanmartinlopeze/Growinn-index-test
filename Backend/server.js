@@ -50,7 +50,7 @@ app.post("/empresas", async (req, res) => {
       areas_nombres: areas_nombres || []
     });
 
-    res.status(201).json(empresa); // ✅ IMPORTANTE
+    res.status(201).json(empresa); // 
   } catch (error) {
     console.error("❌ Error al crear empresa:", error);
     res.status(500).json({ error: "Error al crear empresa", detalle: error.message });
@@ -106,15 +106,21 @@ app.post("/roles", async (req, res) => {
   }
 });
 
-// 👇 TEST para verificar que el backend responde
-app.get("/ping", (req, res) => {
-  console.log("🔁 Ping recibido");
-  res.send("pong");
+// Ruta para obtener todos los roles de una empresa por empresaId
+app.get("/roles/empresa/:empresaId", async (req, res) => {
+  const { empresaId } = req.params;
+  try {
+    const roles = await Rol.findAll({
+      where: { empresaId }
+    });
+    res.status(200).json(roles);
+  } catch (error) {
+    console.error("❌ Error al obtener roles:", error);
+    res.status(500).json({ error: "Error al obtener roles" });
+  }
 });
 
-
-
-// ✅ Ruta para eliminar rol por ID
+// Ruta para eliminar rol por ID
 app.delete("/roles/:rolId/subcargos/:subcargoName", async (req, res) => {
   const { rolId, subcargoName } = req.params;
   console.log("🧹 Eliminando subcargo:", subcargoName, "del rol", rolId);
@@ -139,8 +145,6 @@ app.delete("/roles/:rolId/subcargos/:subcargoName", async (req, res) => {
     res.status(500).json({ error: "Error interno al eliminar subcargo" });
   }
 });
-
-
 
 // Iniciar servidor
 app.listen(3000, () => {
