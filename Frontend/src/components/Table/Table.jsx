@@ -188,52 +188,63 @@ export function Table() {
       const role = area?.roles.find(r => r.hierarchy === selectedHierarchy);
   
       if (role && role.position) {
-        const res = await fetch(`http://localhost:3000/roles/1`);
-        const roles = await res.json();
-        const rolDB = roles.find(r => 
-          r.area === selectedArea && 
-          r.jerarquia === selectedHierarchy && 
+        // 🔍 Buscar el ID real del rol
+        const res = await fetch(`http://localhost:3000/roles/empresa/${empresaId}`);
+        const allRoles = await res.json();
+        const rolDB = allRoles.find(r =>
+          r.area === selectedArea &&
+          r.jerarquia === selectedHierarchy &&
           r.position === role.position
         );
   
-        if (rolDB) {
-          console.log("🗑️ Eliminando rol:", rolDB);
-          await fetch(`http://localhost:3000/roles/${rolDB.id}`, {
-            method: 'DELETE',
-          });
+        if (!rolDB) {
+          alert("⚠️ No se pudo encontrar el rol en la base de datos.");
+          return;
         }
   
-        // 🔢 Restar del contador si había empleados asignados
-        if (role?.employees) {
+        // 🧹 Eliminar desde el backend
+        const deleteRes = await fetch(`http://localhost:3000/roles/${rolDB.id}`, {
+          method: 'DELETE'
+        });
+  
+        if (!deleteRes.ok) {
+          const err = await deleteRes.json();
+          throw new Error(err.error || 'Error al eliminar el rol');
+        }
+  
+        // ✅ Actualizar estado en frontend
+        setTableData(prevData =>
+          prevData.map(area => {
+            if (area.name === selectedArea) {
+              return {
+                ...area,
+                roles: area.roles.map(role =>
+                  role.hierarchy === selectedHierarchy
+                    ? { ...role, position: null, employees: null, subcargos: [] }
+                    : role
+                )
+              };
+            }
+            return area;
+          })
+        );
+  
+        if (role.employees) {
           setEmpleadosAsignados(prev => prev - role.employees);
         }
+  
+        setModal(false);
+        setPosition('');
+        setEmployees('');
+        setSelectedArea(null);
+        setSelectedHierarchy(null);
+        setSubcargos([]);
+  
+        alert("✅ Rol eliminado correctamente");
       }
-  
-      setTableData(prevData =>
-        prevData.map(area => {
-          if (area.name === selectedArea) {
-            return {
-              ...area,
-              roles: area.roles.map(role =>
-                role.hierarchy === selectedHierarchy
-                  ? { ...role, position: null, employees: null, subcargos: [] }
-                  : role
-              )
-            };
-          }
-          return area;
-        })
-      );
-  
-      setModal(false);
-      setPosition('');
-      setEmployees('');
-      setSelectedArea(null);
-      setSelectedHierarchy(null);
-      setSubcargos([]);
     } catch (error) {
       console.error("❌ Error al eliminar el rol:", error);
-      alert("Error al eliminar el rol.");
+      alert("❌ Error al eliminar el rol.");
     }
   };
   

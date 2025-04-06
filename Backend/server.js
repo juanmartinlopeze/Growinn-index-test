@@ -120,6 +120,25 @@ app.get("/roles/empresa/:empresaId", async (req, res) => {
   }
 });
 
+
+// Eliminar un rol completo por ID
+app.delete("/roles/:id", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const deleted = await Rol.destroy({ where: { id } });
+
+    if (deleted === 0) {
+      return res.status(404).json({ error: "Rol no encontrado" });
+    }
+
+    res.status(200).json({ message: "Rol eliminado correctamente" });
+  } catch (error) {
+    console.error("❌ Error al eliminar rol:", error);
+    res.status(500).json({ error: "Error al eliminar rol" });
+  }
+});
+
 // Ruta para eliminar rol por ID
 app.delete("/roles/:rolId/subcargos/:subcargoName", async (req, res) => {
   const { rolId, subcargoName } = req.params;
@@ -145,6 +164,8 @@ app.delete("/roles/:rolId/subcargos/:subcargoName", async (req, res) => {
     res.status(500).json({ error: "Error interno al eliminar subcargo" });
   }
 });
+
+
 
 // Iniciar servidor
 app.listen(3000, () => {
