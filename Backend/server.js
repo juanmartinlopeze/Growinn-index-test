@@ -103,19 +103,42 @@ app.post("/roles", async (req, res) => {
   }
 });
 
-app.get("/roles/:empresaId", async (req, res) => {
+// 👇 TEST para verificar que el backend responde
+app.get("/ping", (req, res) => {
+  console.log("🔁 Ping recibido");
+  res.send("pong");
+});
+
+// ✅ Ruta para obtener roles por empresa
+app.get("/roles/empresa/:empresaId", async (req, res) => {
   const { empresaId } = req.params;
-  console.log("🔍 Buscando roles para empresaId:", empresaId);
+  console.log("🔍 Buscando roles para empresa:", empresaId);
   try {
     const roles = await Rol.findAll({ where: { empresaId } });
     res.status(200).json(roles);
-  } catch (err) {
-    console.error("Error al obtener roles:", err);
-    res.status(500).json({ error: "Error al obtener roles", detalle: err.message });
+  } catch (error) {
+    console.error("❌ Error al obtener roles:", error);
+    res.status(500).json({ error: "Error al obtener roles" });
   }
 });
 
+// ✅ Ruta para eliminar rol por ID
+app.delete("/roles/:id", async (req, res) => {
+  const { id } = req.params;
+  console.log("🗑️ RUTA DELETE FUNCIONANDO - ID recibido:", id);
+  try {
+    const deleted = await Rol.destroy({ where: { id } });
 
+    if (deleted === 0) {
+      return res.status(404).json({ error: "Rol no encontrado" });
+    }
+
+    res.status(200).json({ message: "Rol eliminado correctamente" });
+  } catch (error) {
+    console.error("❌ Error al eliminar rol:", error);
+    res.status(500).json({ error: "Error al eliminar rol" });
+  }
+});
 
 // Iniciar servidor
 app.listen(3000, () => {

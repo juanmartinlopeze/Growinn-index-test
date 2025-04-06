@@ -13,21 +13,15 @@ export function Table() {
   const [areaIndex, setAreaIndex] = useState(null);
   const [empresaId, setEmpresaId] = useState(null);
   const [subcargos, setSubcargos] = useState([]);
-
-  const svg = (
-    <svg width="24" height="25" viewBox="0 0 24 25" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M12 22.0646C17.5 22.0646 22 17.5646 22 12.0646C22 6.56458 17.5 2.06458 12 2.06458C6.5 2.06458 2 6.56458 2 12.0646C2 17.5646 6.5 22.0646 12 22.0646Z" stroke="#292D32" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-      <path d="M12 8.06458V13.0646" stroke="#292D32" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-      <path d="M11.9945 16.0646H12.0035" stroke="#292D32" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-    </svg>
-  );
+  const [totalEmpleados, setTotalEmpleados] = useState(0);
+  const [empleadosAsignados, setEmpleadosAsignados] = useState(0);
 
   const pyramid_svg = (
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#000000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M13.73 4a2 2 0 0 0-3.46 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/></svg>
   );
 
   const edit_svg = (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pencil-icon lucide-pencil"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#000000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></svg>
   );
 
   useEffect(() => {
@@ -35,22 +29,25 @@ export function Table() {
       try {
         const empresasRes = await fetch('http://localhost:3000/empresas');
         const empresas = await empresasRes.json();
-  
+
         if (empresas.length > 0) {
           const latest = empresas[empresas.length - 1];
           const empresaId = latest.id;
           setEmpresaId(empresaId);
-  
+          setTotalEmpleados(latest.empleados);
+
           const areaNames = latest.areas_nombres || [];
-  
           const rolesRes = await fetch(`http://localhost:3000/roles/${empresaId}`);
           if (!rolesRes.ok) throw new Error("Error cargando roles");
           const roles = await rolesRes.json();
-  
+
+          const empleadosContados = roles.reduce((total, rol) => total + (rol.employees || 0), 0);
+          setEmpleadosAsignados(empleadosContados);
+
           const generatedAreas = Array.from({ length: latest.areas }, (_, i) => {
             const name = areaNames[i] || `Área ${i + 1}`;
             const rolesForArea = roles.filter(r => r.area === name);
-  
+
             const rolesData = ['J1', 'J2', 'J3', 'J4'].map(j => {
               const role = rolesForArea.find(r => r.jerarquia === j);
               return role
@@ -67,29 +64,27 @@ export function Table() {
                     subcargos: []
                   };
             });
-  
+
             return {
               name,
               roles: rolesData
             };
           });
-  
+
           setTableData(generatedAreas);
         }
       } catch (err) {
         console.error('❌ Error al cargar datos:', err.message);
       }
     };
-  
+
     fetchData();
   }, []);
-  
-  
 
   function toggleModal(areaName = null, hierarchy = null) {
     const area = tableData.find(a => a.name === areaName);
     const role = area?.roles.find(r => r.hierarchy === hierarchy);
-  
+
     setSelectedArea(areaName);
     setSelectedHierarchy(hierarchy);
     setPosition(role?.position || '');
@@ -97,8 +92,6 @@ export function Table() {
     setSubcargos(role?.subcargos || []);
     setModal(true);
   }
-  
-  
 
   const openAreaModal = (index, name) => {
     setAreaIndex(index);
@@ -181,38 +174,82 @@ export function Table() {
       setSelectedArea(null);
       setSelectedHierarchy(null);
       setSubcargos([]);
+
+      setEmpleadosAsignados(prev => prev + employeeNumber);
     } catch (error) {
       console.error('❌ Error al guardar:', error);
       alert('Error al guardar los datos');
     }
   }
 
-  const handleDelete = () => {
-    setTableData(prevData =>
-      prevData.map(area => {
-        if (area.name === selectedArea) {
-          return {
-            ...area,
-            roles: area.roles.map(role =>
-              role.hierarchy === selectedHierarchy
-                ? { ...role, position: null, employees: null, subcargos: [] }
-                : role
-            )
-          };
+  const handleDelete = async () => {
+    try {
+      const area = tableData.find(a => a.name === selectedArea);
+      const role = area?.roles.find(r => r.hierarchy === selectedHierarchy);
+  
+      if (role && role.position) {
+        const res = await fetch(`http://localhost:3000/roles/1`);
+        const roles = await res.json();
+        const rolDB = roles.find(r => 
+          r.area === selectedArea && 
+          r.jerarquia === selectedHierarchy && 
+          r.position === role.position
+        );
+  
+        if (rolDB) {
+          console.log("🗑️ Eliminando rol:", rolDB);
+          await fetch(`http://localhost:3000/roles/${rolDB.id}`, {
+            method: 'DELETE',
+          });
         }
-        return area;
-      })
-    );
-    setModal(false);
-    setPosition('');
-    setEmployees('');
-    setSelectedArea(null);
-    setSelectedHierarchy(null);
-    setSubcargos([]);
+  
+        // 🔢 Restar del contador si había empleados asignados
+        if (role?.employees) {
+          setEmpleadosAsignados(prev => prev - role.employees);
+        }
+      }
+  
+      setTableData(prevData =>
+        prevData.map(area => {
+          if (area.name === selectedArea) {
+            return {
+              ...area,
+              roles: area.roles.map(role =>
+                role.hierarchy === selectedHierarchy
+                  ? { ...role, position: null, employees: null, subcargos: [] }
+                  : role
+              )
+            };
+          }
+          return area;
+        })
+      );
+  
+      setModal(false);
+      setPosition('');
+      setEmployees('');
+      setSelectedArea(null);
+      setSelectedHierarchy(null);
+      setSubcargos([]);
+    } catch (error) {
+      console.error("❌ Error al eliminar el rol:", error);
+      alert("Error al eliminar el rol.");
+    }
   };
+  
+  
 
   return (
     <>
+      <div style={{
+        margin: '16px',
+        fontWeight: 'bold',
+        fontSize: '16px',
+        color: empleadosAsignados >= totalEmpleados ? 'green' : 'red'
+      }}>
+        Empleados asignados: {empleadosAsignados} / {totalEmpleados}
+      </div>
+
       <div className="table-container">
         <table>
           <thead>
@@ -243,7 +280,7 @@ export function Table() {
                 {area.roles.map((role, ri) => (
                   <td key={ri}>
                     {role.position ? (
-                      <span onClick={() => toggleModal(area.name, role.hierarchy, role.position, role.employees)}>
+                      <span onClick={() => toggleModal(area.name, role.hierarchy)}>
                         <p className="role-name">{role.position}</p> | <p>{role.employees}</p>
                       </span>
                     ) : (
