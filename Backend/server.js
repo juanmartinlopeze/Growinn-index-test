@@ -2,13 +2,13 @@ const express = require("express");
 const cors = require("cors");
 const sequelize = require("./db");
 const { Empresa, Rol } = require("./models/associations");
-const excelRoute = require("./routes/excelroute");
+
 
 const app = express();
 app.use(express.json());
 app.use(cors());
 
-app.use("/", excelRoute);
+
 
 // Sincronizar la base de datos sin eliminar datos existentes
 sequelize.sync({ alter: true }).then(() => {
