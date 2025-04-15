@@ -6,7 +6,7 @@ Growing index
 Antes de ejecutar el bot, asegúrate de tener lo siguiente:
 
 - **Node.js** instalado (preferiblemente la versión LTS).
-- **PostgreSQL** (si deseas guardar las preferencias del usuario en una base de datos).
+- **PostgreSQL**.
 
 ---
 
