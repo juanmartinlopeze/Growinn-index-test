@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import EditAreaNameForm from './EditAreaNameForm'
+import EditRoleModal from './EditRoleModal'
 import RoleCell from './RoleCell'
 import './Table.css'
 
@@ -300,104 +301,20 @@ export function Table() {
 
 			{/* Modal de cargo */}
 			{modal && (
-				<div className='modal-container'>
-					<div className='overlay'>
-						<div className='modal-content'>
-							<form onSubmit={handleSave}>
-								<h3>
-									Agregar Cargo en {selectedArea} - {selectedHierarchy}
-								</h3>
-								<label htmlFor='position'>Cargo</label>
-								<input value={position} onChange={(e) => setPosition(e.target.value)} placeholder='Nombre del cargo' id='position' />
-								<label htmlFor='employees'>Empleados</label>
-								<input value={employees} onChange={(e) => setEmployees(e.target.value)} type='number' placeholder='Cantidad de empleados' id='employees' />
-
-								<div className='subcargos-section'>
-									<label>Subcargos:</label>
-									{subcargos.map((sub, index) => (
-										<div key={index} className='subcargo-item' style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-											<input
-												value={sub.name || ''}
-												onChange={(e) => {
-													const updated = [...subcargos]
-													updated[index].name = e.target.value
-													setSubcargos(updated)
-												}}
-												placeholder={`Subcargo ${index + 1}`}
-											/>
-											<input
-												type='number'
-												value={sub.employees || ''}
-												onChange={(e) => {
-													const updated = [...subcargos]
-													updated[index].employees = parseInt(e.target.value)
-													setSubcargos(updated)
-												}}
-												style={{ width: '80px' }}
-												placeholder='Empleados'
-											/>
-											<button
-												type='button'
-												onClick={async () => {
-													const confirm = window.confirm(`¿Eliminar el subcargo "${sub.name}"?`)
-													if (!confirm) return
-
-													try {
-														// Encontrar el rol real en la tabla
-														const rolId = await (async () => {
-															const res = await fetch(`http://localhost:3000/roles/empresa/${empresaId}`)
-															const allRoles = await res.json()
-															const rol = allRoles.find((r) => r.area === selectedArea && r.jerarquia === selectedHierarchy && r.position === position)
-															return rol?.id
-														})()
-
-														if (!rolId) {
-															alert('⚠️ No se pudo encontrar el rol en la base de datos.')
-															return
-														}
-
-														const res = await fetch(`http://localhost:3000/roles/${rolId}/subcargos/${encodeURIComponent(sub.name)}`, {
-															method: 'DELETE',
-														})
-
-														const data = await res.json()
-														if (!res.ok) throw new Error(data.error || 'Error al eliminar')
-
-														const updated = [...subcargos]
-														updated.splice(index, 1)
-														setSubcargos(updated)
-
-														alert('✅ Subcargo eliminado correctamente')
-													} catch (error) {
-														console.error('❌ Error eliminando subcargo:', error)
-														alert('❌ Error al eliminar subcargo')
-													}
-												}}
-											>
-												✕
-											</button>
-										</div>
-									))}
-									<button type='button' className='add-subcargo-button' onClick={() => setSubcargos([...subcargos, { name: '', employees: '' }])}>
-										Añadir Subcargo
-									</button>
-								</div>
-
-								<div className='modal-buttons'>
-									<button type='submit' className='submit-button'>
-										Guardar
-									</button>
-									<button type='button' onClick={handleDelete} className='delete-button'>
-										Eliminar
-									</button>
-									<button type='button' onClick={() => setModal(false)} className='cancel-button'>
-										Cancelar
-									</button>
-								</div>
-							</form>
-						</div>
-					</div>
-				</div>
+				<EditRoleModal
+					selectedArea={selectedArea}
+					selectedHierarchy={selectedHierarchy}
+					position={position}
+					employees={employees}
+					subcargos={subcargos}
+					onPositionChange={setPosition}
+					onEmployeesChange={setEmployees}
+					onSubcargosChange={setSubcargos}
+					onClose={() => setModal(false)}
+					onSave={handleSave}
+					onDelete={handleDelete}
+					empresaId={empresaId}
+				/>
 			)}
 
 			{/* Modal de nombre del área */}
