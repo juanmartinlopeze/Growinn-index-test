@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import './Table.css';
+import { Tooltip } from '../index';
 
 export function Table() {
   const [modal, setModal] = useState(false);
@@ -16,12 +17,22 @@ export function Table() {
   const [totalEmpleados, setTotalEmpleados] = useState(0);
   const [empleadosAsignados, setEmpleadosAsignados] = useState(0);
 
-  const pyramid_svg = (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#000000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M13.73 4a2 2 0 0 0-3.46 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/></svg>
-  );
+  const jerarquiaIcons = {
+    J1: "/src/assets/icons/IconJ1.png",
+    J2: "/src/assets/icons/IconJ2.png",
+    J3: "/src/assets/icons/IconJ3.png",
+    J4: "/src/assets/icons/IconJ4.png",
+  };
+
+  const nivelesJerarquia = {
+    J1: "La Jerarquia 1 (Ejecución): realiza tareas operativas esenciales.",
+    J2: "La Jerarquia 2 (Supervisión): asegura que las tareas se cumplan según procedimientos y estándares.",
+    J3: "La Jerarquia 3 (Gerencial): implementa estrategias y toma decisiones a mediano plazo.",
+    J4: "La Jerarquia 4 (Directivo): define la estrategia general, establece objetivos y asigna recursos.",
+  };
 
   const edit_svg = (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#000000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#000000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" /><path d="m15 5 4 4" /></svg>
   );
 
   useEffect(() => {
@@ -52,17 +63,17 @@ export function Table() {
               const role = rolesForArea.find(r => r.jerarquia === j);
               return role
                 ? {
-                    hierarchy: j,
-                    position: role.position,
-                    employees: role.employees,
-                    subcargos: role.subcargos || []
-                  }
+                  hierarchy: j,
+                  position: role.position,
+                  employees: role.employees,
+                  subcargos: role.subcargos || []
+                }
                 : {
-                    hierarchy: j,
-                    position: null,
-                    employees: null,
-                    subcargos: []
-                  };
+                  hierarchy: j,
+                  position: null,
+                  employees: null,
+                  subcargos: []
+                };
             });
 
             return {
@@ -186,7 +197,7 @@ export function Table() {
     try {
       const area = tableData.find(a => a.name === selectedArea);
       const role = area?.roles.find(r => r.hierarchy === selectedHierarchy);
-  
+
       if (role && role.position) {
         // 🔍 Buscar el ID real del rol
         const res = await fetch(`http://localhost:3000/roles/empresa/${empresaId}`);
@@ -196,22 +207,22 @@ export function Table() {
           r.jerarquia === selectedHierarchy &&
           r.position === role.position
         );
-  
+
         if (!rolDB) {
           alert("⚠️ No se pudo encontrar el rol en la base de datos.");
           return;
         }
-  
+
         // 🧹 Eliminar desde el backend
         const deleteRes = await fetch(`http://localhost:3000/roles/${rolDB.id}`, {
           method: 'DELETE'
         });
-  
+
         if (!deleteRes.ok) {
           const err = await deleteRes.json();
           throw new Error(err.error || 'Error al eliminar el rol');
         }
-  
+
         // ✅ Actualizar estado en frontend
         setTableData(prevData =>
           prevData.map(area => {
@@ -228,18 +239,18 @@ export function Table() {
             return area;
           })
         );
-  
+
         if (role.employees) {
           setEmpleadosAsignados(prev => prev - role.employees);
         }
-  
+
         setModal(false);
         setPosition('');
         setEmployees('');
         setSelectedArea(null);
         setSelectedHierarchy(null);
         setSubcargos([]);
-  
+
         alert("✅ Rol eliminado correctamente");
       }
     } catch (error) {
@@ -247,8 +258,8 @@ export function Table() {
       alert("❌ Error al eliminar el rol.");
     }
   };
-  
-  
+
+
 
   return (
     <>
@@ -273,7 +284,11 @@ export function Table() {
                 }, 0);
                 return (
                   <th key={j} className="jerarquia">
-                    <div>{j}{pyramid_svg}</div>
+                    <div>{j}<Tooltip
+                      triggerText={<img src={jerarquiaIcons[j]} alt={`Icono ${j}`} width={40} />}
+                      popupText={nivelesJerarquia[j]}
+                    /></div>
+
                     <div style={{ fontSize: '12px', color: 'gray' }}>({empleadosActuales})</div>
                   </th>
                 );
@@ -303,122 +318,126 @@ export function Table() {
             ))}
           </tbody>
         </table>
-      </div>
+      </div >
 
       {/* Modal de cargo */}
-      {modal && (
-        <div className="modal-container">
-          <div className="overlay">
-            <div className="modal-content">
-              <form onSubmit={handleSave}>
-                <h3>Agregar Cargo en {selectedArea} - {selectedHierarchy}</h3>
-                <label htmlFor="position">Cargo</label>
-                <input value={position} onChange={e => setPosition(e.target.value)} placeholder="Nombre del cargo" id="position" />
-                <label htmlFor="employees">Empleados</label>
-                <input value={employees} onChange={e => setEmployees(e.target.value)} type="number" placeholder="Cantidad de empleados" id="employees" />
+      {
+        modal && (
+          <div className="modal-container">
+            <div className="overlay">
+              <div className="modal-content">
+                <form onSubmit={handleSave}>
+                  <h3>Agregar Cargo en {selectedArea} - {selectedHierarchy}</h3>
+                  <label htmlFor="position">Cargo</label>
+                  <input value={position} onChange={e => setPosition(e.target.value)} placeholder="Nombre del cargo" id="position" />
+                  <label htmlFor="employees">Empleados</label>
+                  <input value={employees} onChange={e => setEmployees(e.target.value)} type="number" placeholder="Cantidad de empleados" id="employees" />
 
-                <div className="subcargos-section">
-                  <label>Subcargos:</label>
-                  {subcargos.map((sub, index) => (
-                    <div key={index} className="subcargo-item" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <input
-                        value={sub.name || ''}
-                        onChange={e => {
-                          const updated = [...subcargos];
-                          updated[index].name = e.target.value;
-                          setSubcargos(updated);
-                        }}
-                        placeholder={`Subcargo ${index + 1}`}
-                      />
-                      <input
-                        type="number"
-                        value={sub.employees || ''}
-                        onChange={e => {
-                          const updated = [...subcargos];
-                          updated[index].employees = parseInt(e.target.value);
-                          setSubcargos(updated);
-                        }}
-                        style={{ width: '80px' }}
-                        placeholder="Empleados"
-                      />
-                      <button
-                        type="button"
-                        onClick={async () => {
-                          const confirm = window.confirm(`¿Eliminar el subcargo "${sub.name}"?`);
-                          if (!confirm) return;
-
-                          try {
-                            // Encontrar el rol real en la tabla
-                            const rolId = await (async () => {
-                              const res = await fetch(`http://localhost:3000/roles/empresa/${empresaId}`);
-                              const allRoles = await res.json();
-                              const rol = allRoles.find(
-                                r =>
-                                  r.area === selectedArea &&
-                                  r.jerarquia === selectedHierarchy &&
-                                  r.position === position
-                              );
-                              return rol?.id;
-                            })();
-
-                            if (!rolId) {
-                              alert("⚠️ No se pudo encontrar el rol en la base de datos.");
-                              return;
-                            }
-
-                            const res = await fetch(`http://localhost:3000/roles/${rolId}/subcargos/${encodeURIComponent(sub.name)}`, {
-                              method: 'DELETE',
-                            });
-
-                            const data = await res.json();
-                            if (!res.ok) throw new Error(data.error || "Error al eliminar");
-
+                  <div className="subcargos-section">
+                    <label>Subcargos:</label>
+                    {subcargos.map((sub, index) => (
+                      <div key={index} className="subcargo-item" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <input
+                          value={sub.name || ''}
+                          onChange={e => {
                             const updated = [...subcargos];
-                            updated.splice(index, 1);
+                            updated[index].name = e.target.value;
                             setSubcargos(updated);
+                          }}
+                          placeholder={`Subcargo ${index + 1}`}
+                        />
+                        <input
+                          type="number"
+                          value={sub.employees || ''}
+                          onChange={e => {
+                            const updated = [...subcargos];
+                            updated[index].employees = parseInt(e.target.value);
+                            setSubcargos(updated);
+                          }}
+                          style={{ width: '80px' }}
+                          placeholder="Empleados"
+                        />
+                        <button
+                          type="button"
+                          onClick={async () => {
+                            const confirm = window.confirm(`¿Eliminar el subcargo "${sub.name}"?`);
+                            if (!confirm) return;
 
-                            alert("✅ Subcargo eliminado correctamente");
-                          } catch (error) {
-                            console.error("❌ Error eliminando subcargo:", error);
-                            alert("❌ Error al eliminar subcargo");
-                          }
-                        }}
-                      >
-                        ✕
-                      </button>
-                    </div>
-                  ))}
-                  <button type="button" className='add-subcargo-button' onClick={() => setSubcargos([...subcargos, { name: '', employees: '' }])}>
-                    Añadir Subcargo
-                  </button>
-                </div>
+                            try {
+                              // Encontrar el rol real en la tabla
+                              const rolId = await (async () => {
+                                const res = await fetch(`http://localhost:3000/roles/empresa/${empresaId}`);
+                                const allRoles = await res.json();
+                                const rol = allRoles.find(
+                                  r =>
+                                    r.area === selectedArea &&
+                                    r.jerarquia === selectedHierarchy &&
+                                    r.position === position
+                                );
+                                return rol?.id;
+                              })();
 
-                <div className="modal-buttons">
-                  <button type="submit" className='submit-button'>Guardar</button>
-                  <button type="button" onClick={handleDelete} className="delete-button">Eliminar</button>
-                  <button type="button" onClick={() => setModal(false)} className='cancel-button'>Cancelar</button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      )}
+                              if (!rolId) {
+                                alert("⚠️ No se pudo encontrar el rol en la base de datos.");
+                                return;
+                              }
 
-      {/* Modal de nombre del área */}
-      {areaModal && (
-        <div className="modal-container">
-          <div className="overlay">
-            <div className="modal-content">
-              <h3>Editar nombre del área</h3>
-              <input value={areaName} onChange={e => setAreaName(e.target.value)} placeholder="Nuevo nombre del área" />
-              <div className="modal-buttons">
-                <button onClick={handleSaveAreaName} className="submit-button">Guardar</button>
-                <button onClick={() => setAreaModal(false)} className="cancel-button">Cancelar</button>
+                              const res = await fetch(`http://localhost:3000/roles/${rolId}/subcargos/${encodeURIComponent(sub.name)}`, {
+                                method: 'DELETE',
+                              });
+
+                              const data = await res.json();
+                              if (!res.ok) throw new Error(data.error || "Error al eliminar");
+
+                              const updated = [...subcargos];
+                              updated.splice(index, 1);
+                              setSubcargos(updated);
+
+                              alert("✅ Subcargo eliminado correctamente");
+                            } catch (error) {
+                              console.error("❌ Error eliminando subcargo:", error);
+                              alert("❌ Error al eliminar subcargo");
+                            }
+                          }}
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ))}
+                    <button type="button" className='add-subcargo-button' onClick={() => setSubcargos([...subcargos, { name: '', employees: '' }])}>
+                      Añadir Subcargo
+                    </button>
+                  </div>
+
+                  <div className="modal-buttons">
+                    <button type="submit" className='submit-button'>Guardar</button>
+                    <button type="button" onClick={handleDelete} className="delete-button">Eliminar</button>
+                    <button type="button" onClick={() => setModal(false)} className='cancel-button'>Cancelar</button>
+                  </div>
+                </form>
               </div>
             </div>
           </div>
-        </div>
-      )}
+        )
+      }
+
+      {/* Modal de nombre del área */}
+      {
+        areaModal && (
+          <div className="modal-container">
+            <div className="overlay">
+              <div className="modal-content">
+                <h3>Editar nombre del área</h3>
+                <input value={areaName} onChange={e => setAreaName(e.target.value)} placeholder="Nuevo nombre del área" />
+                <div className="modal-buttons">
+                  <button onClick={handleSaveAreaName} className="submit-button">Guardar</button>
+                  <button onClick={() => setAreaModal(false)} className="cancel-button">Cancelar</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )
+      }
     </>
   );
 }
