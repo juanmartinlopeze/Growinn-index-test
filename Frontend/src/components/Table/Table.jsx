@@ -1,23 +1,22 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import EditAreaNameForm from './EditAreaNameForm'
 import EditRoleModal from './EditRoleModal'
 import RoleCell from './RoleCell'
 import './Table.css'
+import { useEmpresaData } from './useEmpresaData'
 
 export function Table() {
 	const [modal, setModal] = useState(false)
 	const [areaModal, setAreaModal] = useState(false)
-	const [tableData, setTableData] = useState([])
 	const [selectedHierarchy, setSelectedHierarchy] = useState(null)
 	const [selectedArea, setSelectedArea] = useState(null)
 	const [position, setPosition] = useState('')
 	const [employees, setEmployees] = useState('')
 	const [areaName, setAreaName] = useState('')
 	const [areaIndex, setAreaIndex] = useState(null)
-	const [empresaId, setEmpresaId] = useState(null)
 	const [subcargos, setSubcargos] = useState([])
-	const [totalEmpleados, setTotalEmpleados] = useState(0)
-	const [empleadosAsignados, setEmpleadosAsignados] = useState(0)
+
+	const { empresaId, tableData, setTableData, totalEmpleados, empleadosAsignados, setEmpleadosAsignados } = useEmpresaData()
 
 	const pyramid_svg = (
 		<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='#000000' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'>
@@ -31,63 +30,6 @@ export function Table() {
 			<path d='m15 5 4 4' />
 		</svg>
 	)
-
-	useEffect(() => {
-		const fetchData = async () => {
-			try {
-				const empresasRes = await fetch('http://localhost:3000/empresas')
-				const empresas = await empresasRes.json()
-
-				if (empresas.length > 0) {
-					const latest = empresas[empresas.length - 1]
-					const empresaId = latest.id
-					setEmpresaId(empresaId)
-					setTotalEmpleados(latest.empleados)
-
-					const areaNames = latest.areas_nombres || []
-					const rolesRes = await fetch(`http://localhost:3000/roles/empresa/${empresaId}`)
-					if (!rolesRes.ok) throw new Error('Error cargando roles')
-					const roles = await rolesRes.json()
-
-					const empleadosContados = roles.reduce((total, rol) => total + (rol.employees || 0), 0)
-					setEmpleadosAsignados(empleadosContados)
-
-					const generatedAreas = Array.from({ length: latest.areas }, (_, i) => {
-						const name = areaNames[i] || `Área ${i + 1}`
-						const rolesForArea = roles.filter((r) => r.area === name)
-
-						const rolesData = ['J1', 'J2', 'J3', 'J4'].map((j) => {
-							const role = rolesForArea.find((r) => r.jerarquia === j)
-							return role
-								? {
-										hierarchy: j,
-										position: role.position,
-										employees: role.employees,
-										subcargos: role.subcargos || [],
-								  }
-								: {
-										hierarchy: j,
-										position: null,
-										employees: null,
-										subcargos: [],
-								  }
-						})
-
-						return {
-							name,
-							roles: rolesData,
-						}
-					})
-
-					setTableData(generatedAreas)
-				}
-			} catch (err) {
-				console.error('❌ Error al cargar datos:', err.message)
-			}
-		}
-
-		fetchData()
-	}, [])
 
 	function toggleModal(areaName = null, hierarchy = null) {
 		const area = tableData.find((a) => a.name === areaName)
