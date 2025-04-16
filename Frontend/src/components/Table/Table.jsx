@@ -3,6 +3,7 @@ import EditAreaNameForm from './EditAreaNameForm'
 import EditRoleModal from './EditRoleModal'
 import RoleCell from './RoleCell'
 import './Table.css'
+import { deleteRole, fetchAllRoles, saveRole, updateEmpresaAreas } from './api'
 import { useEmpresaData } from './useEmpresaData'
 
 export function Table() {
@@ -58,11 +59,7 @@ export function Table() {
 		const nombres = updatedData.map((area) => area.name)
 		if (empresaId) {
 			try {
-				await fetch(`http://localhost:3000/empresas/${empresaId}`, {
-					method: 'PUT',
-					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({ areas_nombres: nombres }),
-				})
+				await updateEmpresaAreas(empresaId, nombres)
 			} catch (err) {
 				console.error('Error al actualizar nombres de áreas:', err)
 			}
@@ -93,14 +90,7 @@ export function Table() {
 		}
 
 		try {
-			const response = await fetch('http://localhost:3000/roles', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify(newRole),
-			})
-
-			const responseData = await response.json()
-			if (!response.ok) throw new Error(responseData.message)
+			await saveRole(newRole)
 
 			setTableData((prevData) =>
 				prevData.map((area) => {
@@ -135,8 +125,7 @@ export function Table() {
 
 			if (role && role.position) {
 				// 🔍 Buscar el ID real del rol
-				const res = await fetch(`http://localhost:3000/roles/empresa/${empresaId}`)
-				const allRoles = await res.json()
+				const allRoles = await fetchAllRoles(empresaId)
 				const rolDB = allRoles.find((r) => r.area === selectedArea && r.jerarquia === selectedHierarchy && r.position === role.position)
 
 				if (!rolDB) {
@@ -145,14 +134,7 @@ export function Table() {
 				}
 
 				// 🧹 Eliminar desde el backend
-				const deleteRes = await fetch(`http://localhost:3000/roles/${rolDB.id}`, {
-					method: 'DELETE',
-				})
-
-				if (!deleteRes.ok) {
-					const err = await deleteRes.json()
-					throw new Error(err.error || 'Error al eliminar el rol')
-				}
+				await deleteRole(rolDB.id)
 
 				// ✅ Actualizar estado en frontend
 				setTableData((prevData) =>

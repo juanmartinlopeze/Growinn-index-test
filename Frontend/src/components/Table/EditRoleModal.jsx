@@ -1,4 +1,5 @@
 import React from 'react'
+import { deleteSubcargo, fetchAllRoles } from './api'
 
 export default function EditRoleModal({
 	selectedArea,
@@ -19,21 +20,16 @@ export default function EditRoleModal({
 		if (!confirmDelete) return
 
 		try {
-			const res = await fetch(`http://localhost:3000/roles/empresa/${empresaId}`)
-			const allRoles = await res.json()
+			const allRoles = await fetchAllRoles(empresaId)
 			const role = allRoles.find((r) => r.area === selectedArea && r.jerarquia === selectedHierarchy && r.position === position)
 			const roleId = role?.id
+
 			if (!roleId) {
 				alert('⚠️ No se pudo encontrar el rol en la base de datos.')
 				return
 			}
 
-			const deleteRes = await fetch(`http://localhost:3000/roles/${roleId}/subcargos/${encodeURIComponent(name)}`, { method: 'DELETE' })
-
-			if (!deleteRes.ok) {
-				const data = await deleteRes.json()
-				throw new Error(data.error || 'Error al eliminar')
-			}
+			await deleteSubcargo(roleId, name)
 
 			const updated = [...subcargos]
 			updated.splice(index, 1)
