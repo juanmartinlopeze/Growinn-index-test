@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import EditAreaNameForm from './EditAreaNameForm'
 import RoleCell from './RoleCell'
 import './Table.css'
 
@@ -400,24 +401,7 @@ export function Table() {
 			)}
 
 			{/* Modal de nombre del área */}
-			{areaModal && (
-				<div className='modal-container'>
-					<div className='overlay'>
-						<div className='modal-content'>
-							<h3>Editar nombre del área</h3>
-							<input value={areaName} onChange={(e) => setAreaName(e.target.value)} placeholder='Nuevo nombre del área' />
-							<div className='modal-buttons'>
-								<button onClick={handleSaveAreaName} className='submit-button'>
-									Guardar
-								</button>
-								<button onClick={() => setAreaModal(false)} className='cancel-button'>
-									Cancelar
-								</button>
-							</div>
-						</div>
-					</div>
-				</div>
-			)}
+			{areaModal && <EditAreaNameForm areaName={areaName} onChange={setAreaName} onSave={handleSaveAreaName} onCancel={() => setAreaModal(false)} />}
 		</>
 	)
 }
