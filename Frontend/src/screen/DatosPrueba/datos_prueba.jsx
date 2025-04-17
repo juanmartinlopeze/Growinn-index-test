@@ -1,8 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { NextButton } from "../../components/NextButton/next_button";
-import { BackButton } from "../../components/BackButton/back-button";
-import { Table } from "../../components/Table/Table";
-import { TitleSection } from "../../components/TitleSection/TitleSection";
+import { NextButton, BackButton, Table, TitleSection } from "../../components/index";
 import "./datos_prueba.css";
 
 export function DatosPrueba() {
@@ -37,10 +34,10 @@ export function DatosPrueba() {
         <p>Total de empleados: {empleados}</p>
       </div>
 
-      <Table/>
+      <Table />
 
       <section className="navigation-buttons">
-        <BackButton to="/"/>
+        <BackButton to="/" />
         <NextButton text='Siguiente' to="/otra-pagina" className="next-button" />
       </section>
     </section>

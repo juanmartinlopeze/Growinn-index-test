@@ -1,13 +1,13 @@
 import "./next-button.css";
-import nextIcon from "../../../public/next-icon.png";
+import nextIcon from "../../../../public/next-icon.png";
 import { useNavigate } from "react-router-dom";
 
 export function NextButton({ text, to, onClick, className }) {
   const navigate = useNavigate();
 
   const handleClick = () => {
-    if (onClick) onClick(); 
-    navigate(to); 
+    if (onClick) onClick();
+    navigate(to);
   };
 
   return (

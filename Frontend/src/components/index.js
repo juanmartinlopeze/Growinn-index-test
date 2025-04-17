@@ -1,3 +1,5 @@
 export * from "./Form/Form"
-export * from "./NextButton/next_button"
-export * from "./BackButton/back-button"
+export * from "./Table/Table"
+export * from "./TitleSection/TitleSection"
+export * from "./Buttons/NextButton/next_button"
+export * from "./Buttons/BackButton/back-button"

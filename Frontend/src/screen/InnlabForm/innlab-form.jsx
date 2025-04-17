@@ -1,8 +1,5 @@
 import { useState } from "react";
-import { Form } from "../../components/Form/Form";
-import { NextButton } from "../../components/NextButton/next_button";
-import { BackButton } from "../../components/BackButton/back-button";
-import { TitleSection } from "../../components/TitleSection/TitleSection";
+import { Form, NextButton, BackButton, TitleSection } from "../../components/index";
 import "./innlab-form.css";
 
 export function InnlabForm() {
@@ -33,7 +30,7 @@ export function InnlabForm() {
 
   const handleSubmit = async () => {
     const totalAreas = Number(formData.areas || 0);
-  
+
     const payload = {
       empleados: Number(formData.empleados),
       jerarquia1: Number(formData.jerarquia1),
@@ -43,7 +40,7 @@ export function InnlabForm() {
       areas: totalAreas,
       areas_nombres: Array.from({ length: totalAreas }, (_, i) => `Área ${i + 1}`)
     };
-  
+
     try {
       const response = await fetch("http://localhost:3000/empresas", {
         method: "POST",
@@ -52,7 +49,7 @@ export function InnlabForm() {
         },
         body: JSON.stringify(payload),
       });
-  
+
       if (response.ok) {
         alert("Formulario enviado exitosamente");
         setFormData({
