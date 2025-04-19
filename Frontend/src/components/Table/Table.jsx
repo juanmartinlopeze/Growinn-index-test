@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import EditAreaNameForm from './EditAreaNameForm'
+import EditAreaForm from './EditAreaForm'
 import EditRoleModal from './EditRoleModal'
 import RoleCell from './RoleCell'
 import './Table.css'
@@ -168,6 +168,15 @@ export function Table() {
 		}
 	}
 
+	const handleDeleteArea = () => {
+		const confirm = window.confirm(`¿Eliminar el área "${areaName}" y todos sus cargos?`)
+		if (!confirm) return
+
+		const updatedData = tableData.filter((_, i) => i !== areaIndex)
+		setTableData(updatedData)
+		setAreaModal(false)
+	}
+
 	return (
 		<>
 			<div
@@ -242,7 +251,7 @@ export function Table() {
 			)}
 
 			{/* Modal de nombre del área */}
-			{areaModal && <EditAreaNameForm areaName={areaName} onChange={setAreaName} onSave={handleSaveAreaName} onCancel={() => setAreaModal(false)} />}
+			{areaModal && <EditAreaForm areaName={areaName} onChange={setAreaName} onSave={handleSaveAreaName} onCancel={() => setAreaModal(false)} onDelete={handleDeleteArea} />}
 		</>
 	)
 }
