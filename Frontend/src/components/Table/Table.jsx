@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import EditAreaNameForm from './EditAreaNameForm'
+import EditAreaForm from './EditAreaForm'
 import EditRoleModal from './EditRoleModal'
 import RoleCell from './RoleCell'
 import './Table.css'
@@ -251,7 +251,7 @@ export function Table() {
 			)}
 
 			{/* Modal de nombre del área */}
-			{areaModal && <EditAreaNameForm areaName={areaName} onChange={setAreaName} onSave={handleSaveAreaName} onCancel={() => setAreaModal(false)} onDelete={handleDeleteArea} />}
+			{areaModal && <EditAreaForm areaName={areaName} onChange={setAreaName} onSave={handleSaveAreaName} onCancel={() => setAreaModal(false)} onDelete={handleDeleteArea} />}
 		</>
 	)
 }
