@@ -1,5 +1,5 @@
 .hierachy-form{
-    display: flex;
+display: flex;
 width: 866px;
 flex-direction: column;
 align-items: flex-start;
@@ -11,12 +11,12 @@ gap: 28px;
     gap: 12px; /* Espacio entre el título y el ícono */
   }
 
-.form-group {
-     display: flex;
-    align-items: center;
-    gap: 12px; /* Espacio entre el título y el ícono */
+  .form-group {
+    display: flex;
+    align-items: center; /* Alinea verticalmente los elementos */
+    justify-content: space-between; /* Asegura que el texto y el input estén separados */
+    width: 580px;
 }
-
 
 .form-icon img {
     width: 25px;
