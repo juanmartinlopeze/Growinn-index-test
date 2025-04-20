@@ -3,15 +3,35 @@
     height: 100vh;
     display: flex;
     flex-direction: column;
-    align-items: start;
+    align-items: stretch;
     justify-content: center;
-    gap: 50px;
+  }
+  
+  .jerarquia-header{
+  width: 192px;
+  height: 33px;
+  flex-shrink: 0;
+  margin-bottom: 20px;
+  }
+
+  .innlab-form-header {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
   }
 
 .buttons-container {
     display: flex;
-    width: 100%;
-    justify-content: end;
-    align-items: center; 
-    gap: 24px;
+    justify-content: flex-end; /* Alinea los botones a la derecha */
+    align-items: center; /* Asegura que los botones estén centrados verticalmente */
+    width: 1099px;
+    gap: 16px; /* Espacio entre los botones */
+}
+
+.forms-container {
+  display: flex;
+  width: 666px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
 }

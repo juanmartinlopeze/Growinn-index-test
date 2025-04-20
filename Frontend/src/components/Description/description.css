@@ -1,0 +1,23 @@
+
+.description.forms {
+    color: var(--neutral-dark-gray, #848088);
+    font-family: ABeeZee;
+    font-size: 15px;
+    font-style: italic;
+    font-weight: 400;
+    line-height: 130%;
+    width: 1125px;
+    text-align: left; 
+  }
+  
+
+.description.forms2 {
+    /* Estilos para la nueva variante */
+    color: var(--neutral-dark-gray, #848088);
+    font-family: ABeeZee;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 170%; /* 27.2px */
+    text-align: left;
+}
