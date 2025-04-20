@@ -4,6 +4,8 @@ import { Form } from "../../components/Form/Form";
 import { NextButton } from "../../components/NextButton/next_button";
 import { BackButton } from "../../components/BackButton/back-button";
 import { TitleSection } from "../../components/TitleSection/TitleSection";
+import { Subtitle } from "../../components/Subtitle/sub_title";
+import { Description } from "../../components/Description/description";
 import "./innlab-form.css";
 
 export function InnlabForm() {
@@ -35,6 +37,14 @@ export function InnlabForm() {
   };
 
   const handleSubmit = async () => {
+    // Verificar si todos los campos están llenos
+    const isFormComplete = Object.values(formData).every((value) => value.trim() !== "");
+
+    if (!isFormComplete) {
+      alert("Por favor, completa todos los campos antes de continuar.");
+      return; // Detener el envío si hay campos vacíos
+    }
+
     const totalEmpleados = Number(formData.empleados || 0);
     const sumaJerarquias =
       Number(formData.jerarquia1 || 0) +
@@ -95,17 +105,32 @@ export function InnlabForm() {
 
   return (
     <section className="container">
-      <TitleSection title="Jerarquías y cargos" />
-      <div>
+      <div className="innlab-form-header"> 
+        <div className="jerarquia-header">
+          <TitleSection title="Jerarquías y cargos"/>
+        </div>
+        <Subtitle text="¿Por qué pedimos esta información?" />
+        <Description
+          text="Los datos que solicitamos sobre jerarquías y áreas de la empresa nos permiten comprender cómo se distribuyen las funciones y la toma de decisiones. Esta información es clave para evaluar el nivel de innovación y detectar oportunidades de mejora dentro de la organización."
+          variant="forms"
+        />
+      </div>
+      
+      <div className="forms-container">
+        <Description
+          text="Por favor, ingrese únicamente números sin puntos, comas u otros caracteres especiales."
+          variant="forms2"
+        />
         <Form
           questions={questions}
           onInputChange={handleInputChange}
           formData={formData}
         />
-        <div className="buttons-container">
-          <BackButton />
-          <NextButton text="Siguiente" onClick={handleSubmit} /> {/* Quitar "to" */}
-        </div>
+      </div>
+      
+      <div className="buttons-container">
+        <BackButton />
+        <NextButton text="Siguiente" onClick={handleSubmit} />
       </div>
     </section>
   );
