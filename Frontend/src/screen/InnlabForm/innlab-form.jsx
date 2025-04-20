@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom"; // Importar useNavigate
 import { Form } from "../../components/Form/Form";
 import { NextButton } from "../../components/NextButton/next_button";
 import { BackButton } from "../../components/BackButton/back-button";
@@ -14,6 +15,8 @@ export function InnlabForm() {
     jerarquia4: "",
     areas: "",
   });
+
+  const navigate = useNavigate(); // Inicializar useNavigate
 
   const questions = [
     { id: 1, title: "¿Cuántos empleados tiene tu empresa?", placeholder: "Digite aquí", icon: null, field: "empleados" },
@@ -32,18 +35,33 @@ export function InnlabForm() {
   };
 
   const handleSubmit = async () => {
+    const totalEmpleados = Number(formData.empleados || 0);
+    const sumaJerarquias =
+      Number(formData.jerarquia1 || 0) +
+      Number(formData.jerarquia2 || 0) +
+      Number(formData.jerarquia3 || 0) +
+      Number(formData.jerarquia4 || 0);
+
+    // Validación de la suma de empleados
+    if (sumaJerarquias !== totalEmpleados) {
+      alert(
+        `La suma de empleados en las jerarquías (${sumaJerarquias}) no coincide con el total de empleados (${totalEmpleados}). Por favor, corrige los valores.`
+      );
+      return; // Detener el envío si la suma no coincide
+    }
+
     const totalAreas = Number(formData.areas || 0);
-  
+
     const payload = {
-      empleados: Number(formData.empleados),
+      empleados: totalEmpleados,
       jerarquia1: Number(formData.jerarquia1),
       jerarquia2: Number(formData.jerarquia2),
       jerarquia3: Number(formData.jerarquia3),
       jerarquia4: Number(formData.jerarquia4),
       areas: totalAreas,
-      areas_nombres: Array.from({ length: totalAreas }, (_, i) => `Área ${i + 1}`)
+      areas_nombres: Array.from({ length: totalAreas }, (_, i) => `Área ${i + 1}`),
     };
-  
+
     try {
       const response = await fetch("http://localhost:3000/empresas", {
         method: "POST",
@@ -52,7 +70,7 @@ export function InnlabForm() {
         },
         body: JSON.stringify(payload),
       });
-  
+
       if (response.ok) {
         alert("Formulario enviado exitosamente");
         setFormData({
@@ -63,6 +81,7 @@ export function InnlabForm() {
           jerarquia4: "",
           areas: "",
         });
+        navigate("/datos_prueba"); // Navegar a la siguiente pantalla solo si todo está correcto
       } else {
         const errorData = await response.json();
         console.error("Error:", errorData);
@@ -73,6 +92,7 @@ export function InnlabForm() {
       alert("Error al enviar el formulario");
     }
   };
+
   return (
     <section className="container">
       <TitleSection title="Jerarquías y cargos" />
@@ -84,7 +104,7 @@ export function InnlabForm() {
         />
         <div className="buttons-container">
           <BackButton />
-          <NextButton text="Siguiente" to="/datos_prueba" onClick={handleSubmit} />
+          <NextButton text="Siguiente" onClick={handleSubmit} /> {/* Quitar "to" */}
         </div>
       </div>
     </section>
