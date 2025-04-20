@@ -1,11 +1,6 @@
 import { useState } from "react";
+import { Tooltip, NextButton, BackButton, TitleSection, Form, Subtitle, Description } from '../../components/index';
 import { useNavigate } from "react-router-dom"; // Importar useNavigate
-import { Form } from "../../components/Form/Form";
-import { NextButton } from "../../components/NextButton/next_button";
-import { BackButton } from "../../components/BackButton/back-button";
-import { TitleSection } from "../../components/TitleSection/TitleSection";
-import { Subtitle } from "../../components/Subtitle/sub_title";
-import { Description } from "../../components/Description/description";
 import "./innlab-form.css";
 
 export function InnlabForm() {
@@ -22,10 +17,10 @@ export function InnlabForm() {
 
   const questions = [
     { id: 1, title: "¿Cuántos empleados tiene tu empresa?", placeholder: "Digite aquí", icon: null, field: "empleados" },
-    { id: 2, title: "¿Cuántos empleados hay en la jerarquía 1?", placeholder: "Digite aquí", icon: <img src="/info-circle.png" alt="Jerarquía" />, field: "jerarquia1" },
-    { id: 3, title: "¿Cuántos empleados hay en la jerarquía 2?", placeholder: "Digite aquí", icon: <img src="/info-circle.png" alt="Jerarquía" />, field: "jerarquia2" },
-    { id: 4, title: "¿Cuántos empleados hay en la jerarquía 3?", placeholder: "Digite aquí", icon: <img src="/info-circle.png" alt="Jerarquía" />, field: "jerarquia3" },
-    { id: 5, title: "¿Cuántos empleados hay en la jerarquía 4?", placeholder: "Digite aquí", icon: <img src="/info-circle.png" alt="Jerarquía" />, field: "jerarquia4" },
+    { id: 2, title: "¿Cuántos son los cargos de cada jerarquía 1?", placeholder: "Digite aquí", icon: <Tooltip triggerText={<img src="/info-circle.png" alt="Jerarquía 1" />} popupText="La Jerarquia 1 (Ejecución): realiza tareas operativas esenciales. Ej: Gerente general, CEO, Director(a)" />, field: "jerarquia1" },
+    { id: 3, title: "¿Cuántos son los cargos de cada jerarquía 2?", placeholder: "Digite aquí", icon: <Tooltip triggerText={<img src="/info-circle.png" alt="Jerarquía 2" />} popupText="La Jerarquia 2 (Supervisión): asegura que las tareas se cumplan según procedimientos y estándares. Ej: Jefes de departamento, líderes de área" />, field: "jerarquia2" },
+    { id: 4, title: "¿Cuántos son los cargos de cada jerarquía 3?", placeholder: "Digite aquí", icon: <Tooltip triggerText={<img src="/info-circle.png" alt="Jerarquía 3" />} popupText="La Jerarquia 3 (Gerencial): implementa estrategias y toma decisiones a mediano plazo. Ej: Coordinadores, supervisores" />, field: "jerarquia3" },
+    { id: 5, title: "¿Cuántos son los cargos de cada jerarquía 4?", placeholder: "Digite aquí", icon: <Tooltip triggerText={<img src="/info-circle.png" alt="Jerarquía 4" />} popupText="La Jerarquia 4 (Directivo): define la estrategia general, establece objetivos y asigna recursos. Ej: Operarios, asistentes, cargos operativos" />, field: "jerarquia4" },
     { id: 6, title: "¿Cuántas áreas tiene tu empresa?", placeholder: "Digite aquí", icon: null, field: "areas" },
   ];
 
@@ -105,9 +100,9 @@ export function InnlabForm() {
 
   return (
     <section className="container">
-      <div className="innlab-form-header"> 
+      <div className="innlab-form-header">
         <div className="jerarquia-header">
-          <TitleSection title="Jerarquías y cargos"/>
+          <TitleSection title="Jerarquías y cargos" />
         </div>
         <Subtitle text="¿Por qué pedimos esta información?" />
         <Description
@@ -115,7 +110,7 @@ export function InnlabForm() {
           variant="forms"
         />
       </div>
-      
+
       <div className="forms-container">
         <Description
           text="Por favor, ingrese únicamente números sin puntos, comas u otros caracteres especiales."
@@ -127,7 +122,7 @@ export function InnlabForm() {
           formData={formData}
         />
       </div>
-      
+
       <div className="buttons-container">
         <BackButton />
         <NextButton text="Siguiente" onClick={handleSubmit} />

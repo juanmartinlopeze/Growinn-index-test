@@ -155,7 +155,7 @@ td span .role-name {
 }
 
 .modal-content .delete-button:hover {
-  background: #f8cfcf;
+	background: #f8cfcf;
 }
 
 .modal-content .cancel-button {
@@ -168,7 +168,7 @@ td span .role-name {
 }
 
 .modal-content .cancel-button:hover {
-  background: #d0d0d0;
+	background: #d0d0d0;
 }
 
 .modal-content .submit-button {
@@ -182,10 +182,10 @@ td span .role-name {
 }
 
 .modal-content .submit-button:hover {
-  background: #e8630e;
+	background: #e8630e;
 }
 
-.add-subcargo-button{
+.add-subcargo-button {
 	background: #f56f10;
 	color: white;
 	border: 2px solid #f56f10;
@@ -193,9 +193,9 @@ td span .role-name {
 	font-weight: bold;
 	cursor: pointer;
 	border-radius: 5px;
-	margin-top:20px
+	margin-top: 20px
 }
 
 .add-subcargo-button:hover {
-  background: #e8630e;
+	background: #e8630e;
 }
