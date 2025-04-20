@@ -48,3 +48,15 @@ export async function deleteSubcargo(roleId, subcargoName) {
 	const data = await res.json()
 	if (!res.ok) throw new Error(data.error || 'Error al eliminar subcargo')
 }
+
+export async function deleteArea(empresaId, areaName) {
+	console.log(`Llamando a la API para eliminar el área: ${areaName} de la empresa con ID: ${empresaId}`); // Depuración
+	const res = await fetch(`${BASE_URL}/areas/${empresaId}/${encodeURIComponent(areaName)}`, {
+	  method: 'DELETE',
+	});
+	const data = await res.json();
+	if (!res.ok) {
+	  throw new Error(data.error || 'Error al eliminar el área');
+	}
+	return data;
+  }

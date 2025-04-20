@@ -3,7 +3,7 @@ import EditAreaForm from './EditAreaForm'
 import EditRoleModal from './EditRoleModal'
 import RoleCell from './RoleCell'
 import './Table.css'
-import { deleteRole, fetchAllRoles, saveRole, updateEmpresaAreas } from './api'
+import { deleteRole, fetchAllRoles, saveRole, updateEmpresaAreas, deleteArea,} from './api'
 import { useEmpresaData } from './useEmpresaData'
 
 export function Table() {
@@ -167,16 +167,27 @@ export function Table() {
 			alert('❌ Error al eliminar el rol.')
 		}
 	}
-
-	const handleDeleteArea = () => {
-		const confirm = window.confirm(`¿Eliminar el área "${areaName}" y todos sus cargos?`)
-		if (!confirm) return
-
-		const updatedData = tableData.filter((_, i) => i !== areaIndex)
-		setTableData(updatedData)
-		setAreaModal(false)
-	}
-
+	
+	
+	const handleDeleteArea = async () => {
+		const confirm = window.confirm(`¿Eliminar el área "${areaName}" y todos sus cargos?`);
+		if (!confirm) return;
+	  
+		try {
+		  console.log(`Eliminando área: ${areaName} de la empresa con ID ${empresaId}`); // Depuración
+		  await deleteArea(empresaId, areaName);
+	  
+		  // Actualizar el estado en el frontend
+		  const updatedData = tableData.filter((_, i) => i !== areaIndex);
+		  setTableData(updatedData);
+		  setAreaModal(false);
+	  
+		  alert('✅ Área eliminada correctamente');
+		} catch (error) {
+		  console.error('❌ Error al eliminar el área:', error);
+		  alert('❌ Error al eliminar el área.');
+		}
+	  };
 	return (
 		<>
 			<div
