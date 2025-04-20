@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Tooltip, NextButton, BackButton, TitleSection, Form } from '../../components/index';
+import { Tooltip, NextButton, BackButton, TitleSection, Form, Subtitle, Description } from '../../components/index';
+import { useNavigate } from "react-router-dom"; // Importar useNavigate
 import "./innlab-form.css";
 
 export function InnlabForm() {
@@ -11,6 +12,8 @@ export function InnlabForm() {
     jerarquia4: "",
     areas: "",
   });
+
+  const navigate = useNavigate(); // Inicializar useNavigate
 
   const questions = [
     { id: 1, title: "¿Cuántos empleados tiene tu empresa?", placeholder: "Digite aquí", icon: null, field: "empleados" },
@@ -29,16 +32,39 @@ export function InnlabForm() {
   };
 
   const handleSubmit = async () => {
+    // Verificar si todos los campos están llenos
+    const isFormComplete = Object.values(formData).every((value) => value.trim() !== "");
+
+    if (!isFormComplete) {
+      alert("Por favor, completa todos los campos antes de continuar.");
+      return; // Detener el envío si hay campos vacíos
+    }
+
+    const totalEmpleados = Number(formData.empleados || 0);
+    const sumaJerarquias =
+      Number(formData.jerarquia1 || 0) +
+      Number(formData.jerarquia2 || 0) +
+      Number(formData.jerarquia3 || 0) +
+      Number(formData.jerarquia4 || 0);
+
+    // Validación de la suma de empleados
+    if (sumaJerarquias !== totalEmpleados) {
+      alert(
+        `La suma de empleados en las jerarquías (${sumaJerarquias}) no coincide con el total de empleados (${totalEmpleados}). Por favor, corrige los valores.`
+      );
+      return; // Detener el envío si la suma no coincide
+    }
+
     const totalAreas = Number(formData.areas || 0);
 
     const payload = {
-      empleados: Number(formData.empleados),
+      empleados: totalEmpleados,
       jerarquia1: Number(formData.jerarquia1),
       jerarquia2: Number(formData.jerarquia2),
       jerarquia3: Number(formData.jerarquia3),
       jerarquia4: Number(formData.jerarquia4),
       areas: totalAreas,
-      areas_nombres: Array.from({ length: totalAreas }, (_, i) => `Área ${i + 1}`)
+      areas_nombres: Array.from({ length: totalAreas }, (_, i) => `Área ${i + 1}`),
     };
 
     try {
@@ -60,6 +86,7 @@ export function InnlabForm() {
           jerarquia4: "",
           areas: "",
         });
+        navigate("/datos_prueba"); // Navegar a la siguiente pantalla solo si todo está correcto
       } else {
         const errorData = await response.json();
         console.error("Error:", errorData);
@@ -70,19 +97,35 @@ export function InnlabForm() {
       alert("Error al enviar el formulario");
     }
   };
+
   return (
     <section className="container">
-      <TitleSection title="Jerarquías y cargos" />
-      <div>
+      <div className="innlab-form-header">
+        <div className="jerarquia-header">
+          <TitleSection title="Jerarquías y cargos" />
+        </div>
+        <Subtitle text="¿Por qué pedimos esta información?" />
+        <Description
+          text="Los datos que solicitamos sobre jerarquías y áreas de la empresa nos permiten comprender cómo se distribuyen las funciones y la toma de decisiones. Esta información es clave para evaluar el nivel de innovación y detectar oportunidades de mejora dentro de la organización."
+          variant="forms"
+        />
+      </div>
+
+      <div className="forms-container">
+        <Description
+          text="Por favor, ingrese únicamente números sin puntos, comas u otros caracteres especiales."
+          variant="forms2"
+        />
         <Form
           questions={questions}
           onInputChange={handleInputChange}
           formData={formData}
         />
-        <div className="buttons-container">
-          <BackButton />
-          <NextButton text="Siguiente" to="/datos_prueba" onClick={handleSubmit} />
-        </div>
+      </div>
+
+      <div className="buttons-container">
+        <BackButton />
+        <NextButton text="Siguiente" onClick={handleSubmit} />
       </div>
     </section>
   );

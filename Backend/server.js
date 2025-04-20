@@ -3,12 +3,9 @@ const cors = require("cors");
 const sequelize = require("./db");
 const { Empresa, Rol } = require("./models/associations");
 
-
 const app = express();
 app.use(express.json());
 app.use(cors());
-
-
 
 // Sincronizar la base de datos sin eliminar datos existentes
 sequelize.sync({ alter: true }).then(() => {
@@ -26,7 +23,7 @@ app.post("/empresas", async (req, res) => {
       jerarquia3,
       jerarquia4,
       areas,
-      areas_nombres
+      areas_nombres,
     } = req.body;
 
     if (
@@ -47,10 +44,10 @@ app.post("/empresas", async (req, res) => {
       jerarquia3,
       jerarquia4,
       areas,
-      areas_nombres: areas_nombres || []
+      areas_nombres: areas_nombres || [],
     });
 
-    res.status(201).json(empresa); // 
+    res.status(201).json(empresa);
   } catch (error) {
     console.error("❌ Error al crear empresa:", error);
     res.status(500).json({ error: "Error al crear empresa", detalle: error.message });
@@ -90,6 +87,7 @@ app.put("/empresas/:id", async (req, res) => {
   }
 });
 
+// Crear un nuevo rol
 app.post("/roles", async (req, res) => {
   try {
     const { area, jerarquia, position, employees, subcargos, empresaId } = req.body;
@@ -106,12 +104,12 @@ app.post("/roles", async (req, res) => {
   }
 });
 
-// Ruta para obtener todos los roles de una empresa por empresaId
+// Obtener todos los roles de una empresa por empresaId
 app.get("/roles/empresa/:empresaId", async (req, res) => {
   const { empresaId } = req.params;
   try {
     const roles = await Rol.findAll({
-      where: { empresaId }
+      where: { empresaId },
     });
     res.status(200).json(roles);
   } catch (error) {
@@ -119,7 +117,6 @@ app.get("/roles/empresa/:empresaId", async (req, res) => {
     res.status(500).json({ error: "Error al obtener roles" });
   }
 });
-
 
 // Eliminar un rol completo por ID
 app.delete("/roles/:id", async (req, res) => {
@@ -139,7 +136,7 @@ app.delete("/roles/:id", async (req, res) => {
   }
 });
 
-// Ruta para eliminar rol por ID
+// Eliminar un subcargo de un rol
 app.delete("/roles/:rolId/subcargos/:subcargoName", async (req, res) => {
   const { rolId, subcargoName } = req.params;
   console.log("🧹 Eliminando subcargo:", subcargoName, "del rol", rolId);
@@ -149,7 +146,7 @@ app.delete("/roles/:rolId/subcargos/:subcargoName", async (req, res) => {
     if (!rol) return res.status(404).json({ error: "Rol no encontrado" });
 
     const subcargos = rol.subcargos || [];
-    const nuevosSubcargos = subcargos.filter(sub => sub.name !== subcargoName);
+    const nuevosSubcargos = subcargos.filter((sub) => sub.name !== subcargoName);
 
     if (nuevosSubcargos.length === subcargos.length) {
       return res.status(404).json({ error: "Subcargo no encontrado" });
@@ -165,7 +162,34 @@ app.delete("/roles/:rolId/subcargos/:subcargoName", async (req, res) => {
   }
 });
 
+// Eliminar un área específica de una empresa
+app.delete("/areas/:empresaId/:areaName", async (req, res) => {
+  const { empresaId, areaName } = req.params;
 
+  try {
+    console.log(`🧹 Eliminando área "${areaName}" de la empresa con ID ${empresaId}`);
+
+    const empresa = await Empresa.findByPk(empresaId);
+    if (!empresa) {
+      return res.status(404).json({ error: "Empresa no encontrada" });
+    }
+
+    const areas = empresa.areas_nombres || [];
+    if (!areas.includes(areaName)) {
+      return res.status(404).json({ error: "Área no encontrada en la empresa" });
+    }
+
+    const updatedAreas = areas.filter((area) => area !== areaName);
+    empresa.areas_nombres = updatedAreas;
+
+    await empresa.save();
+
+    res.status(200).json({ message: "Área eliminada correctamente", areas_nombres: updatedAreas });
+  } catch (error) {
+    console.error("❌ Error al eliminar el área:", error);
+    res.status(500).json({ error: "Error al eliminar el área" });
+  }
+});
 
 // Iniciar servidor
 app.listen(3000, () => {
