@@ -8,7 +8,6 @@ import { useEmpresaData } from './useEmpresaData'
 import { Tooltip } from '../index'
 import ProgressBar from './ProgressBar'
 import { handleAddArea } from './addArea'
-import { generarExcelDesdeTabla } from './exportExcel';
 
 
 export function Table() {
@@ -255,11 +254,6 @@ export function Table() {
           <button onClick={() => handleAddArea(tableData, setTableData, empresaId)}>+ Añadir área</button>
         </table>
       </div>
-      <button onClick={() => generarExcelDesdeTabla(tableData)}>
-        Descargar Excel
-      </button>
-
-
       {modal && (
         <EditRoleModal
           selectedArea={selectedArea}
