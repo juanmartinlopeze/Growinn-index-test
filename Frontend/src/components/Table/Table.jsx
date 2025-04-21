@@ -6,6 +6,7 @@ import './Table.css'
 import { deleteRole, fetchAllRoles, saveRole, updateEmpresaAreas, deleteArea, } from './api'
 import { useEmpresaData } from './useEmpresaData'
 import { Tooltip } from '../index'
+import ProgressBar from './ProgressBar'
 
 export function Table() {
   const [modal, setModal] = useState(false)
@@ -17,6 +18,7 @@ export function Table() {
   const [areaName, setAreaName] = useState('')
   const [areaIndex, setAreaIndex] = useState(null)
   const [subcargos, setSubcargos] = useState([])
+  // const [hierarchyEmployees, setHierarchyEmployees] = useState({})
 
   const { empresaId, tableData, setTableData, totalEmpleados, empleadosAsignados, setEmpleadosAsignados } = useEmpresaData()
 
@@ -220,6 +222,7 @@ export function Table() {
                   const role = area.roles.find((r) => r.hierarchy === j)
                   return acc + (role?.employees || 0)
                 }, 0)
+                // setHierarchyEmployees(empleadosActuales)
 
                 const tooltipText = `Jerarquía ${j}:\n${empleadosActuales} empleados asignados.`
 
@@ -236,6 +239,9 @@ export function Table() {
                   </th>
                 )
               })}
+              <tr className="progress-row">
+              <td className="area-column">Resumen</td>
+            </tr>
             </tr>
           </thead>
           <tbody>
@@ -254,7 +260,13 @@ export function Table() {
                 ))}
               </tr>
             ))}
+            
           </tbody>
+          <tfoot>
+            <td>
+                  <ProgressBar empleadosAsignados={'1'} empleadosPlaneados={'2'} />
+                </td>
+            </tfoot>
         </table>
       </div>
 
