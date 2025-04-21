@@ -42,7 +42,6 @@ export function useEmpresaData() {
 					if (!rolesRes.ok) throw new Error('Error cargando roles')
 					const roles = await rolesRes.json()
 
-					// ✅ Nueva lógica basada en subcargos
 					let totalAsignados = 0
 					const jerarquiaCount = { J1: 0, J2: 0, J3: 0, J4: 0 }
 

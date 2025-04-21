@@ -44,9 +44,22 @@ export async function deleteRole(roleId) {
 }
 
 export async function deleteSubcargo(roleId, subcargoName) {
-	const res = await fetch(`${BASE_URL}/roles/${roleId}/subcargos/${encodeURIComponent(subcargoName)}`, { method: 'DELETE' })
-	const data = await res.json()
-	if (!res.ok) throw new Error(data.error || 'Error al eliminar subcargo')
+    try {
+        const res = await fetch(`${BASE_URL}/roles/${roleId}/subcargos/${encodeURIComponent(subcargoName)}`, {
+            method: 'DELETE',
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+            throw new Error(data.error || 'Error al eliminar subcargo');
+        }
+
+        return data; // Devuelve la respuesta del servidor
+    } catch (error) {
+        console.error('❌ Error al eliminar subcargo:', error);
+        throw error; // Lanza el error para manejarlo en el frontend
+    }
 }
 
 export async function deleteArea(empresaId, areaName) {
