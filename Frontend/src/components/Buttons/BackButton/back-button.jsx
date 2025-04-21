@@ -1,16 +1,16 @@
 import "./back-button.css";
-import arrowLeft from "../../../public/arrow-left.png";
+import arrowLeft from "../../../../public/arrow-left.png";
 import { useNavigate } from "react-router-dom";
 
 export function BackButton({ to, onClick, className }) {
   const navigate = useNavigate();
 
   const handleClick = () => {
-    if (onClick) onClick(); 
+    if (onClick) onClick();
     if (to) {
-      navigate(to); 
+      navigate(to);
     } else {
-      navigate(-1); 
+      navigate(-1);
     }
   };
 
