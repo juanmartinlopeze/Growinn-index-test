@@ -18,23 +18,31 @@ export function Table() {
   const [areaName, setAreaName] = useState('')
   const [areaIndex, setAreaIndex] = useState(null)
   const [subcargos, setSubcargos] = useState([])
-  // const [hierarchyEmployees, setHierarchyEmployees] = useState({})
 
-  const { empresaId, tableData, setTableData, totalEmpleados, empleadosAsignados, setEmpleadosAsignados } = useEmpresaData()
+  const {
+    empresaId,
+    tableData,
+    setTableData,
+    totalEmpleados,
+    empleadosAsignados,
+    setEmpleadosAsignados,
+    empleadosPorJerarquia,
+    jerarquiasPlaneadas,
+  } = useEmpresaData()
 
   const jerarquiaIcons = {
     J1: "/src/assets/icons/IconJ1.png",
     J2: "/src/assets/icons/IconJ2.png",
     J3: "/src/assets/icons/IconJ3.png",
     J4: "/src/assets/icons/IconJ4.png",
-  };
+  }
 
   const nivelesJerarquia = {
     J1: "La Jerarquia 1 (Ejecución): realiza tareas operativas esenciales.",
     J2: "La Jerarquia 2 (Supervisión): asegura que las tareas se cumplan según procedimientos y estándares.",
     J3: "La Jerarquia 3 (Gerencial): implementa estrategias y toma decisiones a mediano plazo.",
     J4: "La Jerarquia 4 (Directivo): define la estrategia general, establece objetivos y asigna recursos.",
-  };
+  }
 
   const edit_svg = (
     <svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='#000000' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'>
@@ -135,7 +143,6 @@ export function Table() {
       const role = area?.roles.find((r) => r.hierarchy === selectedHierarchy)
 
       if (role && role.position) {
-        // 🔍 Buscar el ID real del rol
         const allRoles = await fetchAllRoles(empresaId)
         const rolDB = allRoles.find((r) => r.area === selectedArea && r.jerarquia === selectedHierarchy && r.position === role.position)
 
@@ -144,10 +151,8 @@ export function Table() {
           return
         }
 
-        // 🧹 Eliminar desde el backend
         await deleteRole(rolDB.id)
 
-        // ✅ Actualizar estado en frontend
         setTableData((prevData) =>
           prevData.map((area) => {
             if (area.name === selectedArea) {
@@ -179,36 +184,25 @@ export function Table() {
     }
   }
 
-
   const handleDeleteArea = async () => {
-    const confirm = window.confirm(`¿Eliminar el área "${areaName}" y todos sus cargos?`);
-    if (!confirm) return;
+    const confirm = window.confirm(`¿Eliminar el área "${areaName}" y todos sus cargos?`)
+    if (!confirm) return
 
     try {
-      console.log(`Eliminando área: ${areaName} de la empresa con ID ${empresaId}`); // Depuración
-      await deleteArea(empresaId, areaName);
-
-      // Actualizar el estado en el frontend
-      const updatedData = tableData.filter((_, i) => i !== areaIndex);
-      setTableData(updatedData);
-      setAreaModal(false);
-
-      alert('✅ Área eliminada correctamente');
+      await deleteArea(empresaId, areaName)
+      const updatedData = tableData.filter((_, i) => i !== areaIndex)
+      setTableData(updatedData)
+      setAreaModal(false)
+      alert('✅ Área eliminada correctamente')
     } catch (error) {
-      console.error('❌ Error al eliminar el área:', error);
-      alert('❌ Error al eliminar el área.');
+      console.error('❌ Error al eliminar el área:', error)
+      alert('❌ Error al eliminar el área.')
     }
-  };
+  }
+
   return (
     <>
-      <div
-        style={{
-          margin: '16px',
-          fontWeight: 'bold',
-          fontSize: '16px',
-          color: empleadosAsignados >= totalEmpleados ? 'green' : 'red',
-        }}
-      >
+      <div style={{ margin: '16px', fontWeight: 'bold', fontSize: '16px', color: empleadosAsignados >= totalEmpleados ? 'green' : 'red' }}>
         Empleados asignados: {empleadosAsignados} / {totalEmpleados}
       </div>
 
@@ -217,31 +211,15 @@ export function Table() {
           <thead>
             <tr>
               <th id='blank'></th>
-              {['J1', 'J2', 'J3', 'J4'].map((j) => {
-                const empleadosActuales = tableData.reduce((acc, area) => {
-                  const role = area.roles.find((r) => r.hierarchy === j)
-                  return acc + (role?.employees || 0)
-                }, 0)
-                // setHierarchyEmployees(empleadosActuales)
-
-                const tooltipText = `Jerarquía ${j}:\n${empleadosActuales} empleados asignados.`
-
-                return (
-                  <th key={j} className='jerarquia'>
-                    <div>
-                      {j}
-                      <Tooltip
-                        triggerText={<img src={jerarquiaIcons[j]} alt={`Icono ${j}`} width={40} />}
-                        popupText={nivelesJerarquia[j]}
-                      />
-                    </div>
-                    <div style={{ fontSize: '12px', color: 'gray' }}>({empleadosActuales})</div>
-                  </th>
-                )
-              })}
-              <tr className="progress-row">
-              <td className="area-column">Resumen</td>
-            </tr>
+              {['J1', 'J2', 'J3', 'J4'].map((j) => (
+                <th key={j} className='jerarquia'>
+                  <div>
+                    {j}
+                    <Tooltip triggerText={<img src={jerarquiaIcons[j]} alt={`Icono ${j}`} width={40} />} popupText={nivelesJerarquia[j]} />
+                  </div>
+                  <div style={{ fontSize: '12px', color: 'gray' }}>({empleadosPorJerarquia[j]} / {jerarquiasPlaneadas[j]})</div>
+                </th>
+              ))}
             </tr>
           </thead>
           <tbody>
@@ -260,17 +238,20 @@ export function Table() {
                 ))}
               </tr>
             ))}
-            
           </tbody>
           <tfoot>
-            <td>
-                  <ProgressBar empleadosAsignados={'1'} empleadosPlaneados={'2'} />
+            <tr>
+              <td className="area-column">Resumen</td>
+              {['J1', 'J2', 'J3', 'J4'].map(j => (
+                <td key={j}>
+                  <ProgressBar empleadosAsignados={empleadosPorJerarquia[j]} empleadosPlaneados={jerarquiasPlaneadas[j]} />
                 </td>
-            </tfoot>
+              ))}
+            </tr>
+          </tfoot>
         </table>
       </div>
 
-      {/* Modal de cargo */}
       {modal && (
         <EditRoleModal
           selectedArea={selectedArea}
@@ -288,8 +269,15 @@ export function Table() {
         />
       )}
 
-      {/* Modal de nombre del área */}
-      {areaModal && <EditAreaForm areaName={areaName} onChange={setAreaName} onSave={handleSaveAreaName} onCancel={() => setAreaModal(false)} onDelete={handleDeleteArea} />}
+      {areaModal && (
+        <EditAreaForm
+          areaName={areaName}
+          onChange={setAreaName}
+          onSave={handleSaveAreaName}
+          onCancel={() => setAreaModal(false)}
+          onDelete={handleDeleteArea}
+        />
+      )}
     </>
   )
 }

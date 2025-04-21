@@ -1,5 +1,5 @@
 import React from "react";
-import './Tooltip.css';
+import './ToolTip.css';
 
 export const Tooltip = ({ triggerText, popupText }) => {
     return (

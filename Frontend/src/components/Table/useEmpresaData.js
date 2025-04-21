@@ -5,6 +5,18 @@ export function useEmpresaData() {
 	const [tableData, setTableData] = useState([])
 	const [totalEmpleados, setTotalEmpleados] = useState(0)
 	const [empleadosAsignados, setEmpleadosAsignados] = useState(0)
+	const [empleadosPorJerarquia, setEmpleadosPorJerarquia] = useState({
+		J1: 0,
+		J2: 0,
+		J3: 0,
+		J4: 0
+	})
+	const [jerarquiasPlaneadas, setJerarquiasPlaneadas] = useState({
+		J1: 0,
+		J2: 0,
+		J3: 0,
+		J4: 0
+	})
 
 	useEffect(() => {
 		const fetchData = async () => {
@@ -18,13 +30,33 @@ export function useEmpresaData() {
 					setEmpresaId(empresaId)
 					setTotalEmpleados(latest.empleados)
 
+					setJerarquiasPlaneadas({
+						J1: latest.jerarquia1 || 0,
+						J2: latest.jerarquia2 || 0,
+						J3: latest.jerarquia3 || 0,
+						J4: latest.jerarquia4 || 0,
+					})
+
 					const areaNames = latest.areas_nombres || []
 					const rolesRes = await fetch(`http://localhost:3000/roles/empresa/${empresaId}`)
 					if (!rolesRes.ok) throw new Error('Error cargando roles')
 					const roles = await rolesRes.json()
 
-					const empleadosContados = roles.reduce((total, rol) => total + (rol.employees || 0), 0)
-					setEmpleadosAsignados(empleadosContados)
+					// ✅ Nueva lógica basada en subcargos
+					let totalAsignados = 0
+					const jerarquiaCount = { J1: 0, J2: 0, J3: 0, J4: 0 }
+
+					roles.forEach((rol) => {
+						const sumaSubcargos = rol.subcargos?.reduce((acc, s) => acc + (s.employees || 0), 0) || 0
+						totalAsignados += sumaSubcargos
+
+						if (rol.jerarquia && jerarquiaCount[rol.jerarquia] !== undefined) {
+							jerarquiaCount[rol.jerarquia] += sumaSubcargos
+						}
+					})
+
+					setEmpleadosAsignados(totalAsignados)
+					setEmpleadosPorJerarquia(jerarquiaCount)
 
 					const generatedAreas = Array.from({ length: latest.areas }, (_, i) => {
 						const name = areaNames[i] || `Área ${i + 1}`
@@ -70,5 +102,7 @@ export function useEmpresaData() {
 		totalEmpleados,
 		empleadosAsignados,
 		setEmpleadosAsignados,
+		empleadosPorJerarquia,
+		jerarquiasPlaneadas,
 	}
 }
