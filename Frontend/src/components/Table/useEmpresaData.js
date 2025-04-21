@@ -58,7 +58,7 @@ export function useEmpresaData() {
 					setEmpleadosAsignados(totalAsignados)
 					setEmpleadosPorJerarquia(jerarquiaCount)
 
-					const generatedAreas = Array.from({ length: latest.areas }, (_, i) => {
+					const generatedAreas = Array.from({ length: areaNames.length }, (_, i) => {
 						const name = areaNames[i] || `Área ${i + 1}`
 						const rolesForArea = roles.filter((r) => r.area === name)
 

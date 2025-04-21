@@ -7,6 +7,7 @@ import { deleteRole, fetchAllRoles, saveRole, updateEmpresaAreas, deleteArea, } 
 import { useEmpresaData } from './useEmpresaData'
 import { Tooltip } from '../index'
 import ProgressBar from './ProgressBar'
+import { handleAddArea } from './addArea'
 
 export function Table() {
   const [modal, setModal] = useState(false)
@@ -249,6 +250,7 @@ export function Table() {
               ))}
             </tr>
           </tfoot>
+          <button onClick={() => handleAddArea(tableData, setTableData, empresaId)}>+ Añadir área</button>
         </table>
       </div>
 
