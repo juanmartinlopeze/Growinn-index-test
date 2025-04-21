@@ -1,0 +1,23 @@
+.download-page-section{
+    width: 100vh;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: start;
+    gap: 20px;
+}
+.description-content{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: start;
+    gap: 24px;
+    margin-bottom: 24px;
+}
+
+.video-content{
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}

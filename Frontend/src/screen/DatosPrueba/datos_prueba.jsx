@@ -38,7 +38,7 @@ export function DatosPrueba() {
 
       <section className="navigation-buttons">
         <BackButton to="/" />
-        <NextButton text='Siguiente' to="/otra-pagina" className="next-button" />
+        <NextButton text='Siguiente' to="/download_page" className="next-button" />
       </section>
     </section>
   );

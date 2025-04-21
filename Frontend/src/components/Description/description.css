@@ -10,6 +10,16 @@
     text-align: left; 
   }
   
+  .description.p {
+    color: var(--neutral-dark-gray, #000000);
+    font-family: ABeeZee;
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 130%;
+    width: 1125px;
+    text-align: left; 
+  }
 
 .description.forms2 {
     /* Estilos para la nueva variante */
