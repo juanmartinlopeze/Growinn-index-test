@@ -21,6 +21,7 @@ table {
 .area-name {
 	display: flex;
 	justify-content: space-between;
+	width: 100px;
 }
 
 .jerarquia {
