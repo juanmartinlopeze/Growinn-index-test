@@ -29,11 +29,6 @@ export function DatosPrueba() {
   return (
     <section className="container">
       <TitleSection title="Tabla de Jerarquías y cargos" />
-
-      <div className="employees-bar">
-        <p>Total de empleados: {empleados}</p>
-      </div>
-
       <Table />
 
       <section className="navigation-buttons">

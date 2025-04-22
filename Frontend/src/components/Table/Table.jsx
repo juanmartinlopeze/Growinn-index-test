@@ -204,10 +204,6 @@ export function Table() {
 
   return (
     <>
-      <div style={{ margin: '16px', fontWeight: 'bold', fontSize: '16px', color: empleadosAsignados >= totalEmpleados ? 'green' : 'red' }}>
-        Empleados asignados: {empleadosAsignados} / {totalEmpleados}
-      </div>
-
       <div className='table-container'>
         <table>
           <thead>
