@@ -21,7 +21,6 @@
     left: 0;
     top: 0;
     transition: width 0.3s ease;
-    z-index: 1;
   }
   
   .progress-bar-text {
@@ -30,7 +29,6 @@
     align-items: center;
     justify-content: center;
     position: relative;
-    z-index: 2;
     font-size: 1.25rem;
     color: #2f3e51;
     display: flex;
