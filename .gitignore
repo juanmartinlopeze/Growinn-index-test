@@ -16,7 +16,7 @@ dist-ssr
 Backend/node_modules/
 Frontend/node_modules/
 
-Frontend/.env
+Backend/.env
 
 Ignorar node_modules y .env en Backend y Frontend
 Backend/node_modules/
