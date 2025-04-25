@@ -2,7 +2,9 @@ import React from 'react';
 import './ProgressBar.css';
 
 const ProgressBar = ({ empleadosAsignados, empleadosPlaneados }) => {
-  const porcentaje = empleadosPlaneados === 0 ? 0 : (empleadosAsignados / empleadosPlaneados) * 100;
+  const porcentaje = empleadosPlaneados > 0
+    ? Math.min((empleadosAsignados / empleadosPlaneados) * 100, 100)
+    : 0;
 
   return (
     <div className="progress-bar-container">
@@ -11,7 +13,7 @@ const ProgressBar = ({ empleadosAsignados, empleadosPlaneados }) => {
         style={{ width: `${porcentaje}%` }}
       ></div>
       <div className="progress-bar-text">
-        <img src="../../../public/icon-people.png" alt="" />
+        <img src="/icon-people.png" alt="Icono personas" />
         {empleadosAsignados} / {empleadosPlaneados}
       </div>
     </div>

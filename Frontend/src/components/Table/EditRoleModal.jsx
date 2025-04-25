@@ -1,109 +1,111 @@
-import React from 'react'
-import { deleteSubcargo, fetchAllRoles } from './api'
+import React from 'react';
 
 export default function EditRoleModal({
-	selectedArea,
-	selectedHierarchy,
-	position,
-	employees,
-	subcargos,
-	onPositionChange,
-	onEmployeesChange,
-	onSubcargosChange,
-	onClose,
-	onSave,
-	onDelete,
-	empresaId,
+  position,
+  employees,
+  subcargos,
+  onPositionChange,
+  onEmployeesChange,
+  onSubcargosChange,
+  onClose,
+  onSave,
+  onDeleteSubcargo
 }) {
-	const handleSubcargoDelete = async (index, name) => {
-		const confirmDelete = window.confirm(`¿Eliminar el subcargo "${name}"?`)
-		if (!confirmDelete) return
+  const handleSubcargoDelete = async (index, subcargo) => {
+    const confirmDelete = window.confirm(`¿Eliminar el subcargo "${subcargo.nombre}"?`);
+    if (!confirmDelete) return;
 
-		try {
-			const allRoles = await fetchAllRoles(empresaId)
-			const role = allRoles.find((r) => r.area === selectedArea && r.jerarquia === selectedHierarchy && r.position === position)
-			const roleId = role?.id
+    try {
+      await onDeleteSubcargo(subcargo.id); // se espera que le pases la función desde el padre
+      const updated = [...subcargos];
+      updated.splice(index, 1);
+      onSubcargosChange(updated);
+      alert('✅ Subcargo eliminado correctamente');
+    } catch (err) {
+      console.error('❌ Error eliminando subcargo:', err);
+      alert('❌ Error al eliminar subcargo');
+    }
+  };
 
-			if (!roleId) {
-				alert('⚠️ No se pudo encontrar el rol en la base de datos.')
-				return
-			}
+  return (
+    <div className='modal-container'>
+      <div className='overlay'>
+        <div className='modal-content'>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              onSave();
+            }}
+          >
+            <h3>Editar Cargo</h3>
 
-			await deleteSubcargo(roleId, name)
+            <label>Cargo</label>
+            <input
+              value={position}
+              onChange={(e) => onPositionChange(e.target.value)}
+              placeholder='Nombre del cargo'
+            />
 
-			const updated = [...subcargos]
-			updated.splice(index, 1)
-			onSubcargosChange(updated)
+            <label>Empleados</label>
+            <input
+              type='number'
+              value={employees}
+              onChange={(e) => onEmployeesChange(e.target.value)}
+              placeholder='Cantidad de empleados'
+            />
 
-			alert('✅ Subcargo eliminado correctamente')
-		} catch (err) {
-			console.error('❌ Error eliminando subcargo:', err)
-			alert('❌ Error al eliminar subcargo')
-		}
-	}
+            <div className='subcargos-section'>
+              <label>Subcargos:</label>
+              {subcargos.map((sub, index) => (
+                <div key={sub.id || index} className='subcargo-item' style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <input
+                    value={sub.nombre || ''}
+                    onChange={(e) => {
+                      const updated = [...subcargos];
+                      updated[index].nombre = e.target.value;
+                      onSubcargosChange(updated);
+                    }}
+                    placeholder={`Subcargo ${index + 1}`}
+                  />
+                  <input
+                    type='number'
+                    value={sub.personas || ''}
+                    onChange={(e) => {
+                      const updated = [...subcargos];
+                      updated[index].personas = parseInt(e.target.value);
+                      onSubcargosChange(updated);
+                    }}
+                    style={{ width: '80px' }}
+                    placeholder='Personas'
+                  />
+                  {sub.id && (
+                    <button type='button' onClick={() => handleSubcargoDelete(index, sub)}>
+                      ✕
+                    </button>
+                  )}
+                </div>
+              ))}
 
-	return (
-		<div className='modal-container'>
-			<div className='overlay'>
-				<div className='modal-content'>
-					<form onSubmit={onSave}>
-						<h3>
-							Agregar Cargo en {selectedArea} - {selectedHierarchy}
-						</h3>
-						<label htmlFor='position'>Cargo</label>
-						<input value={position} onChange={(e) => onPositionChange(e.target.value)} placeholder='Nombre del cargo' id='position' />
+              <button
+                type='button'
+                className='add-subcargo-button'
+                onClick={() => onSubcargosChange([...subcargos, { nombre: '', personas: 0 }])}
+              >
+                Añadir Subcargo
+              </button>
+            </div>
 
-						<label htmlFor='employees'>Empleados</label>
-						<input value={employees} onChange={(e) => onEmployeesChange(e.target.value)} type='number' placeholder='Cantidad de empleados' id='employees' />
-
-						<div className='subcargos-section'>
-							<label>Subcargos:</label>
-							{subcargos.map((sub, index) => (
-								<div key={index} className='subcargo-item' style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-									<input
-										value={sub.name || ''}
-										onChange={(e) => {
-											const updated = [...subcargos]
-											updated[index].name = e.target.value
-											onSubcargosChange(updated)
-										}}
-										placeholder={`Subcargo ${index + 1}`}
-									/>
-									<input
-										type='number'
-										value={sub.employees || ''}
-										onChange={(e) => {
-											const updated = [...subcargos]
-											updated[index].employees = parseInt(e.target.value)
-											onSubcargosChange(updated)
-										}}
-										style={{ width: '80px' }}
-										placeholder='Empleados'
-									/>
-									<button type='button' onClick={() => handleSubcargoDelete(index, sub.name)}>
-										✕
-									</button>
-								</div>
-							))}
-							<button type='button' className='add-subcargo-button' onClick={() => onSubcargosChange([...subcargos, { name: '', employees: '' }])}>
-								Añadir Subcargo
-							</button>
-						</div>
-
-						<div className='modal-buttons'>
-							<button type='submit' className='submit-button'>
-								Guardar
-							</button>
-							<button type='button' onClick={onDelete} className='delete-button'>
-								Eliminar
-							</button>
-							<button type='button' onClick={onClose} className='cancel-button'>
-								Cancelar
-							</button>
-						</div>
-					</form>
-				</div>
-			</div>
-		</div>
-	)
+            <div className='modal-buttons'>
+              <button type='submit' className='submit-button'>
+                Guardar
+              </button>
+              <button type='button' onClick={onClose} className='cancel-button'>
+                Cancelar
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
 }

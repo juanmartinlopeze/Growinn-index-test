@@ -1,14 +1,19 @@
-import './DownloadPage.css'
-import { BackButton, NextButton, DownloadButton, TitleSection, Description } from '../../components/index'
-import { generarExcelDesdeTabla } from "../../components/Table/exportExcel"
-import { useEmpresaData } from '../../components/Table/useEmpresaData'
+import './DownloadPage.css';
+import { BackButton, NextButton, DownloadButton, TitleSection, Description } from '../../components/index';
+import { generarExcelDesdeBD } from '../../components/Table/exportExcel'; // <-- Asegúrate que sea la ruta correcta
+import { useEmpresaData } from '../../components/Table/useEmpresaData';
 
 export function DownloadPage() {
-  const { tableData } = useEmpresaData()
+  const { tableData } = useEmpresaData();
 
   const handleDownload = () => {
-    generarExcelDesdeTabla(tableData)
-  }
+    generarExcelDesdeBD({
+      areas: tableData.areas || [],
+      cargos: tableData.cargos || [],
+      subcargos: tableData.subcargos || [],
+      usuarios: tableData.usuarios || []
+    });
+  };
 
   return (
     <section className='download-page-section'>
