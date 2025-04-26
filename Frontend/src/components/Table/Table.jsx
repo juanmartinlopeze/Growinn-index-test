@@ -5,8 +5,7 @@ import RoleCell from './RoleCell'
 import './Table.css'
 import { deleteRole, fetchAllRoles, saveRole, updateEmpresaAreas, deleteArea, } from './api'
 import { useEmpresaData } from './useEmpresaData'
-import { Tooltip } from '../index'
-import ProgressBar from './ProgressBar'
+import { Tooltip, ProgressBar } from '../index'
 import { handleAddArea } from './addArea'
 
 
@@ -202,6 +201,35 @@ export function Table() {
     }
   }
 
+  let feedbackMessage;
+
+  if (empleadosAsignados === 0) {
+    feedbackMessage = (
+      <p className="feedbackNeutral">
+        ℹ️ Aún no has asignado empleados a ninguna área. <br></br>Por favor, comienza a llenar la tabla para continuar con el proceso de distribución.
+      </p>
+    );
+  } else if (empleadosAsignados === totalEmpleados) {
+    feedbackMessage = (
+      <p className="feedbackSuccess">
+        ✅ Has completado correctamente. Todos los empleados han sido asignados.
+      </p>
+    );
+  } else if (empleadosAsignados < totalEmpleados && empleadosAsignados >= 1) {
+    feedbackMessage = (
+      <p className="feedbackWarning">
+        ⚠️ Faltan empleados por asignar. Revisa si aún quedan áreas sin completar.
+      </p>
+    );
+  } else if (empleadosAsignados > totalEmpleados) {
+    feedbackMessage = (
+      <p className="feedbackError">
+        ❌ Se han ingresado más empleados de los indicados inicialmente. Revisa si hubo un error en la asignación.
+      </p>
+    );
+  }
+
+
   return (
     <>
       <div className='table-container'>
@@ -246,6 +274,13 @@ export function Table() {
                 </td>
               ))}
             </tr>
+            {totalEmpleados !== 0 && (
+              <tr>
+                <td className='feedContainer' colSpan={5}>
+                  {feedbackMessage}
+                </td>
+              </tr>
+            )}
           </tfoot>
           <button onClick={() => handleAddArea(tableData, setTableData, empresaId)}>+ Añadir área</button>
         </table>
