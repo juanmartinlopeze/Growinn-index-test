@@ -18,4 +18,4 @@ const ProgressBar = ({ empleadosAsignados, empleadosPlaneados }) => {
   );
 };
 
-export default ProgressBar;
+export default ProgressBar
