@@ -1,5 +1,5 @@
 import './UploadPage.css';
-import { BackButton, NextButton, DownloadButton, TitleSection, Description } from '../../components/index';
+import { TitleSection, Description, Button } from '../../components/index';
 
 export function UploadPage() {
     return (
@@ -19,8 +19,8 @@ export function UploadPage() {
             </div>
 
             <section className='navigation-buttons'>
-                <BackButton to="/download_page" />
-                <NextButton text='Siguiente' to="/upload_page" className="next-button" />
+                <Button variant='back' to="/download_page" />
+                <Button variant='next' text='Siguiente' to="/upload_page" />
             </section>
         </section>
     )

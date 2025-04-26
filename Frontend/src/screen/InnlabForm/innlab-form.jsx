@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Tooltip, NextButton, BackButton, TitleSection, Form, Subtitle, Description } from '../../components/index';
+import { Tooltip, TitleSection, Form, Subtitle, Description, Button } from '../../components/index';
 import { useNavigate } from "react-router-dom"; // Importar useNavigate
 import "./innlab-form.css";
 
@@ -124,8 +124,8 @@ export function InnlabForm() {
       </div>
 
       <div className="buttons-container">
-        <BackButton />
-        <NextButton text="Siguiente" onClick={handleSubmit} />
+        <Button variant="back" />
+        <Button variant="next" text="Siguiente" onClick={handleSubmit} />
       </div>
     </section>
   );

@@ -45,23 +45,33 @@
 .back .button-icon img {
     width: 26px;
     height: 26px;
+    background-color: transparent;
+}
+
+.back:hover {
+    background-color: rgba(0, 0, 0, 0.1);
 }
 
 .download {
     width: 185px;
     height: 62px;
     background-color: #F56F10;
-    color: #FFFFFF;
+    color: #ffffff;
     font-weight: 500;
+    border-radius: 50px;
+}
+
+.download span {
+    color: #ffffff;
 }
 
 .download:hover {
-    background-color: #ff7b00;
+    background-color: #ff8616;
 }
 
 .next {
+    border-radius: 50px;
     background-color: transparent;
-    color: var(--neutral-black, #090011);
 }
 
 .next:hover {

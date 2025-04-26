@@ -1,14 +1,15 @@
 import { useNavigate } from 'react-router-dom';
+import arrowLeft from "../../../public/arrow-left.png";
+import nextIcon from "../../../public/next-icon.png";
 import './Button.css';
 
 export const Button = ({
     variant = "default",  // Variantes: back | next | download
     text,
-    to,
+    to,                   //Invoca la función navigate
     onClick,
     className = "",
     icon,
-    iconPosition = "left",  // Para el manejo del posicionamiento del icono
     ...props
 }) => {
     const navigate = useNavigate();
@@ -16,18 +17,21 @@ export const Button = ({
     const joinClasses = (...classes) => classes.filter(Boolean).join(" ");
 
     const handleClick = () => {
-        if (onClick) onClick();
-        if (to) {
+        if (onClick) {
+            onClick();
+        } else if (to) {
             navigate(to);
+        } else if (variant === "back") {
+            navigate(-1);
         }
     };
 
     const renderContent = () => {
         if (variant === "back") {
             return (
-                <div className="button-content">
+                <div className="button-content" >
                     <span className="button-icon">
-                        <img src={icon || "/arrow-left.png"} alt="Back Icon" />
+                        <img src={icon || arrowLeft} alt="Back Icon" />
                     </span>
                 </div>
             );
@@ -38,7 +42,7 @@ export const Button = ({
                 <div className="button-content">
                     <span className="button-text">{text}</span>
                     <span className="button-icon">
-                        <img src={icon || "/next-icon.png"} alt="Next Icon" />
+                        <img src={icon || nextIcon} alt="Next Icon" />
                     </span>
                 </div>
             );
@@ -49,7 +53,7 @@ export const Button = ({
                 <div className="button-content">
                     <span className="button-icon">
                         <img
-                            src={icon || "/arrow-left.png"}
+                            src={icon || arrowLeft}
                             alt="Download Icon"
                             style={{ transform: "rotate(-90deg)" }}
                         />
