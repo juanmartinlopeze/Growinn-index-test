@@ -13,16 +13,18 @@ export function DatosPrueba() {
           const data = await response.json(); // Datos obtenidos del backend
           if (data.length > 0) {
             const latestData = data[data.length - 1]; // Obtener el último registro (el más reciente)
-            setEmpleados(latestData.empleados);
+            setEmpleados(latestData.cantidad_empleados); // Cambiado a "cantidad_empleados"
+          } else {
+            console.warn("No se encontraron datos en la respuesta del backend.");
           }
         } else {
-          console.error("Error al obtener los datos del backend");
+          console.error(`Error al obtener los datos del backend: ${response.status} ${response.statusText}`);
         }
       } catch (error) {
         console.error("Error al conectar con el servidor:", error);
       }
     };
-
+  
     fetchData();
   }, []);
 
