@@ -5,8 +5,7 @@ import RoleCell from './RoleCell'
 import './Table.css'
 import { deleteRole, fetchAllRoles, saveRole, updateEmpresaAreas, deleteArea, } from './api'
 import { useEmpresaData } from './useEmpresaData'
-import { Tooltip } from '../index'
-import ProgressBar from './/ProgressBar'
+import { Tooltip, ProgressBar } from '../index'
 import { handleAddArea } from './addArea'
 
 

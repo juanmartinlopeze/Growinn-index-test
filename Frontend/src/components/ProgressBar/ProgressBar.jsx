@@ -1,7 +1,7 @@
 import React from 'react';
 import './ProgressBar.css';
 
-const ProgressBar = ({ empleadosAsignados, empleadosPlaneados }) => {
+export const ProgressBar = ({ empleadosAsignados, empleadosPlaneados }) => {
   const porcentaje = empleadosPlaneados === 0 ? 0 : (empleadosAsignados / empleadosPlaneados) * 100;
 
   return (
@@ -17,5 +17,3 @@ const ProgressBar = ({ empleadosAsignados, empleadosPlaneados }) => {
     </div>
   );
 };
-
-export default ProgressBar
