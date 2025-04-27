@@ -63,14 +63,43 @@ export const Button = ({
             );
         }
 
+        if (variant === "submit") {
+            return <span className="button-text">{text || "Guardar"}</span>;
+        }
+
+        if (variant === "delete") {
+            return <span className="button-text">{text || "Eliminar"}</span>;
+        }
+
+        if (variant === "cancel") {
+            return <span className="button-text">{text || "Cancelar"}</span>;
+        }
+
         // Variante por defecto
         return <span className="button-text">{text}</span>;
     };
 
+    // Definir el atributo type dependiendo de la variante: 'submit' para guardar, o 'button' por defecto.
+    const defaultType = variant === "submit" ? "submit" : "button";
+
+    // Mapear variantes a clases CSS específicas para los nuevos estilos.
+    const variantClass = (() => {
+        switch (variant) {
+            case "submit":
+                return "submit-button";
+            case "delete":
+                return "delete-button";
+            case "cancel":
+                return "cancel-button";
+            default:
+                return variant; // Usa el mismo nombre de la variante para back, next, download, etc.
+        }
+    })();
+
     return (
         <section className={joinClasses("button-section", className)}>
             <button
-                className={joinClasses("custom-button", variant)}
+                className={joinClasses("custom-button", variantClass)}
                 onClick={handleClick}
                 {...props}
             >

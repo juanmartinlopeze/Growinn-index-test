@@ -6,7 +6,6 @@
 
 .custom-button {
     border-radius: 50px;
-    border: 1px solid var(--neutral-gray, #D9D9D9);
     font-family: inherit;
     font-size: 16px;
     font-weight: 400;
