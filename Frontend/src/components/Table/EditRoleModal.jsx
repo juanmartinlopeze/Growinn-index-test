@@ -1,5 +1,6 @@
 import React from 'react'
 import { deleteSubcargo, fetchAllRoles } from './api'
+import { Button } from '../Buttons/Button'
 
 export default function EditRoleModal({
 	selectedArea,
@@ -91,15 +92,9 @@ export default function EditRoleModal({
 						</div>
 
 						<div className='modal-buttons'>
-							<button type='submit' className='submit-button'>
-								Guardar
-							</button>
-							<button type='button' onClick={onDelete} className='delete-button'>
-								Eliminar
-							</button>
-							<button type='button' onClick={onClose} className='cancel-button'>
-								Cancelar
-							</button>
+							<Button type="submit" variant='submit' className='submit-button' onClick={onSave} />
+							<Button type="button" variant='delete' className='delete-button' onClick={onDelete} />
+							<Button type="button" variant='cancel' className='cancel-button' onClick={onClose} />
 						</div>
 					</form>
 				</div>
