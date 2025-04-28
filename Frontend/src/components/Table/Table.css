@@ -94,7 +94,7 @@ td span .role-name {
 	left: 0;
 	width: 100%;
 	height: 100%;
-	background: rgba(0, 0, 0, 0.5);
+	backdrop-filter: blur(10px);
 	display: flex;
 	justify-content: center;
 	align-items: center;
@@ -104,33 +104,41 @@ td span .role-name {
 	background: white;
 	padding: 20px;
 	border-radius: 10px;
-	width: 500px;
+	width: 540px;
 	text-align: center;
 	display: flex;
+	gap: 20px;
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
+	box-shadow: 0 0 15px 5px rgba(0, 0, 0, 0.1);
+}
+
+.modal-content h3 {
+	font-size: 24px;
+	font-weight: medium;
 }
 
 .modal-content label {
 	display: block;
-	margin-top: 10px;
+	text-align: left;
 	font-weight: bold;
 }
 
 .modal-content input {
-	width: 90%;
+	width: 100%;
 	padding: 8px;
-	margin-top: 5px;
 	border: 1px solid #ccc;
 	border-radius: 5px;
 }
 
 .modal-content form {
 	display: flex;
+	width: 100%;
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
+	gap: 20px;
 }
 
 .modal-buttons {
@@ -189,6 +197,10 @@ td span .role-name {
 	background: #e8630e;
 }
 
+.subcargos-section {
+	width: 100%;
+}
+
 .add-subcargo-button {
 	background: #f56f10;
 	color: white;
@@ -197,7 +209,7 @@ td span .role-name {
 	font-weight: bold;
 	cursor: pointer;
 	border-radius: 5px;
-	margin-top: 20px
+	margin-top: 20px;
 }
 
 .add-subcargo-button:hover {
@@ -241,4 +253,95 @@ td span .role-name {
 	border: 1px solid #f5c6cb;
 	border-radius: 8px;
 	padding: 1rem;
+}
+
+.input-row,
+.subcargo-row {
+	display: flex;
+	gap: 12px;
+	width: 100%;
+}
+
+.input-group {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	flex: 1;
+}
+
+.subcargo-row {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	width: 100%;
+	margin: 6px 0 12px 0;
+}
+
+.subcargo-input-group {
+	display: flex;
+	width: 100%;
+}
+
+#subcargo-employees {
+	border: 1px solid #ccc;
+	border-right: none;
+	border-radius: 5px 0 0 5px;
+}
+
+.delete-subcargo-button {
+	border: 1px solid #ccc;
+	border-radius: 0 5px 5px 0;
+	padding: 0 8px;
+	background-color: transparent;
+	transition: 0.3s;
+}
+
+.delete-subcargo-button svg {
+	stroke: #b8b8b8;
+	transition: 0.3s;
+}
+
+.delete-subcargo-button:hover {
+	background-color: #e0283e;
+}
+
+.delete-subcargo-button:hover svg {
+	stroke: white;
+}
+
+.add-subcargo-link {
+	background: none;
+	border: none;
+	color: #f56f10;
+	font-weight: medium;
+	font-size: 16px;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	margin-top: 12px;
+}
+
+.add-subcargo-link:hover {
+	text-decoration: underline;
+}
+
+.action-buttons {
+	width: 100%;
+	display: flex;
+	justify-content: end;
+	gap: 16px;
+	margin-top: 20px;
+}
+
+.small-button {
+	font-size: 14px;
+	border-radius: 8px;
+}
+
+.divider {
+	height: 1px;
+	width: 100%;
+	background-color: #eeeeee;
+	margin: 0;
 }
