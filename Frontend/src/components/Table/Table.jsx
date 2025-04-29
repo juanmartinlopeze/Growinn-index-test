@@ -11,11 +11,14 @@ import {
   fetchAreas,
   fetchCargos,
   fetchSubcargos,
+  fetchSubcargosByCargo, // Importar nueva función
   fetchUsuarios,
   updateArea,
   deleteSubcargo,
   saveSubcargo,
   saveCargo,
+  updateCargo,
+  deleteCargo
 } from './api';
 import { handleAddArea } from './addArea';
 
@@ -68,7 +71,7 @@ export function Table() {
       ]);
 
       setAreas(areasData);
-      setCargos(cargosData.filter(c => c.empresa_id === empresaActual.id));
+      setCargos(cargosData.filter(c => c.area_id === empresaActual.id));
       setSubcargos(subcargosData);
       setUsuarios(usuariosData.filter(u => u.empresa_id === empresaActual.id));
     }
@@ -98,25 +101,98 @@ export function Table() {
     setModal(true);
   };
 
-  const handleSaveRole = async () => {
+  const handleSaveEverything = async () => {
     if (!position || !employees) {
       alert('Completa todos los campos');
       return;
     }
 
-    if (selectedCargo) {
-      // Aquí podrías actualizar un cargo existente (si haces update en tu API)
-    } else {
-      const nuevoCargo = await saveCargo({
-        nombre: position,
-        personas: parseInt(employees),
-        area_id: selectedArea.id,
-        empresa_id: empresaId
-      });
-      setCargos(prev => [...prev, nuevoCargo]);
+    try {
+      let cargoId = selectedCargo?.id;
+
+      if (!cargoId) {
+        const nuevoCargo = await saveCargo({
+          nombre: position,
+          personas: parseInt(employees),
+          area_id: selectedArea.id,
+        });
+
+        cargoId = nuevoCargo.id;
+        setCargos(prev => [...prev, nuevoCargo]);
+      } else {
+        await updateCargo(cargoId, {
+          nombre: position,
+          personas: parseInt(employees),
+        });
+
+        setCargos(prev =>
+          prev.map(c => c.id === cargoId ? { ...c, nombre: position, personas: parseInt(employees) } : c)
+        );
+      }
+
+      // Guardar subcargos nuevos
+      for (const sub of subcargoList) {
+        if (!sub.id && sub.nombre && sub.nombre.trim() !== '') {
+          await saveSubcargo({
+            nombre: sub.nombre,
+            personas: parseInt(sub.personas || 0),
+            cargo_id: cargoId, // ID correcto del cargo creado
+          });
+        }
+      }      
+      console.log('Subcargos a guardar:', subcargoList);
+
+
+      // 🚀 Recargar SOLO los subcargos de este cargo
+      const subcargosActualizados = await fetchSubcargosByCargo(cargoId);
+
+      setSubcargos(prev => [
+        ...prev.filter(sub => sub.cargo_id !== cargoId),
+        ...subcargosActualizados
+      ]);
+
+      setModal(false);
+    } catch (error) {
+      console.error('Error al guardar cargo o subcargos:', error.message);
+      alert('Error al guardar cargo o subcargos');
+    }
+  };
+
+  const handleDeleteRole = async () => {
+    if (!selectedCargo) return;
+
+    const confirmDelete = window.confirm(`¿Seguro que quieres eliminar el cargo "${selectedCargo.nombre}"?`);
+    if (!confirmDelete) return;
+
+    try {
+      await deleteCargo(selectedCargo.id);
+      setCargos(prev => prev.filter(c => c.id !== selectedCargo.id));
+      setModal(false);
+    } catch (error) {
+      console.error('Error al eliminar cargo:', error.message);
+      alert('Error al eliminar cargo');
+    }
+  };
+
+  const handleAddSubcargo = async (nombre, personas = 0) => {
+    if (!selectedCargo) {
+      alert('Primero debes seleccionar un cargo.');
+      return;
     }
 
-    setModal(false);
+    try {
+      const nuevoSubcargo = await saveSubcargo({
+        nombre,
+        personas: parseInt(personas),
+        cargo_id: selectedCargo.id,
+      });
+
+      setSubcargos(prev => [...prev, nuevoSubcargo]);
+      setSubcargoList(prev => [...prev, nuevoSubcargo]);
+    } catch (error) {
+      console.error('Error al guardar subcargo:', error.message);
+      alert('Error al guardar subcargo');
+    }
   };
 
   const handleDeleteSubcargo = async (subcargoId) => {
@@ -130,7 +206,6 @@ export function Table() {
   const handleDeleteArea = async () => {
     const confirm = window.confirm(`¿Eliminar área "${areaName}" y todo su contenido?`);
     if (!confirm) return;
-    // Aquí debes conectar la ruta de eliminación de área en el backend
     alert('🚧 Función eliminar área pendiente de conectar.');
   };
 
@@ -196,9 +271,11 @@ export function Table() {
           onPositionChange={setPosition}
           onEmployeesChange={setEmployees}
           onSubcargosChange={setSubcargoList}
-          onSave={handleSaveRole}
+          onSave={handleSaveEverything}
           onClose={() => setModal(false)}
           onDeleteSubcargo={handleDeleteSubcargo}
+          onDeleteRole={handleDeleteRole}
+          onAddSubcargo={handleAddSubcargo}
         />
       )}
 

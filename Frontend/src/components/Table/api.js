@@ -35,14 +35,37 @@ export async function fetchCargos() {
 	return res.json();
 }
 
-export async function saveCargo({ nombre, personas = 0, area_id, empresa_id }) {
+export async function saveCargo({ nombre, personas = 0, area_id }) {
 	const res = await fetch(`${BASE_URL}/cargos`, {
-		method: 'POST',
-		headers: { 'Content-Type': 'application/json' },
-		body: JSON.stringify({ nombre, personas, area_id, empresa_id }),
+	  method: 'POST',
+	  headers: { 'Content-Type': 'application/json' },
+	  body: JSON.stringify({ nombre, personas, area_id }),
 	});
+  
 	const data = await res.json();
 	if (!res.ok) throw new Error(data.error || 'Error al crear cargo');
+	return data;
+  }
+  
+  
+
+export async function deleteCargo(cargoId) {
+	const res = await fetch(`${BASE_URL}/cargos/${cargoId}`, {
+		method: 'DELETE',
+	});
+	const data = await res.json();
+	if (!res.ok) throw new Error(data.error || 'Error al eliminar cargo');
+	return data;
+}
+
+export async function updateCargo(cargoId, cargoActualizado) {
+	const res = await fetch(`${BASE_URL}/cargos/${cargoId}`, {
+		method: 'PUT',
+		headers: { 'Content-Type': 'application/json' },
+		body: JSON.stringify(cargoActualizado),
+	});
+	const data = await res.json();
+	if (!res.ok) throw new Error(data.error || 'Error actualizando cargo');
 	return data;
 }
 
@@ -54,7 +77,14 @@ export async function fetchSubcargos() {
 	return res.json();
 }
 
-export async function saveSubcargo({ nombre, personas = 0, cargo_id }) {
+export async function fetchSubcargosByCargo(cargoId) {
+	const res = await fetch(`${BASE_URL}/subcargos/cargo/${cargoId}`);
+	if (!res.ok) throw new Error('Error cargando subcargos por cargo');
+	return res.json();
+  }
+  
+
+  export async function saveSubcargo({ nombre, personas = 0, cargo_id }) {
 	const res = await fetch(`${BASE_URL}/subcargos`, {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },
@@ -64,6 +94,7 @@ export async function saveSubcargo({ nombre, personas = 0, cargo_id }) {
 	if (!res.ok) throw new Error(data.error || 'Error al crear subcargo');
 	return data;
 }
+
 
 export async function deleteSubcargo(id) {
 	const res = await fetch(`${BASE_URL}/subcargos/${id}`, {

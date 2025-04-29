@@ -1,4 +1,3 @@
-import React from 'react';
 
 export default function EditRoleModal({
   position,
@@ -9,14 +8,15 @@ export default function EditRoleModal({
   onSubcargosChange,
   onClose,
   onSave,
-  onDeleteSubcargo
+  onDeleteSubcargo,
+  onDeleteRole,
 }) {
   const handleSubcargoDelete = async (index, subcargo) => {
     const confirmDelete = window.confirm(`¿Eliminar el subcargo "${subcargo.nombre}"?`);
     if (!confirmDelete) return;
 
     try {
-      await onDeleteSubcargo(subcargo.id); // se espera que le pases la función desde el padre
+      await onDeleteSubcargo(subcargo.id); // Para subcargos ya guardados
       const updated = [...subcargos];
       updated.splice(index, 1);
       onSubcargosChange(updated);
@@ -27,6 +27,11 @@ export default function EditRoleModal({
     }
   };
 
+  const handleAddLocalSubcargo = () => {
+    const updated = [...subcargos, { nombre: '', personas: 0 }];
+    onSubcargosChange(updated);
+  };
+
   return (
     <div className='modal-container'>
       <div className='overlay'>
@@ -34,7 +39,7 @@ export default function EditRoleModal({
           <form
             onSubmit={(e) => {
               e.preventDefault();
-              onSave();
+              onSave(); // El gran guardado de cargo + subcargos
             }}
           >
             <h3>Editar Cargo</h3>
@@ -62,7 +67,7 @@ export default function EditRoleModal({
                     value={sub.nombre || ''}
                     onChange={(e) => {
                       const updated = [...subcargos];
-                      updated[index].nombre = e.target.value;
+                      updated[index] = { ...updated[index], nombre: e.target.value };
                       onSubcargosChange(updated);
                     }}
                     placeholder={`Subcargo ${index + 1}`}
@@ -72,7 +77,7 @@ export default function EditRoleModal({
                     value={sub.personas || ''}
                     onChange={(e) => {
                       const updated = [...subcargos];
-                      updated[index].personas = parseInt(e.target.value);
+                      updated[index] = { ...updated[index], personas: parseInt(e.target.value) || 0 };
                       onSubcargosChange(updated);
                     }}
                     style={{ width: '80px' }}
@@ -88,8 +93,8 @@ export default function EditRoleModal({
 
               <button
                 type='button'
-                className='add-subcargo-button'
-                onClick={() => onSubcargosChange([...subcargos, { nombre: '', personas: 0 }])}
+                onClick={handleAddLocalSubcargo}
+                style={{ marginTop: '12px' }}
               >
                 Añadir Subcargo
               </button>
@@ -101,6 +106,14 @@ export default function EditRoleModal({
               </button>
               <button type='button' onClick={onClose} className='cancel-button'>
                 Cancelar
+              </button>
+              <button
+                type='button'
+                onClick={onDeleteRole}
+                className='delete-button'
+                style={{ backgroundColor: '#e74c3c', color: 'white' }}
+              >
+                Eliminar Cargo
               </button>
             </div>
           </form>
