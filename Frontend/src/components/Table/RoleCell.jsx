@@ -1,5 +1,3 @@
-import React from 'react';
-
 export default function RoleCell({
   areaId,
   jerarquia,
@@ -7,10 +5,12 @@ export default function RoleCell({
   subcargos,
   onClick,
 }) {
-  // Filtrar los cargos de esta área y jerarquía
-  const cargosFiltrados = cargos.filter(
-    (c) => c.area_id === areaId && c.jerarquia === jerarquia
-  );
+  // Filtrar los cargos de esta área
+  const cargosFiltrados = cargos.filter((c) => c.area_id === areaId);
+  console.log('Cargos recibidos en RoleCell:', cargos);
+  console.log('areaId:', areaId, 'jerarquia:', jerarquia);
+  console.log('Subcargos recibidos en RoleCell:', subcargos);
+  console.log('Cargos filtrados en RoleCell:', cargosFiltrados);
 
   const handleClick = () => {
     const cargo = cargosFiltrados[0] || null;

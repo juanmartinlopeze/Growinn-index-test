@@ -70,8 +70,11 @@ export function Table() {
         fetchUsuarios()
       ]);
 
+      console.log('Cargos cargados desde Supabase:', cargosData);
+
       setAreas(areasData);
-      setCargos(cargosData.filter(c => c.area_id === empresaActual.id));
+      console.log('Áreas cargadas:', areasData);
+console.log('Cargos cargados después del filtro:', cargosData.filter(c => areasData.some(area => area.id === c.area_id)));
       setSubcargos(subcargosData);
       setUsuarios(usuariosData.filter(u => u.empresa_id === empresaActual.id));
     }
@@ -145,11 +148,16 @@ export function Table() {
 
       // 🚀 Recargar SOLO los subcargos de este cargo
       const subcargosActualizados = await fetchSubcargosByCargo(cargoId);
+      console.log('Subcargos actualizados desde Supabase:', subcargosActualizados);
 
       setSubcargos(prev => [
         ...prev.filter(sub => sub.cargo_id !== cargoId),
         ...subcargosActualizados
       ]);
+      console.log('Estado global de subcargos actualizado:', subcargos);
+
+      setSubcargoList(subcargosActualizados);
+      console.log('Lista local de subcargos actualizada:', subcargoList);
 
       setModal(false);
     } catch (error) {
@@ -227,28 +235,38 @@ export function Table() {
             </tr>
           </thead>
           <tbody>
-            {areas.map((area, i) => (
-              <tr key={area.id}>
-                <th className="area-row">
-                  <div className="area-name" onClick={() => openAreaModal(i, area.nombre)} style={{ cursor: 'pointer' }}>
-                    {area.nombre}
-                  </div>
-                </th>
-                {jerarquias.map(jerarquia => (
-                  <td key={jerarquia}>
-                    <RoleCell
-                      areaId={area.id}
-                      jerarquia={jerarquia}
-                      cargos={cargos.filter(c => c.area_id === area.id && c.jerarquia === jerarquia)}
-                      subcargos={subcargos}
-                      usuarios={usuarios}
-                      onClick={(cargo) => openRoleModal(area, cargo)}
-                    />
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
+  {areas.map((area, i) => (
+    <tr key={area.id}>
+      <th className="area-row">
+        <div
+          className="area-name"
+          onClick={() => openAreaModal(i, area.nombre)}
+          style={{ cursor: 'pointer' }}
+        >
+          {area.nombre}
+        </div>
+      </th>
+      {jerarquias.map(jerarquia => {
+        // Agregar console.log para depuración
+        console.log('Cargos en Table:', cargos);
+        console.log('Área:', area, 'Jerarquía:', jerarquia);
+
+        return (
+          <td key={jerarquia}>
+            <RoleCell
+              areaId={area.id}
+              jerarquia={jerarquia}
+              cargos={cargos.filter(c => c.area_id === area.id)}
+              subcargos={subcargos}
+              usuarios={usuarios}
+              onClick={(cargo) => openRoleModal(area, cargo)}
+            />
+          </td>
+        );
+      })}
+    </tr>
+  ))}
+</tbody>
           <tfoot>
             <tr>
               <td className="area-column">Resumen</td>
