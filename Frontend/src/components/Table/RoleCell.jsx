@@ -5,8 +5,11 @@ export default function RoleCell({
   subcargos,
   onClick,
 }) {
-  // Filtrar los cargos de esta área
-  const cargosFiltrados = cargos.filter((c) => c.area_id === areaId);
+  // Filtrar los cargos de esta área y jerarquía
+  const cargosFiltrados = cargos.filter(
+    (c) => c.area_id === areaId && c.jerarquia_id === jerarquia
+  );
+
   console.log('Cargos recibidos en RoleCell:', cargos);
   console.log('areaId:', areaId, 'jerarquia:', jerarquia);
   console.log('Subcargos recibidos en RoleCell:', subcargos);
@@ -22,14 +25,8 @@ export default function RoleCell({
       {cargosFiltrados.length > 0 ? (
         <div className="cargo-info">
           <strong>{cargosFiltrados[0].nombre}</strong>
-          <div className="subcargos-info">
-            {subcargos
-              .filter((sub) => sub.cargo_id === cargosFiltrados[0].id)
-              .map((sub) => (
-                <div key={sub.id} style={{ fontSize: '0.75rem' }}>
-                  {sub.nombre} ({sub.personas})
-                </div>
-              ))}
+          <div style={{ fontSize: '0.75rem' }}>
+            {cargosFiltrados[0].personas}
           </div>
         </div>
       ) : (
