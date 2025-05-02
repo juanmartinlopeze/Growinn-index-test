@@ -59,7 +59,6 @@ export function Table() {
     J4: 'La Jerarquía 4 (Directivo)',
   };
 
-
   useEffect(() => {
     async function loadData() {
       const empresas = await fetchEmpresas();
@@ -73,7 +72,6 @@ export function Table() {
         fetchUsuarios()
       ]);
 
-      console.log('Cargos cargados desde Supabase:', cargosData);
       setAreas(areasData);
       setCargos(cargosData.filter(c => areasData.some(area => area.id === c.area_id)));
       setSubcargos(subcargosData);
@@ -92,7 +90,7 @@ export function Table() {
   const openRoleModal = (area, cargo, jerarquia) => {
     setSelectedArea(area);
     setSelectedCargo(cargo);
-    setSelectedJerarquia(jerarquia); // ✅ guardar la jerarquía seleccionada
+    setSelectedJerarquia(jerarquia); // guardar la jerarquía seleccionada
     setPosition(cargo?.nombre || '');
     setEmployees(cargo?.personas || '');
     setSubcargoList(subcargos.filter(s => s.cargo_id === cargo?.id));
@@ -113,24 +111,26 @@ export function Table() {
       return;
     }
 
+    // Sumar el total de empleados de los subcargos
+    const totalSubcargos = subcargoList.reduce((total, sub) => total + (sub.personas || 0), 0);
+
+    // Validar que la suma de empleados de subcargos no supere los empleados del cargo
+    if (totalSubcargos > parseInt(employees)) {
+      alert('La suma de los empleados en los subcargos no puede superar el número de empleados del cargo.');
+      return;
+    }
+
     try {
       let cargoId = selectedCargo?.id;
-    
+
       if (!cargoId) {
-        console.log("🟠 GUARDANDO CARGO:");
-        console.log("Nombre:", position);
-        console.log("Personas:", parseInt(employees));
-        console.log("Área ID:", selectedArea.id);
-        console.log("Jerarquía seleccionada (selectedJerarquia):", selectedJerarquia);
-        console.log("Tipo de jerarquía:", typeof selectedJerarquia);
-      
         const nuevoCargo = await saveCargo({
           nombre: position,
           personas: parseInt(employees),
           area_id: selectedArea.id,
-          jerarquia_id: typeof selectedJerarquia === "string" ? selectedJerarquia : selectedJerarquia?.toString(), // nos aseguramos que sea string
+          jerarquia_id: typeof selectedJerarquia === "string" ? selectedJerarquia : selectedJerarquia?.toString(),
         });
-    
+
         cargoId = nuevoCargo.id;
         setCargos(prev => [...prev, nuevoCargo]);
       } else {
@@ -138,14 +138,14 @@ export function Table() {
           nombre: position,
           personas: parseInt(employees),
         });
-    
+
         setCargos(prev =>
           prev.map(c =>
             c.id === cargoId ? { ...c, nombre: position, personas: parseInt(employees) } : c
           )
         );
       }
-    
+
       for (const sub of subcargoList) {
         if (!sub.id && sub.nombre && sub.nombre.trim() !== '') {
           await saveSubcargo({
@@ -256,7 +256,6 @@ export function Table() {
       console.error("❌ Error al eliminar área:", error);
     }
   };
-  
 
   return (
     <>
@@ -349,5 +348,6 @@ export function Table() {
     </>
   );
 }
+
 
 export default Table;
