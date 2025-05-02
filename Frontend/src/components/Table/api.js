@@ -35,11 +35,11 @@ export async function fetchCargos() {
 	return res.json();
 }
 
-export async function saveCargo({ nombre, personas = 0, area_id }) {
+export async function saveCargo({ nombre, personas = 0, area_id, jerarquia_id }) {
 	const res = await fetch(`${BASE_URL}/cargos`, {
 	  method: 'POST',
 	  headers: { 'Content-Type': 'application/json' },
-	  body: JSON.stringify({ nombre, personas, area_id }),
+	  body: JSON.stringify({ nombre, personas, area_id, jerarquia_id }), // AÑADIR jerarquia_id AQUÍ
 	});
   
 	const data = await res.json();

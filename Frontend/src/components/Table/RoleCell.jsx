@@ -14,7 +14,7 @@ export default function RoleCell({
 
   const handleClick = () => {
     const cargo = cargosFiltrados[0] || null;
-    onClick(cargo);
+    onClick(cargo, jerarquia); 
   };
 
   return (

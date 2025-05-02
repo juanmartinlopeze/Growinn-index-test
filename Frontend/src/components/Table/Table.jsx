@@ -11,7 +11,7 @@ import {
   fetchAreas,
   fetchCargos,
   fetchSubcargos,
-  fetchSubcargosByCargo, // Importar nueva función
+  fetchSubcargosByCargo,
   fetchUsuarios,
   updateArea,
   deleteSubcargo,
@@ -34,6 +34,8 @@ export function Table() {
 
   const [selectedArea, setSelectedArea] = useState(null);
   const [selectedCargo, setSelectedCargo] = useState(null);
+  const [selectedJerarquia, setSelectedJerarquia] = useState(null);
+
   const [position, setPosition] = useState('');
   const [employees, setEmployees] = useState('');
   const [subcargoList, setSubcargoList] = useState([]);
@@ -57,6 +59,7 @@ export function Table() {
     J4: 'La Jerarquía 4 (Directivo)',
   };
 
+
   useEffect(() => {
     async function loadData() {
       const empresas = await fetchEmpresas();
@@ -71,13 +74,12 @@ export function Table() {
       ]);
 
       console.log('Cargos cargados desde Supabase:', cargosData);
-
       setAreas(areasData);
-      console.log('Áreas cargadas:', areasData);
-console.log('Cargos cargados después del filtro:', cargosData.filter(c => areasData.some(area => area.id === c.area_id)));
+      setCargos(cargosData.filter(c => areasData.some(area => area.id === c.area_id)));
       setSubcargos(subcargosData);
       setUsuarios(usuariosData.filter(u => u.empresa_id === empresaActual.id));
     }
+
     loadData();
   }, []);
 
@@ -85,6 +87,16 @@ console.log('Cargos cargados después del filtro:', cargosData.filter(c => areas
     setAreaIndex(index);
     setAreaName(name);
     setAreaModal(true);
+  };
+
+  const openRoleModal = (area, cargo, jerarquia) => {
+    setSelectedArea(area);
+    setSelectedCargo(cargo);
+    setSelectedJerarquia(jerarquia); // ✅ guardar la jerarquía seleccionada
+    setPosition(cargo?.nombre || '');
+    setEmployees(cargo?.personas || '');
+    setSubcargoList(subcargos.filter(s => s.cargo_id === cargo?.id));
+    setModal(true);
   };
 
   const handleSaveAreaName = async () => {
@@ -95,15 +107,6 @@ console.log('Cargos cargados después del filtro:', cargosData.filter(c => areas
     setAreaModal(false);
   };
 
-  const openRoleModal = (area, cargo) => {
-    setSelectedArea(area);
-    setSelectedCargo(cargo);
-    setPosition(cargo?.nombre || '');
-    setEmployees(cargo?.personas || '');
-    setSubcargoList(subcargos.filter(s => s.cargo_id === cargo?.id));
-    setModal(true);
-  };
-
   const handleSaveEverything = async () => {
     if (!position || !employees) {
       alert('Completa todos los campos');
@@ -112,14 +115,22 @@ console.log('Cargos cargados después del filtro:', cargosData.filter(c => areas
 
     try {
       let cargoId = selectedCargo?.id;
-
+    
       if (!cargoId) {
+        console.log("🟠 GUARDANDO CARGO:");
+        console.log("Nombre:", position);
+        console.log("Personas:", parseInt(employees));
+        console.log("Área ID:", selectedArea.id);
+        console.log("Jerarquía seleccionada (selectedJerarquia):", selectedJerarquia);
+        console.log("Tipo de jerarquía:", typeof selectedJerarquia);
+      
         const nuevoCargo = await saveCargo({
           nombre: position,
           personas: parseInt(employees),
           area_id: selectedArea.id,
+          jerarquia_id: typeof selectedJerarquia === "string" ? selectedJerarquia : selectedJerarquia?.toString(), // nos aseguramos que sea string
         });
-
+    
         cargoId = nuevoCargo.id;
         setCargos(prev => [...prev, nuevoCargo]);
       } else {
@@ -127,38 +138,30 @@ console.log('Cargos cargados después del filtro:', cargosData.filter(c => areas
           nombre: position,
           personas: parseInt(employees),
         });
-
+    
         setCargos(prev =>
-          prev.map(c => c.id === cargoId ? { ...c, nombre: position, personas: parseInt(employees) } : c)
+          prev.map(c =>
+            c.id === cargoId ? { ...c, nombre: position, personas: parseInt(employees) } : c
+          )
         );
       }
-
-      // Guardar subcargos nuevos
+    
       for (const sub of subcargoList) {
         if (!sub.id && sub.nombre && sub.nombre.trim() !== '') {
           await saveSubcargo({
             nombre: sub.nombre,
             personas: parseInt(sub.personas || 0),
-            cargo_id: cargoId, // ID correcto del cargo creado
+            cargo_id: cargoId,
           });
         }
-      }      
-      console.log('Subcargos a guardar:', subcargoList);
+      }
 
-
-      // 🚀 Recargar SOLO los subcargos de este cargo
       const subcargosActualizados = await fetchSubcargosByCargo(cargoId);
-      console.log('Subcargos actualizados desde Supabase:', subcargosActualizados);
-
       setSubcargos(prev => [
         ...prev.filter(sub => sub.cargo_id !== cargoId),
         ...subcargosActualizados
       ]);
-      console.log('Estado global de subcargos actualizado:', subcargos);
-
       setSubcargoList(subcargosActualizados);
-      console.log('Lista local de subcargos actualizada:', subcargoList);
-
       setModal(false);
     } catch (error) {
       console.error('Error al guardar cargo o subcargos:', error.message);
@@ -228,45 +231,44 @@ console.log('Cargos cargados después del filtro:', cargosData.filter(c => areas
                 <th key={j} className="jerarquia">
                   <div>
                     {j}
-                    <Tooltip triggerText={<img src={jerarquiaIcons[j]} alt={`Icono ${j}`} width={40} />} popupText={nivelesJerarquia[j]} />
+                    <Tooltip
+                      triggerText={<img src={jerarquiaIcons[j]} alt={`Icono ${j}`} width={40} />}
+                      popupText={nivelesJerarquia[j]}
+                    />
                   </div>
                 </th>
               ))}
             </tr>
           </thead>
           <tbody>
-  {areas.map((area, i) => (
-    <tr key={area.id}>
-      <th className="area-row">
-        <div
-          className="area-name"
-          onClick={() => openAreaModal(i, area.nombre)}
-          style={{ cursor: 'pointer' }}
-        >
-          {area.nombre}
-        </div>
-      </th>
-      {jerarquias.map(jerarquia => {
-        // Agregar console.log para depuración
-        console.log('Cargos en Table:', cargos);
-        console.log('Área:', area, 'Jerarquía:', jerarquia);
-
-        return (
-          <td key={jerarquia}>
-            <RoleCell
-              areaId={area.id}
-              jerarquia={jerarquia}
-              cargos={cargos.filter(c => c.area_id === area.id)}
-              subcargos={subcargos}
-              usuarios={usuarios}
-              onClick={(cargo) => openRoleModal(area, cargo)}
-            />
-          </td>
-        );
-      })}
-    </tr>
-  ))}
-</tbody>
+            {areas.map((area, i) => (
+              <tr key={area.id}>
+                <th className="area-row">
+                  <div
+                    className="area-name"
+                    onClick={() => openAreaModal(i, area.nombre)}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    {area.nombre}
+                  </div>
+                </th>
+                {jerarquias.map(jerarquia => (
+                  <td key={jerarquia}>
+                    <RoleCell
+                      areaId={area.id}
+                      jerarquia={jerarquia}
+                      cargos={cargos.filter(
+                        c => c.area_id === area.id && c.jerarquia_id === jerarquia
+                      )}
+                      subcargos={subcargos}
+                      usuarios={usuarios}
+                      onClick={(cargo, jerarquia) => openRoleModal(area, cargo, jerarquia)}
+                    />
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
           <tfoot>
             <tr>
               <td className="area-column">Resumen</td>
