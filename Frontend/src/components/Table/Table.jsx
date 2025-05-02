@@ -231,10 +231,13 @@ export function Table() {
       nuevasAreas.splice(areaIndex, 1);
   
       // 3. Renombrar todas las áreas locales secuencialmente
-      const renombradas = nuevasAreas.map((area, index) => ({
-        ...area,
-        nombre: `Área ${index + 1}`,
-      }));
+      const renombradas = nuevasAreas.map((area, index) => {
+        const esNombreAutomatico = /^Área \d+$/i.test(area.nombre);
+        return {
+          ...area,
+          nombre: esNombreAutomatico ? `Área ${index + 1}` : area.nombre
+        };
+      });
   
       setAreas(renombradas);
       setAreaModal(false);
