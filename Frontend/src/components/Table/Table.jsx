@@ -220,21 +220,40 @@ export function Table() {
   
     try {
       const areaId = areas[areaIndex].id;
+  
+      // 1. Eliminar en Supabase
       await fetch(`http://localhost:3000/areas/${areaId}`, {
         method: 'DELETE',
       });
   
-      // Quitarla del estado local
+      // 2. Eliminar del estado local
       const nuevasAreas = [...areas];
       nuevasAreas.splice(areaIndex, 1);
-      setAreas(nuevasAreas);
   
+      // 3. Renombrar todas las áreas locales secuencialmente
+      const renombradas = nuevasAreas.map((area, index) => ({
+        ...area,
+        nombre: `Área ${index + 1}`,
+      }));
+  
+      setAreas(renombradas);
       setAreaModal(false);
+  
+      // 4. Actualizar nombres en Supabase
+      for (const area of renombradas) {
+        await fetch(`http://localhost:3000/areas/${area.id}`, {
+          method: 'PUT',
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ nombre: area.nombre })
+        });
+      }
+  
     } catch (error) {
       alert("Error al eliminar el área.");
       console.error("❌ Error al eliminar área:", error);
     }
   };
+  
 
   return (
     <>
