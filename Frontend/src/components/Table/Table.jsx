@@ -217,7 +217,23 @@ export function Table() {
   const handleDeleteArea = async () => {
     const confirm = window.confirm(`¿Eliminar área "${areaName}" y todo su contenido?`);
     if (!confirm) return;
-    alert('🚧 Función eliminar área pendiente de conectar.');
+  
+    try {
+      const areaId = areas[areaIndex].id;
+      await fetch(`http://localhost:3000/areas/${areaId}`, {
+        method: 'DELETE',
+      });
+  
+      // Quitarla del estado local
+      const nuevasAreas = [...areas];
+      nuevasAreas.splice(areaIndex, 1);
+      setAreas(nuevasAreas);
+  
+      setAreaModal(false);
+    } catch (error) {
+      alert("Error al eliminar el área.");
+      console.error("❌ Error al eliminar área:", error);
+    }
   };
 
   return (

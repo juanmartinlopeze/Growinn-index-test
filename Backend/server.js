@@ -6,6 +6,8 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
+/* ───────── EMPRESAS ───────── */
+
 // Crear nueva empresa
 app.post("/empresas", async (req, res) => {
   try {
@@ -65,6 +67,8 @@ app.get("/empresas", async (req, res) => {
   }
 });
 
+/* ───────── ÁREAS ───────── */
+
 // Obtener áreas por empresa
 app.get("/areas/empresa/:empresaId", async (req, res) => {
   const { empresaId } = req.params;
@@ -84,7 +88,7 @@ app.get("/areas/empresa/:empresaId", async (req, res) => {
   }
 });
 
-// ✅ NUEVO: Obtener área por ID
+// Obtener un área por ID
 app.get("/areas/:id", async (req, res) => {
   const { id } = req.params;
 
@@ -101,177 +105,6 @@ app.get("/areas/:id", async (req, res) => {
   } catch (error) {
     console.error("❌ Error al obtener área por ID:", error);
     res.status(500).json({ error: "Error al obtener área", detalle: error.message });
-  }
-});
-
-// Crear nuevo cargo
-app.post("/cargos", async (req, res) => {
-  const { nombre, personas, area_id, jerarquia_id } = req.body;
-
-  if (!nombre || !area_id || !jerarquia_id) {
-    return res.status(400).json({ error: "Faltan datos requeridos para crear el cargo" });
-  }
-
-  try {
-    const { data, error } = await supabaseAdmin
-      .from("cargos")
-      .insert([{ nombre, personas: personas || 0, area_id, jerarquia_id }])
-      .select()
-      .single();
-
-    if (error) throw error;
-
-    console.log("✅ Cargo creado:", data);
-    res.status(201).json(data);
-  } catch (error) {
-    console.error("❌ Error al crear cargo:", error);
-    res.status(500).json({ error: "Error al crear cargo", detalle: error.message });
-  }
-});
-
-// Obtener todos los cargos
-app.get("/cargos", async (req, res) => {
-  try {
-    const { data, error } = await supabase.from("cargos").select("*");
-
-    if (error) throw error;
-
-    res.status(200).json(data);
-  } catch (error) {
-    console.error("❌ Error al obtener cargos:", error);
-    res.status(500).json({ error: "Error al obtener cargos", detalle: error.message });
-  }
-});
-
-// ✅ NUEVO: Actualizar cargo por ID
-app.put("/cargos/:id", async (req, res) => {
-  const { id } = req.params;
-  const { nombre, personas } = req.body;
-
-  try {
-    const { data, error } = await supabaseAdmin
-      .from("cargos")
-      .update({ nombre, personas })
-      .eq("id", id)
-      .select()
-      .single();
-
-    if (error) throw error;
-
-    res.status(200).json(data);
-  } catch (error) {
-    console.error("❌ Error al actualizar cargo:", error);
-    res.status(500).json({ error: "Error al actualizar cargo", detalle: error.message });
-  }
-});
-
-// ✅ NUEVO: Eliminar cargo por ID
-app.delete("/cargos/:id", async (req, res) => {
-  const { id } = req.params;
-
-  try {
-    const { error } = await supabaseAdmin
-      .from("cargos")
-      .delete()
-      .eq("id", id);
-
-    if (error) throw error;
-
-    res.status(200).json({ message: "Cargo eliminado correctamente" });
-  } catch (error) {
-    console.error("❌ Error al eliminar cargo:", error);
-    res.status(500).json({ error: "Error al eliminar cargo", detalle: error.message });
-  }
-});
-
-// Obtener todos los subcargos
-app.get("/subcargos", async (req, res) => {
-  try {
-    const { data, error } = await supabase.from("subcargos").select("*");
-
-    if (error) throw error;
-
-    res.status(200).json(data);
-  } catch (error) {
-    console.error("❌ Error al obtener subcargos:", error);
-    res.status(500).json({ error: "Error al obtener subcargos", detalle: error.message });
-  }
-});
-
-// Obtener subcargos por cargo
-app.get("/subcargos/cargo/:cargoId", async (req, res) => {
-  const { cargoId } = req.params;
-
-  try {
-    const { data, error } = await supabase
-      .from("subcargos")
-      .select("*")
-      .eq("cargo_id", cargoId);
-
-    if (error) throw error;
-
-    res.status(200).json(data);
-  } catch (error) {
-    console.error("❌ Error al obtener subcargos por cargo:", error);
-    res.status(500).json({ error: "Error al obtener subcargos", detalle: error.message });
-  }
-});
-
-// Crear nuevo subcargo
-app.post("/subcargos", async (req, res) => {
-  const { nombre, personas, cargo_id } = req.body;
-
-  if (!nombre || !cargo_id) {
-    return res.status(400).json({ error: "Faltan datos requeridos para crear el subcargo" });
-  }
-
-  try {
-    const { data, error } = await supabaseAdmin
-      .from("subcargos")
-      .insert([{ nombre, personas: personas || 0, cargo_id }])
-      .select()
-      .single();
-
-    if (error) throw error;
-
-    console.log("✅ Subcargo creado:", data);
-    res.status(201).json(data);
-  } catch (error) {
-    console.error("❌ Error al crear subcargo:", error);
-    res.status(500).json({ error: "Error al crear subcargo", detalle: error.message });
-  }
-});
-
-// Eliminar subcargo
-app.delete("/subcargos/:id", async (req, res) => {
-  const { id } = req.params;
-
-  try {
-    const { error } = await supabaseAdmin
-      .from("subcargos")
-      .delete()
-      .eq("id", id);
-
-    if (error) throw error;
-
-    res.status(200).json({ message: "Subcargo eliminado correctamente" });
-  } catch (error) {
-    console.error("❌ Error al eliminar subcargo:", error);
-    res.status(500).json({ error: "Error al eliminar subcargo", detalle: error.message });
-  }
-});
-
-// Obtener todos los usuarios
-app.get("/usuarios", async (req, res) => {
-  try {
-    const { data, error } = await supabase.from("usuarios").select("*");
-
-    if (error) throw error;
-
-    res.status(200).json(data);
-  } catch (error) {
-    console.error("❌ Error al obtener usuarios:", error);
-    res.status(500).json({ error: "Error al obtener usuarios", detalle: error.message });
   }
 });
 
@@ -299,7 +132,219 @@ app.post("/areas", async (req, res) => {
   }
 });
 
-// Iniciar servidor
+// Editar área por ID
+app.put("/areas/:id", async (req, res) => {
+  const { id } = req.params;
+  const { nombre } = req.body;
+
+  if (!nombre) {
+    return res.status(400).json({ error: "El nombre del área es obligatorio" });
+  }
+
+  try {
+    const { data, error } = await supabaseAdmin
+      .from("areas")
+      .update({ nombre })
+      .eq("id", id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    res.status(200).json(data);
+  } catch (error) {
+    console.error("❌ Error al actualizar área:", error);
+    res.status(500).json({ error: "Error al actualizar área", detalle: error.message });
+  }
+});
+
+// Eliminar área por ID
+app.delete("/areas/:id", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const { error } = await supabaseAdmin
+      .from("areas")
+      .delete()
+      .eq("id", id);
+
+    if (error) throw error;
+    res.status(200).json({ message: "Área eliminada correctamente" });
+  } catch (error) {
+    console.error("❌ Error al eliminar área:", error);
+    res.status(500).json({ error: "Error al eliminar área", detalle: error.message });
+  }
+});
+
+/* ───────── CARGOS ───────── */
+
+// Crear nuevo cargo
+app.post("/cargos", async (req, res) => {
+  const { nombre, personas, area_id, jerarquia_id } = req.body;
+
+  if (!nombre || !area_id || !jerarquia_id) {
+    return res.status(400).json({ error: "Faltan datos requeridos para crear el cargo" });
+  }
+
+  try {
+    const { data, error } = await supabaseAdmin
+      .from("cargos")
+      .insert([{ nombre, personas: personas || 0, area_id, jerarquia_id }])
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    res.status(201).json(data);
+  } catch (error) {
+    console.error("❌ Error al crear cargo:", error);
+    res.status(500).json({ error: "Error al crear cargo", detalle: error.message });
+  }
+});
+
+// Obtener todos los cargos
+app.get("/cargos", async (req, res) => {
+  try {
+    const { data, error } = await supabase.from("cargos").select("*");
+
+    if (error) throw error;
+
+    res.status(200).json(data);
+  } catch (error) {
+    console.error("❌ Error al obtener cargos:", error);
+    res.status(500).json({ error: "Error al obtener cargos", detalle: error.message });
+  }
+});
+
+// Actualizar cargo
+app.put("/cargos/:id", async (req, res) => {
+  const { id } = req.params;
+  const { nombre, personas } = req.body;
+
+  try {
+    const { data, error } = await supabaseAdmin
+      .from("cargos")
+      .update({ nombre, personas })
+      .eq("id", id)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    res.status(200).json(data);
+  } catch (error) {
+    console.error("❌ Error al actualizar cargo:", error);
+    res.status(500).json({ error: "Error al actualizar cargo", detalle: error.message });
+  }
+});
+
+// Eliminar cargo
+app.delete("/cargos/:id", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const { error } = await supabaseAdmin
+      .from("cargos")
+      .delete()
+      .eq("id", id);
+
+    if (error) throw error;
+
+    res.status(200).json({ message: "Cargo eliminado correctamente" });
+  } catch (error) {
+    console.error("❌ Error al eliminar cargo:", error);
+    res.status(500).json({ error: "Error al eliminar cargo", detalle: error.message });
+  }
+});
+
+/* ───────── SUBCARGOS ───────── */
+
+// Obtener todos los subcargos
+app.get("/subcargos", async (req, res) => {
+  try {
+    const { data, error } = await supabase.from("subcargos").select("*");
+
+    if (error) throw error;
+    res.status(200).json(data);
+  } catch (error) {
+    console.error("❌ Error al obtener subcargos:", error);
+    res.status(500).json({ error: "Error al obtener subcargos", detalle: error.message });
+  }
+});
+
+// Obtener subcargos por cargo
+app.get("/subcargos/cargo/:cargoId", async (req, res) => {
+  const { cargoId } = req.params;
+  try {
+    const { data, error } = await supabase
+      .from("subcargos")
+      .select("*")
+      .eq("cargo_id", cargoId);
+
+    if (error) throw error;
+    res.status(200).json(data);
+  } catch (error) {
+    console.error("❌ Error al obtener subcargos por cargo:", error);
+    res.status(500).json({ error: "Error al obtener subcargos", detalle: error.message });
+  }
+});
+
+// Crear subcargo
+app.post("/subcargos", async (req, res) => {
+  const { nombre, personas, cargo_id } = req.body;
+
+  if (!nombre || !cargo_id) {
+    return res.status(400).json({ error: "Faltan datos requeridos para crear el subcargo" });
+  }
+
+  try {
+    const { data, error } = await supabaseAdmin
+      .from("subcargos")
+      .insert([{ nombre, personas: personas || 0, cargo_id }])
+      .select()
+      .single();
+
+    if (error) throw error;
+    res.status(201).json(data);
+  } catch (error) {
+    console.error("❌ Error al crear subcargo:", error);
+    res.status(500).json({ error: "Error al crear subcargo", detalle: error.message });
+  }
+});
+
+// Eliminar subcargo
+app.delete("/subcargos/:id", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const { error } = await supabaseAdmin
+      .from("subcargos")
+      .delete()
+      .eq("id", id);
+
+    if (error) throw error;
+    res.status(200).json({ message: "Subcargo eliminado correctamente" });
+  } catch (error) {
+    console.error("❌ Error al eliminar subcargo:", error);
+    res.status(500).json({ error: "Error al eliminar subcargo", detalle: error.message });
+  }
+});
+
+/* ───────── USUARIOS ───────── */
+
+app.get("/usuarios", async (req, res) => {
+  try {
+    const { data, error } = await supabase.from("usuarios").select("*");
+
+    if (error) throw error;
+    res.status(200).json(data);
+  } catch (error) {
+    console.error("❌ Error al obtener usuarios:", error);
+    res.status(500).json({ error: "Error al obtener usuarios", detalle: error.message });
+  }
+});
+
+/* ───────── INICIO DEL SERVIDOR ───────── */
+
 app.listen(3000, () => {
   console.log("🚀 Servidor corriendo en http://localhost:3000");
 });
