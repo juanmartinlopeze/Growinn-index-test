@@ -100,7 +100,7 @@ export function InnlabForm() {
 
   return (
     <section className="container">
-      <div>
+      <div className="containerNavBar">
         <NavBar />
       </div>
       <div className="innlab-form-header">
@@ -130,6 +130,9 @@ export function InnlabForm() {
         <Button variant="back" />
         <Button variant="next" text="Siguiente" onClick={handleSubmit} />
       </div>
+      {/* imagenes decorativas */}
+      <img className="linea-curva" src="/BgLine-decoration.png" alt="Imagen decorativa" />
+      <img className="puntos" src="/BgPoints-decoration.png" alt="imagen decorativa" />
     </section>
   );
 }

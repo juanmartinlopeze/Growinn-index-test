@@ -36,3 +36,18 @@
   align-items: flex-start;
   gap: 12px;
 }
+
+.linea-curva {
+  position: absolute;
+  height: 24rem;
+  top: 9rem;
+  left: -3rem;
+  z-index: 0;
+}
+
+.puntos {
+  position: absolute;
+  top: 32rem;
+  left: clamp(94vw, 70%, 1200px);
+  z-index: 0;
+}
