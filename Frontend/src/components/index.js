@@ -6,3 +6,4 @@ export * from "./ToolTip/Tooltip";
 export * from "./Subtitle/sub_title";
 export * from "./Description/description";
 export * from "./ProgressBar/ProgressBar";
+export * from "./NavBar/Navbar";
