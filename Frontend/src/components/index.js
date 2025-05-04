@@ -2,10 +2,8 @@ export * from "./Form/Form"
 export * from "./Table/Table"
 export * from "./TitleSection/TitleSection"
 export * from "./Buttons/Button"
-export * from "./Buttons/NextButton/next_button"
-export * from "./Buttons/BackButton/back-button"
-export * from "./Buttons/DownloadButton/DownloadButton"
 export * from "./ToolTip/Tooltip";
 export * from "./Subtitle/sub_title";
 export * from "./Description/description";
 export * from "./ProgressBar/ProgressBar";
+export * from "./NavBar/Navbar";

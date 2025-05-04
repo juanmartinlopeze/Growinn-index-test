@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Tooltip, TitleSection, Form, Subtitle, Description, Button } from '../../components/index';
+import { Tooltip, TitleSection, Form, Subtitle, Description, Button, NavBar } from '../../components/index';
 import { useNavigate } from "react-router-dom"; // Importar useNavigate
 import "./innlab-form.css";
 
@@ -100,6 +100,9 @@ export function InnlabForm() {
 
   return (
     <section className="container">
+      <div className="containerNavBar">
+        <NavBar />
+      </div>
       <div className="innlab-form-header">
         <div className="jerarquia-header">
           <TitleSection title="Jerarquías y cargos" />
@@ -127,6 +130,9 @@ export function InnlabForm() {
         <Button variant="back" />
         <Button variant="next" text="Siguiente" onClick={handleSubmit} />
       </div>
+      {/* imagenes decorativas */}
+      <img className="linea-curva" src="/BgLine-decoration.png" alt="Imagen decorativa" />
+      <img className="puntos" src="/BgPoints-decoration.png" alt="imagen decorativa" />
     </section>
   );
 }
