@@ -56,7 +56,6 @@ export function InnlabForm() {
     const payload = {
       nombre: "Empresa sin nombre",
       cantidad_empleados: totalEmpleados,
-      jerarquia: 4,
       jerarquia1: Number(formData.jerarquia1),
       jerarquia2: Number(formData.jerarquia2),
       jerarquia3: Number(formData.jerarquia3),

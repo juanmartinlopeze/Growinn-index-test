@@ -5,6 +5,7 @@ import ProgressBar from './ProgressBar';
 import EditAreaForm from './EditAreaForm';
 import EditRoleModal from './EditRoleModal';
 import RoleCell from './RoleCell';
+import { useEmpresaData } from './useEmpresaData'
 
 import {
   fetchEmpresas,
@@ -22,7 +23,9 @@ import {
 } from './api';
 import { handleAddArea } from './addArea';
 
+
 export function Table() {
+
   const [empresaId, setEmpresaId] = useState(null);
   const [areas, setAreas] = useState([]);
   const [cargos, setCargos] = useState([]);
@@ -42,6 +45,12 @@ export function Table() {
 
   const [areaName, setAreaName] = useState('');
   const [areaIndex, setAreaIndex] = useState(null);
+
+  const {
+
+    empleadosPorJerarquia,
+    jerarquiasPlaneadas,
+  } = useEmpresaData()
 
   const jerarquias = ['J1', 'J2', 'J3', 'J4'];
 
@@ -113,8 +122,6 @@ export function Table() {
 
     // Sumar el total de empleados de los subcargos
     const totalSubcargos = subcargoList.reduce((total, sub) => total + (sub.personas || 0), 0);
-
-    // Validar que la suma de empleados de subcargos no supere los empleados del cargo
     if (totalSubcargos > parseInt(employees)) {
       alert('La suma de los empleados en los subcargos no puede superar el número de empleados del cargo.');
       return;
@@ -311,7 +318,10 @@ export function Table() {
               <td className="area-column">Resumen</td>
               {jerarquias.map(j => (
                 <td key={j}>
-                  <ProgressBar empleadosAsignados={0} empleadosPlaneados={0} />
+                  <ProgressBar
+                    empleadosAsignados={empleadosPorJerarquia[j]}
+                    empleadosPlaneados={jerarquiasPlaneadas[j]}
+                  />
                 </td>
               ))}
             </tr>
