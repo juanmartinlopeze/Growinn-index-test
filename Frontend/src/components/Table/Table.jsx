@@ -219,7 +219,6 @@ export function Table() {
     <>
       <div style={{ margin: '16px 0' }}>
         <h4>Progreso total de la empresa</h4>
-        <ProgressBar empleadosAsignados={empleadosAsignados} empleadosPlaneados={totalEmpleados} />
       </div>
       <div className="table-container">
         <table>
