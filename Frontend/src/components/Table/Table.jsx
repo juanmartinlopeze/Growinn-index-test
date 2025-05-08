@@ -1,3 +1,4 @@
+// Table.js
 import React, { useState, useEffect } from 'react';
 import './Table.css';
 import { Tooltip } from '../index';
@@ -5,8 +6,7 @@ import ProgressBar from './ProgressBar';
 import EditAreaForm from './EditAreaForm';
 import EditRoleModal from './EditRoleModal';
 import RoleCell from './RoleCell';
-import { useEmpresaData } from './useEmpresaData'
-
+import { useEmpresaData } from './useEmpresaData';
 import {
   fetchEmpresas,
   fetchAreas,
@@ -23,9 +23,7 @@ import {
 } from './api';
 import { handleAddArea } from './addArea';
 
-
 export function Table() {
-
   const [empresaId, setEmpresaId] = useState(null);
   const [areas, setAreas] = useState([]);
   const [cargos, setCargos] = useState([]);
@@ -47,10 +45,12 @@ export function Table() {
   const [areaIndex, setAreaIndex] = useState(null);
 
   const {
-
     empleadosPorJerarquia,
     jerarquiasPlaneadas,
-  } = useEmpresaData()
+    empleadosAsignados,
+    totalEmpleados,
+    refetch
+  } = useEmpresaData();
 
   const jerarquias = ['J1', 'J2', 'J3', 'J4'];
 
@@ -68,26 +68,28 @@ export function Table() {
     J4: 'La Jerarquía 4 (Directivo)',
   };
 
+  // Función única para cargar todos los datos de tabla
+  const loadAll = async () => {
+    const empresas = await fetchEmpresas();
+    const empresaActual = empresas[empresas.length - 1];
+    setEmpresaId(empresaActual.id);
+
+    const [areasData, cargosData, subcargosData, usuariosData] = await Promise.all([
+      fetchAreas(empresaActual.id),
+      fetchCargos(),
+      fetchSubcargos(),
+      fetchUsuarios()
+    ]);
+
+    setAreas(areasData);
+    setCargos(cargosData.filter(c => areasData.some(a => a.id === c.area_id)));
+    setSubcargos(subcargosData);
+    setUsuarios(usuariosData.filter(u => u.empresa_id === empresaActual.id));
+  };
+
+  // Carga inicial
   useEffect(() => {
-    async function loadData() {
-      const empresas = await fetchEmpresas();
-      const empresaActual = empresas[empresas.length - 1];
-      setEmpresaId(empresaActual.id);
-
-      const [areasData, cargosData, subcargosData, usuariosData] = await Promise.all([
-        fetchAreas(empresaActual.id),
-        fetchCargos(),
-        fetchSubcargos(),
-        fetchUsuarios()
-      ]);
-
-      setAreas(areasData);
-      setCargos(cargosData.filter(c => areasData.some(area => area.id === c.area_id)));
-      setSubcargos(subcargosData);
-      setUsuarios(usuariosData.filter(u => u.empresa_id === empresaActual.id));
-    }
-
-    loadData();
+    loadAll();
   }, []);
 
   const openAreaModal = (index, name) => {
@@ -99,7 +101,7 @@ export function Table() {
   const openRoleModal = (area, cargo, jerarquia) => {
     setSelectedArea(area);
     setSelectedCargo(cargo);
-    setSelectedJerarquia(jerarquia); // guardar la jerarquía seleccionada
+    setSelectedJerarquia(jerarquia);
     setPosition(cargo?.nombre || '');
     setEmployees(cargo?.personas || '');
     setSubcargoList(subcargos.filter(s => s.cargo_id === cargo?.id));
@@ -119,166 +121,116 @@ export function Table() {
       alert('Completa todos los campos');
       return;
     }
-
-    // Sumar el total de empleados de los subcargos
-    const totalSubcargos = subcargoList.reduce((total, sub) => total + (sub.personas || 0), 0);
-    if (totalSubcargos > parseInt(employees)) {
-      alert('La suma de los empleados en los subcargos no puede superar el número de empleados del cargo.');
+    const totalSub = subcargoList.reduce((t, s) => t + (s.personas || 0), 0);
+    if (totalSub > parseInt(employees, 10)) {
+      alert('La suma de subcargos supera el total.');
       return;
     }
 
+    let cargoId;
     try {
-      let cargoId = selectedCargo?.id;
-
-      if (!cargoId) {
-        const nuevoCargo = await saveCargo({
+      if (!selectedCargo?.id) {
+        const nuevo = await saveCargo({
           nombre: position,
-          personas: parseInt(employees),
+          personas: parseInt(employees, 10),
           area_id: selectedArea.id,
-          jerarquia_id: typeof selectedJerarquia === "string" ? selectedJerarquia : selectedJerarquia?.toString(),
+          jerarquia_id: String(selectedJerarquia),
         });
-
-        cargoId = nuevoCargo.id;
-        setCargos(prev => [...prev, nuevoCargo]);
+        cargoId = nuevo.id;
+        setCargos(prev => [...prev, nuevo]);
       } else {
-        await updateCargo(cargoId, {
-          nombre: position,
-          personas: parseInt(employees),
-        });
-
-        setCargos(prev =>
-          prev.map(c =>
-            c.id === cargoId ? { ...c, nombre: position, personas: parseInt(employees) } : c
-          )
-        );
+        cargoId = selectedCargo.id;
+        await updateCargo(cargoId, { nombre: position, personas: parseInt(employees, 10) });
+        setCargos(prev => prev.map(c => c.id === cargoId ? { ...c, nombre: position, personas: parseInt(employees, 10) } : c));
       }
 
       for (const sub of subcargoList) {
-        if (!sub.id && sub.nombre && sub.nombre.trim() !== '') {
-          await saveSubcargo({
-            nombre: sub.nombre,
-            personas: parseInt(sub.personas || 0),
-            cargo_id: cargoId,
-          });
+        if (!sub.id && sub.nombre.trim()) {
+          await saveSubcargo({ nombre: sub.nombre, personas: parseInt(sub.personas || 0, 10), cargo_id: cargoId });
         }
       }
 
-      const subcargosActualizados = await fetchSubcargosByCargo(cargoId);
-      setSubcargos(prev => [
-        ...prev.filter(sub => sub.cargo_id !== cargoId),
-        ...subcargosActualizados
-      ]);
-      setSubcargoList(subcargosActualizados);
-      setModal(false);
-    } catch (error) {
-      console.error('Error al guardar cargo o subcargos:', error.message);
+      const subAct = await fetchSubcargosByCargo(cargoId);
+      setSubcargos(prev => [...prev.filter(s => s.cargo_id !== cargoId), ...subAct]);
+      setSubcargoList(subAct);
+    } catch (err) {
+      console.error('Error al guardar:', err);
       alert('Error al guardar cargo o subcargos');
+      return;
     }
+
+    try { await refetch(); } catch (e) { console.warn('Error refetch:', e); }
+    await loadAll();
+    setModal(false);
   };
 
   const handleDeleteRole = async () => {
     if (!selectedCargo) return;
-
-    const confirmDelete = window.confirm(`¿Seguro que quieres eliminar el cargo "${selectedCargo.nombre}"?`);
-    if (!confirmDelete) return;
+    if (!window.confirm(`¿Eliminar cargo "${selectedCargo.nombre}"?`)) return;
 
     try {
       await deleteCargo(selectedCargo.id);
       setCargos(prev => prev.filter(c => c.id !== selectedCargo.id));
-      setModal(false);
-    } catch (error) {
-      console.error('Error al eliminar cargo:', error.message);
+    } catch (err) {
+      console.error('Error al eliminar cargo:', err);
       alert('Error al eliminar cargo');
-    }
-  };
-
-  const handleAddSubcargo = async (nombre, personas = 0) => {
-    if (!selectedCargo) {
-      alert('Primero debes seleccionar un cargo.');
       return;
     }
 
     try {
-      const nuevoSubcargo = await saveSubcargo({
-        nombre,
-        personas: parseInt(personas),
-        cargo_id: selectedCargo.id,
-      });
-
-      setSubcargos(prev => [...prev, nuevoSubcargo]);
-      setSubcargoList(prev => [...prev, nuevoSubcargo]);
-    } catch (error) {
-      console.error('Error al guardar subcargo:', error.message);
-      alert('Error al guardar subcargo');
-    }
+           await refetch();
+         } catch (e) {
+           console.warn('Error refrescando métricas:', e);
+         }
+    await loadAll();
+    setModal(false);
   };
 
-  const handleDeleteSubcargo = async (subcargoId) => {
-    if (window.confirm('¿Eliminar subcargo?')) {
-      await deleteSubcargo(subcargoId);
-      setSubcargos(prev => prev.filter(s => s.id !== subcargoId));
-      setSubcargoList(prev => prev.filter(s => s.id !== subcargoId));
+  const handleAddSubcargo = () => {
+    setSubcargoList(prev => [...prev, { nombre: '', personas: 0 }]);
+  };
+
+  const handleDeleteSubcargo = async id => {
+    if (!window.confirm('¿Eliminar subcargo?')) return;
+    try {
+      await deleteSubcargo(id);
+      setSubcargos(prev => prev.filter(s => s.id !== id));
+      setSubcargoList(prev => prev.filter(s => s.id !== id));
+    } catch (e) {
+      console.error('Error al eliminar subcargo:', e);
+      alert('Error al eliminar subcargo');
     }
   };
 
   const handleDeleteArea = async () => {
-    const confirm = window.confirm(`¿Eliminar área "${areaName}" y todo su contenido?`);
-    if (!confirm) return;
-  
+    if (!window.confirm(`¿Eliminar área "${areaName}"?`)) return;
     try {
-      const areaId = areas[areaIndex].id;
-  
-      // 1. Eliminar en Supabase
-      await fetch(`http://localhost:3000/areas/${areaId}`, {
-        method: 'DELETE',
-      });
-  
-      // 2. Eliminar del estado local
-      const nuevasAreas = [...areas];
-      nuevasAreas.splice(areaIndex, 1);
-  
-      // 3. Renombrar todas las áreas locales secuencialmente
-      const renombradas = nuevasAreas.map((area, index) => {
-        const esNombreAutomatico = /^Área \d+$/i.test(area.nombre);
-        return {
-          ...area,
-          nombre: esNombreAutomatico ? `Área ${index + 1}` : area.nombre
-        };
-      });
-  
-      setAreas(renombradas);
-      setAreaModal(false);
-  
-      // 4. Actualizar nombres en Supabase
-      for (const area of renombradas) {
-        await fetch(`http://localhost:3000/areas/${area.id}`, {
-          method: 'PUT',
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ nombre: area.nombre })
-        });
-      }
-  
-    } catch (error) {
-      alert("Error al eliminar el área.");
-      console.error("❌ Error al eliminar área:", error);
+      const id = areas[areaIndex].id;
+      await fetch(`http://localhost:3000/areas/${id}`, { method: 'DELETE' });
+      setAreas(prev => prev.filter((_, i) => i !== areaIndex));
+    } catch (e) {
+      console.error('Error al eliminar área:', e);
+      alert('Error al eliminar área');
     }
+    setAreaModal(false);
   };
 
   return (
     <>
+      <div style={{ margin: '16px 0' }}>
+        <h4>Progreso total de la empresa</h4>
+        <ProgressBar empleadosAsignados={empleadosAsignados} empleadosPlaneados={totalEmpleados} />
+      </div>
       <div className="table-container">
         <table>
           <thead>
             <tr>
-              <th></th>
+              <th />
               {jerarquias.map(j => (
                 <th key={j} className="jerarquia">
                   <div>
                     {j}
-                    <Tooltip
-                      triggerText={<img src={jerarquiaIcons[j]} alt={`Icono ${j}`} width={40} />}
-                      popupText={nivelesJerarquia[j]}
-                    />
+                    <Tooltip triggerText={<img src={jerarquiaIcons[j]} alt={j} width={40} />} popupText={nivelesJerarquia[j]} />
                   </div>
                 </th>
               ))}
@@ -288,25 +240,19 @@ export function Table() {
             {areas.map((area, i) => (
               <tr key={area.id}>
                 <th className="area-row">
-                  <div
-                    className="area-name"
-                    onClick={() => openAreaModal(i, area.nombre)}
-                    style={{ cursor: 'pointer' }}
-                  >
+                  <div onClick={() => openAreaModal(i, area.nombre)} style={{ cursor: 'pointer' }}>
                     {area.nombre}
                   </div>
                 </th>
-                {jerarquias.map(jerarquia => (
-                  <td key={jerarquia}>
+                {jerarquias.map(j => (
+                  <td key={j}>
                     <RoleCell
                       areaId={area.id}
-                      jerarquia={jerarquia}
-                      cargos={cargos.filter(
-                        c => c.area_id === area.id && c.jerarquia_id === jerarquia
-                      )}
+                      jerarquia={j}
+                      cargos={cargos.filter(c => c.area_id === area.id && c.jerarquia_id === j)}
                       subcargos={subcargos}
                       usuarios={usuarios}
-                      onClick={(cargo, jerarquia) => openRoleModal(area, cargo, jerarquia)}
+                      onClick={(c, jer) => openRoleModal(area, c, jer)}
                     />
                   </td>
                 ))}
@@ -318,12 +264,15 @@ export function Table() {
               <td className="area-column">Resumen</td>
               {jerarquias.map(j => (
                 <td key={j}>
-                  <ProgressBar
-                    empleadosAsignados={empleadosPorJerarquia[j]}
-                    empleadosPlaneados={jerarquiasPlaneadas[j]}
-                  />
+                  <ProgressBar empleadosAsignados={empleadosPorJerarquia[j]} empleadosPlaneados={jerarquiasPlaneadas[j]} />
                 </td>
               ))}
+            </tr>
+            <tr>
+              <td className="area-column">Progreso total empresa</td>
+              <td colSpan={4}>
+                <ProgressBar empleadosAsignados={empleadosAsignados} empleadosPlaneados={totalEmpleados} />
+              </td>
             </tr>
           </tfoot>
         </table>
@@ -358,6 +307,5 @@ export function Table() {
     </>
   );
 }
-
 
 export default Table;
