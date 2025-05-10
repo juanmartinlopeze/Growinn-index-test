@@ -1,205 +1,219 @@
-import React, { useState } from 'react'
-import EditAreaForm from './EditAreaForm'
-import EditRoleModal from './EditRoleModal'
-import RoleCell from './RoleCell'
-import './Table.css'
-import { deleteRole, fetchAllRoles, saveRole, updateEmpresaAreas, deleteArea, } from './api'
-import { useEmpresaData } from './useEmpresaData'
-import { Tooltip, ProgressBar } from '../index'
-import { handleAddArea } from './addArea'
-
+// Table.js
+import React, { useState, useEffect } from 'react';
+import './Table.css';
+import { Tooltip } from '../index';
+import ProgressBar from './ProgressBar';
+import EditAreaForm from './EditAreaForm';
+import EditRoleModal from './EditRoleModal';
+import RoleCell from './RoleCell';
+import { useEmpresaData } from './useEmpresaData';
+import {
+  fetchEmpresas,
+  fetchAreas,
+  fetchCargos,
+  fetchSubcargos,
+  fetchSubcargosByCargo,
+  fetchUsuarios,
+  updateArea,
+  deleteSubcargo,
+  saveSubcargo,
+  saveCargo,
+  updateCargo,
+  deleteCargo
+} from './api';
+import { handleAddArea } from './addArea';
 
 export function Table() {
-  const [modal, setModal] = useState(false)
-  const [areaModal, setAreaModal] = useState(false)
-  const [selectedHierarchy, setSelectedHierarchy] = useState(null)
-  const [selectedArea, setSelectedArea] = useState(null)
-  const [position, setPosition] = useState('')
-  const [employees, setEmployees] = useState('')
-  const [areaName, setAreaName] = useState('')
-  const [areaIndex, setAreaIndex] = useState(null)
-  const [subcargos, setSubcargos] = useState([])
+  const [empresaId, setEmpresaId] = useState(null);
+  const [areas, setAreas] = useState([]);
+  const [cargos, setCargos] = useState([]);
+  const [subcargos, setSubcargos] = useState([]);
+  const [usuarios, setUsuarios] = useState([]);
+
+  const [modal, setModal] = useState(false);
+  const [areaModal, setAreaModal] = useState(false);
+
+  const [selectedArea, setSelectedArea] = useState(null);
+  const [selectedCargo, setSelectedCargo] = useState(null);
+  const [selectedJerarquia, setSelectedJerarquia] = useState(null);
+
+  const [position, setPosition] = useState('');
+  const [employees, setEmployees] = useState('');
+  const [subcargoList, setSubcargoList] = useState([]);
+
+  const [areaName, setAreaName] = useState('');
+  const [areaIndex, setAreaIndex] = useState(null);
 
   const {
-    empresaId,
-    tableData,
-    setTableData,
-    totalEmpleados,
-    empleadosAsignados,
-    setEmpleadosAsignados,
     empleadosPorJerarquia,
     jerarquiasPlaneadas,
-  } = useEmpresaData()
+    empleadosAsignados,
+    totalEmpleados,
+    refetch
+  } = useEmpresaData();
+
+  const jerarquias = ['J1', 'J2', 'J3', 'J4'];
 
   const jerarquiaIcons = {
-    J1: "/src/assets/icons/IconJ1.png",
-    J2: "/src/assets/icons/IconJ2.png",
-    J3: "/src/assets/icons/IconJ3.png",
-    J4: "/src/assets/icons/IconJ4.png",
-  }
+    J1: '/src/assets/icons/IconJ1.png',
+    J2: '/src/assets/icons/IconJ2.png',
+    J3: '/src/assets/icons/IconJ3.png',
+    J4: '/src/assets/icons/IconJ4.png',
+  };
 
   const nivelesJerarquia = {
-    J1: "La Jerarquia 1 (Ejecución): realiza tareas operativas esenciales.",
-    J2: "La Jerarquia 2 (Supervisión): asegura que las tareas se cumplan según procedimientos y estándares.",
-    J3: "La Jerarquia 3 (Gerencial): implementa estrategias y toma decisiones a mediano plazo.",
-    J4: "La Jerarquia 4 (Directivo): define la estrategia general, establece objetivos y asigna recursos.",
-  }
+    J1: 'La Jerarquía 1 (Ejecución)',
+    J2: 'La Jerarquía 2 (Supervisión)',
+    J3: 'La Jerarquía 3 (Gerencial)',
+    J4: 'La Jerarquía 4 (Directivo)',
+  };
 
-  const edit_svg = (
-    <svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='#000000' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'>
-      <path d='M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z' />
-      <path d='m15 5 4 4' />
-    </svg>
-  )
+  // Función única para cargar todos los datos de tabla
+  const loadAll = async () => {
+    const empresas = await fetchEmpresas();
+    const empresaActual = empresas[empresas.length - 1];
+    setEmpresaId(empresaActual.id);
 
-  function toggleModal(areaName = null, hierarchy = null) {
-    const area = tableData.find((a) => a.name === areaName)
-    const role = area?.roles.find((r) => r.hierarchy === hierarchy)
+    const [areasData, cargosData, subcargosData, usuariosData] = await Promise.all([
+      fetchAreas(empresaActual.id),
+      fetchCargos(),
+      fetchSubcargos(),
+      fetchUsuarios()
+    ]);
 
-    setSelectedArea(areaName)
-    setSelectedHierarchy(hierarchy)
-    setPosition(role?.position || '')
-    setEmployees(role?.employees || '')
-    setSubcargos(role?.subcargos || [])
-    setModal(true)
-  }
+    setAreas(areasData);
+    setCargos(cargosData.filter(c => areasData.some(a => a.id === c.area_id)));
+    setSubcargos(subcargosData);
+    setUsuarios(usuariosData.filter(u => u.empresa_id === empresaActual.id));
+  };
+
+  // Carga inicial
+  useEffect(() => {
+    loadAll();
+  }, []);
 
   const openAreaModal = (index, name) => {
-    setAreaIndex(index)
-    setAreaName(name)
-    setAreaModal(true)
-  }
+    setAreaIndex(index);
+    setAreaName(name);
+    setAreaModal(true);
+  };
+
+  const openRoleModal = (area, cargo, jerarquia) => {
+    setSelectedArea(area);
+    setSelectedCargo(cargo);
+    setSelectedJerarquia(jerarquia);
+    setPosition(cargo?.nombre || '');
+    setEmployees(cargo?.personas || '');
+    setSubcargoList(subcargos.filter(s => s.cargo_id === cargo?.id));
+    setModal(true);
+  };
 
   const handleSaveAreaName = async () => {
-    const updatedData = [...tableData]
-    updatedData[areaIndex].name = areaName
-    setTableData(updatedData)
-    setAreaModal(false)
+    await updateArea(areas[areaIndex].id, areaName);
+    const updated = [...areas];
+    updated[areaIndex].nombre = areaName;
+    setAreas(updated);
+    setAreaModal(false);
+  };
 
-    const nombres = updatedData.map((area) => area.name)
-    if (empresaId) {
-      try {
-        await updateEmpresaAreas(empresaId, nombres)
-      } catch (err) {
-        console.error('Error al actualizar nombres de áreas:', err)
-      }
-    }
-  }
-
-  async function handleSave(e) {
-    e.preventDefault()
-
+  const handleSaveEverything = async () => {
     if (!position || !employees) {
-      alert('Todos los campos son obligatorios')
-      return
+      alert('Completa todos los campos');
+      return;
+    }
+    const totalSub = subcargoList.reduce((t, s) => t + (s.personas || 0), 0);
+    if (totalSub > parseInt(employees, 10)) {
+      alert('La suma de subcargos supera el total.');
+      return;
     }
 
-    const employeeNumber = Number(employees)
-    if (isNaN(employeeNumber) || employeeNumber <= 0) {
-      alert('Número inválido de empleados')
-      return
-    }
-
-    const newRole = {
-      area: selectedArea,
-      jerarquia: selectedHierarchy,
-      position,
-      employees: employeeNumber,
-      subcargos,
-      empresaId,
-    }
-
+    let cargoId;
     try {
-      await saveRole(newRole)
-
-      setTableData((prevData) =>
-        prevData.map((area) => {
-          if (area.name === selectedArea) {
-            return {
-              ...area,
-              roles: area.roles.map((role) => (role.hierarchy === selectedHierarchy ? { ...role, position, employees: employeeNumber, subcargos } : role)),
-            }
-          }
-          return area
-        })
-      )
-
-      setModal(false)
-      setPosition('')
-      setEmployees('')
-      setSelectedArea(null)
-      setSelectedHierarchy(null)
-      setSubcargos([])
-
-      setEmpleadosAsignados((prev) => prev + employeeNumber)
-    } catch (error) {
-      console.error('❌ Error al guardar:', error)
-      alert('Error al guardar los datos')
-    }
-  }
-
-  const handleDelete = async () => {
-    try {
-      const area = tableData.find((a) => a.name === selectedArea)
-      const role = area?.roles.find((r) => r.hierarchy === selectedHierarchy)
-
-      if (role && role.position) {
-        const allRoles = await fetchAllRoles(empresaId)
-        const rolDB = allRoles.find((r) => r.area === selectedArea && r.jerarquia === selectedHierarchy && r.position === role.position)
-
-        if (!rolDB) {
-          alert('⚠️ No se pudo encontrar el rol en la base de datos.')
-          return
-        }
-
-        await deleteRole(rolDB.id)
-
-        setTableData((prevData) =>
-          prevData.map((area) => {
-            if (area.name === selectedArea) {
-              return {
-                ...area,
-                roles: area.roles.map((role) => (role.hierarchy === selectedHierarchy ? { ...role, position: null, employees: null, subcargos: [] } : role)),
-              }
-            }
-            return area
-          })
-        )
-
-        if (role.employees) {
-          setEmpleadosAsignados((prev) => prev - role.employees)
-        }
-
-        setModal(false)
-        setPosition('')
-        setEmployees('')
-        setSelectedArea(null)
-        setSelectedHierarchy(null)
-        setSubcargos([])
-
-        alert('✅ Rol eliminado correctamente')
+      if (!selectedCargo?.id) {
+        const nuevo = await saveCargo({
+          nombre: position,
+          personas: parseInt(employees, 10),
+          area_id: selectedArea.id,
+          jerarquia_id: String(selectedJerarquia),
+        });
+        cargoId = nuevo.id;
+        setCargos(prev => [...prev, nuevo]);
+      } else {
+        cargoId = selectedCargo.id;
+        await updateCargo(cargoId, { nombre: position, personas: parseInt(employees, 10) });
+        setCargos(prev => prev.map(c => c.id === cargoId ? { ...c, nombre: position, personas: parseInt(employees, 10) } : c));
       }
-    } catch (error) {
-      console.error('❌ Error al eliminar el rol:', error)
-      alert('❌ Error al eliminar el rol.')
+
+      for (const sub of subcargoList) {
+        if (!sub.id && sub.nombre.trim()) {
+          await saveSubcargo({ nombre: sub.nombre, personas: parseInt(sub.personas || 0, 10), cargo_id: cargoId });
+        }
+      }
+
+      const subAct = await fetchSubcargosByCargo(cargoId);
+      setSubcargos(prev => [...prev.filter(s => s.cargo_id !== cargoId), ...subAct]);
+      setSubcargoList(subAct);
+    } catch (err) {
+      console.error('Error al guardar:', err);
+      alert('Error al guardar cargo o subcargos');
+      return;
     }
-  }
+
+    try { await refetch(); } catch (e) { console.warn('Error refetch:', e); }
+    await loadAll();
+    setModal(false);
+  };
+
+  const handleDeleteRole = async () => {
+    if (!selectedCargo) return;
+    if (!window.confirm(`¿Eliminar cargo "${selectedCargo.nombre}"?`)) return;
+
+    try {
+      await deleteCargo(selectedCargo.id);
+      setCargos(prev => prev.filter(c => c.id !== selectedCargo.id));
+    } catch (err) {
+      console.error('Error al eliminar cargo:', err);
+      alert('Error al eliminar cargo');
+      return;
+    }
+
+    try {
+           await refetch();
+         } catch (e) {
+           console.warn('Error refrescando métricas:', e);
+         }
+    await loadAll();
+    setModal(false);
+  };
+
+  const handleAddSubcargo = () => {
+    setSubcargoList(prev => [...prev, { nombre: '', personas: 0 }]);
+  };
+
+  const handleDeleteSubcargo = async id => {
+    if (!window.confirm('¿Eliminar subcargo?')) return;
+    try {
+      await deleteSubcargo(id);
+      setSubcargos(prev => prev.filter(s => s.id !== id));
+      setSubcargoList(prev => prev.filter(s => s.id !== id));
+    } catch (e) {
+      console.error('Error al eliminar subcargo:', e);
+      alert('Error al eliminar subcargo');
+    }
+  };
 
   const handleDeleteArea = async () => {
-    const confirm = window.confirm(`¿Eliminar el área "${areaName}" y todos sus cargos?`)
-    if (!confirm) return
-
+    if (!window.confirm(`¿Eliminar área "${areaName}"?`)) return;
     try {
-      await deleteArea(empresaId, areaName)
-      const updatedData = tableData.filter((_, i) => i !== areaIndex)
-      setTableData(updatedData)
-      setAreaModal(false)
-      alert('✅ Área eliminada correctamente')
-    } catch (error) {
-      console.error('❌ Error al eliminar el área:', error)
-      alert('❌ Error al eliminar el área.')
+      const id = areas[areaIndex].id;
+      await fetch(`http://localhost:3000/areas/${id}`, { method: 'DELETE' });
+      setAreas(prev => prev.filter((_, i) => i !== areaIndex));
+    } catch (e) {
+      console.error('Error al eliminar área:', e);
+      alert('Error al eliminar área');
     }
-  }
+    setAreaModal(false);
+  };
 
   let feedbackMessage;
 
@@ -229,37 +243,44 @@ export function Table() {
     );
   }
 
-
   return (
     <>
-      <div className='table-container'>
+      <div style={{ margin: '16px 0' }}>
+        <h4>Progreso total de la empresa</h4>
+      </div>
+      <div className="table-container">
         <table>
           <thead>
             <tr>
-              <th id='blank'></th>
-              {['J1', 'J2', 'J3', 'J4'].map((j) => (
-                <th key={j} className='jerarquia'>
+              <th />
+              {jerarquias.map(j => (
+                <th key={j} className="jerarquia">
                   <div>
                     {j}
-                    <Tooltip triggerText={<img src={jerarquiaIcons[j]} alt={`Icono ${j}`} width={40} />} popupText={nivelesJerarquia[j]} />
+                    <Tooltip triggerText={<img src={jerarquiaIcons[j]} alt={j} width={40} />} popupText={nivelesJerarquia[j]} />
                   </div>
-                  <div style={{ fontSize: '12px', color: 'gray' }}>({empleadosPorJerarquia[j]} / {jerarquiasPlaneadas[j]})</div>
                 </th>
               ))}
             </tr>
           </thead>
           <tbody>
-            {tableData.map((area, i) => (
-              <tr key={i}>
-                <th className='area-row'>
-                  <div className='area-name' onClick={() => openAreaModal(i, area.name)} style={{ cursor: 'pointer' }}>
-                    {area.name}
-                    {edit_svg}
+            {areas.map((area, i) => (
+              <tr key={area.id}>
+                <th className="area-row">
+                  <div onClick={() => openAreaModal(i, area.nombre)} style={{ cursor: 'pointer' }}>
+                    {area.nombre}
                   </div>
                 </th>
-                {area.roles.map((role, ri) => (
-                  <td key={ri}>
-                    <RoleCell role={role} areaName={area.name} onClick={toggleModal} />
+                {jerarquias.map(j => (
+                  <td key={j}>
+                    <RoleCell
+                      areaId={area.id}
+                      jerarquia={j}
+                      cargos={cargos.filter(c => c.area_id === area.id && c.jerarquia_id === j)}
+                      subcargos={subcargos}
+                      usuarios={usuarios}
+                      onClick={(c, jer) => openRoleModal(area, c, jer)}
+                    />
                   </td>
                 ))}
               </tr>
@@ -268,37 +289,36 @@ export function Table() {
           <tfoot>
             <tr>
               <td className="area-column">Resumen</td>
-              {['J1', 'J2', 'J3', 'J4'].map(j => (
+              {jerarquias.map(j => (
                 <td key={j}>
                   <ProgressBar empleadosAsignados={empleadosPorJerarquia[j]} empleadosPlaneados={jerarquiasPlaneadas[j]} />
                 </td>
               ))}
             </tr>
-            {totalEmpleados !== 0 && (
-              <tr>
-                <td className='feedContainer' colSpan={5}>
-                  {feedbackMessage}
-                </td>
-              </tr>
-            )}
+            <tr>
+              <td className="area-column">Progreso total empresa</td>
+              <td colSpan={4}>
+                <ProgressBar empleadosAsignados={empleadosAsignados} empleadosPlaneados={totalEmpleados} />
+              </td>
+            </tr>
           </tfoot>
-          <button onClick={() => handleAddArea(tableData, setTableData, empresaId)}>+ Añadir área</button>
         </table>
+        <button onClick={() => handleAddArea(areas, setAreas, empresaId)}>+ Añadir área</button>
       </div>
+
       {modal && (
         <EditRoleModal
-          selectedArea={selectedArea}
-          selectedHierarchy={selectedHierarchy}
           position={position}
           employees={employees}
-          subcargos={subcargos}
+          subcargos={subcargoList}
           onPositionChange={setPosition}
           onEmployeesChange={setEmployees}
-          onSubcargosChange={setSubcargos}
+          onSubcargosChange={setSubcargoList}
+          onSave={handleSaveEverything}
           onClose={() => setModal(false)}
-          onSave={handleSave}
-          onDelete={handleDelete}
-          empresaId={empresaId}
+          onDeleteSubcargo={handleDeleteSubcargo}
+          onDeleteRole={handleDeleteRole}
+          onAddSubcargo={handleAddSubcargo}
         />
       )}
 
@@ -312,7 +332,7 @@ export function Table() {
         />
       )}
     </>
-  )
+  );
 }
 
-export default Table
+export default Table;

@@ -1,55 +1,55 @@
 const express = require("express");
 const cors = require("cors");
-const sequelize = require("./db");
-const { Empresa, Rol } = require("./models/associations");
+const { supabase, supabaseAdmin } = require("./supabase/supabase");
 
 const app = express();
 app.use(express.json());
 app.use(cors());
 
-// Sincronizar la base de datos sin eliminar datos existentes
-sequelize.sync({ alter: true }).then(() => {
-  console.log("✅ Base de datos sincronizada");
-});
+/* ───────── EMPRESAS ───────── */
 
 // Crear nueva empresa
 app.post("/empresas", async (req, res) => {
   try {
-    console.log("📦 Datos recibidos:", req.body);
     const {
-      empleados,
+      nombre,
+      cantidad_empleados: empleados,
       jerarquia1,
       jerarquia2,
       jerarquia3,
       jerarquia4,
       areas,
-      areas_nombres,
     } = req.body;
 
     if (
-      empleados == null ||
-      jerarquia1 == null ||
-      jerarquia2 == null ||
-      jerarquia3 == null ||
-      jerarquia4 == null ||
-      areas == null
+      !nombre || !empleados ||
+      !jerarquia1 || !jerarquia2 || !jerarquia3 || !jerarquia4 ||
+      !areas || !Array.isArray(areas) || areas.length === 0
     ) {
-      return res.status(400).json({ error: "Faltan datos requeridos" });
+      return res.status(400).json({ error: "Faltan datos requeridos o áreas vacías" });
     }
 
-    const empresa = await Empresa.create({
-      empleados,
-      jerarquia1,
-      jerarquia2,
-      jerarquia3,
-      jerarquia4,
-      areas,
-      areas_nombres: areas_nombres || [],
-    });
+    const { data: empresaData, error: empresaError } = await supabaseAdmin
+      .from("empresas")
+      .insert([{ nombre, cantidad_empleados: empleados, jerarquia: 4, jerarquia1, jerarquia2, jerarquia3, jerarquia4 }])
+      .select("id")
+      .single();
 
-    res.status(201).json(empresa);
+    if (empresaError) throw empresaError;
+
+    const empresa_id = empresaData.id;
+
+    const areaInserts = areas.map(nombre => ({ nombre, empresa_id }));
+
+    const { data: areasData, error: areasError } = await supabaseAdmin
+      .from("areas")
+      .insert(areaInserts);
+
+    if (areasError) throw areasError;
+
+    res.status(201).json({ empresa: empresaData, areas: areasData });
   } catch (error) {
-    console.error("❌ Error al crear empresa:", error);
+    console.error("❌ Error al crear empresa y áreas:", error);
     res.status(500).json({ error: "Error al crear empresa", detalle: error.message });
   }
 });
@@ -57,141 +57,294 @@ app.post("/empresas", async (req, res) => {
 // Obtener todas las empresas
 app.get("/empresas", async (req, res) => {
   try {
-    const empresas = await Empresa.findAll();
-    res.status(200).json(empresas);
+    const { data, error } = await supabase.from("empresas").select("*");
+    if (error) throw error;
+
+    res.status(200).json(data);
   } catch (error) {
-    res.status(500).json({ error: "Error al obtener empresas" });
+    console.error("❌ Error al obtener empresas:", error.message, error);
+    res.status(500).json({ error: "Error al obtener empresas", detalle: error.message });
   }
 });
 
-// Actualizar nombres de áreas de una empresa
-app.put("/empresas/:id", async (req, res) => {
-  const { id } = req.params;
-  const { areas_nombres } = req.body;
+/* ───────── ÁREAS ───────── */
 
-  try {
-    const [updatedRows] = await Empresa.update(
-      { areas_nombres },
-      { where: { id } }
-    );
-
-    if (updatedRows === 0) {
-      return res.status(404).json({ error: "Empresa no encontrada o sin cambios" });
-    }
-
-    const empresaActualizada = await Empresa.findByPk(id);
-    res.json({ message: "Área(s) actualizada(s)", empresa: empresaActualizada });
-  } catch (err) {
-    console.error("❌ Error al actualizar empresa:", err);
-    res.status(500).json({ error: "Error al actualizar la empresa" });
-  }
-});
-
-// Crear un nuevo rol
-app.post("/roles", async (req, res) => {
-  try {
-    const { area, jerarquia, position, employees, subcargos, empresaId } = req.body;
-
-    if (!area || !jerarquia || !position || !employees || !empresaId) {
-      return res.status(400).json({ error: "Faltan datos requeridos" });
-    }
-
-    const rol = await Rol.create({ area, jerarquia, position, employees, subcargos, empresaId });
-    res.status(201).json(rol);
-  } catch (error) {
-    console.error("Error al crear rol:", error);
-    res.status(500).json({ error: "Error al crear rol" });
-  }
-});
-
-// Obtener todos los roles de una empresa por empresaId
-app.get("/roles/empresa/:empresaId", async (req, res) => {
+// Obtener áreas por empresa
+app.get("/areas/empresa/:empresaId", async (req, res) => {
   const { empresaId } = req.params;
+
   try {
-    const roles = await Rol.findAll({
-      where: { empresaId },
-    });
-    res.status(200).json(roles);
+    const { data, error } = await supabase
+      .from("areas")
+      .select("*")
+      .eq("empresa_id", empresaId);
+
+    if (error) throw error;
+
+    res.status(200).json(data);
   } catch (error) {
-    console.error("❌ Error al obtener roles:", error);
-    res.status(500).json({ error: "Error al obtener roles" });
+    console.error("❌ Error al obtener áreas por empresa:", error);
+    res.status(500).json({ error: "Error al obtener áreas", detalle: error.message });
   }
 });
 
-// Eliminar un rol completo por ID
-app.delete("/roles/:id", async (req, res) => {
+// Obtener un área por ID
+app.get("/areas/:id", async (req, res) => {
   const { id } = req.params;
 
   try {
-    const deleted = await Rol.destroy({ where: { id } });
+    const { data, error } = await supabase
+      .from("areas")
+      .select("*")
+      .eq("id", id)
+      .single();
 
-    if (deleted === 0) {
-      return res.status(404).json({ error: "Rol no encontrado" });
-    }
+    if (error) throw error;
 
-    res.status(200).json({ message: "Rol eliminado correctamente" });
+    res.status(200).json(data);
   } catch (error) {
-    console.error("❌ Error al eliminar rol:", error);
-    res.status(500).json({ error: "Error al eliminar rol" });
+    console.error("❌ Error al obtener área por ID:", error);
+    res.status(500).json({ error: "Error al obtener área", detalle: error.message });
   }
 });
 
-// Eliminar un subcargo de un rol
-app.delete("/roles/:rolId/subcargos/:subcargoName", async (req, res) => {
-  const { rolId, subcargoName } = req.params;
-  console.log("🧹 Eliminando subcargo:", subcargoName, "del rol", rolId);
+// Crear área nueva
+app.post("/areas", async (req, res) => {
+  const { nombre, empresa_id } = req.body;
+
+  if (!nombre || !empresa_id) {
+    return res.status(400).json({ error: "Faltan datos requeridos para crear el área" });
+  }
 
   try {
-    const rol = await Rol.findByPk(rolId);
-    if (!rol) return res.status(404).json({ error: "Rol no encontrado" });
+    const { data, error } = await supabaseAdmin
+      .from("areas")
+      .insert([{ nombre, empresa_id }])
+      .select()
+      .single();
 
-    const subcargos = rol.subcargos || [];
-    const nuevosSubcargos = subcargos.filter((sub) => sub.name !== subcargoName);
+    if (error) throw error;
 
-    if (nuevosSubcargos.length === subcargos.length) {
-      return res.status(404).json({ error: "Subcargo no encontrado" });
-    }
+    res.status(201).json(data);
+  } catch (error) {
+    console.error("❌ Error al crear área:", error);
+    res.status(500).json({ error: "Error al crear área", detalle: error.message });
+  }
+});
 
-    rol.subcargos = nuevosSubcargos;
-    await rol.save();
+// Editar área por ID
+app.put("/areas/:id", async (req, res) => {
+  const { id } = req.params;
+  const { nombre } = req.body;
 
-    res.json({ message: "Subcargo eliminado correctamente", rol });
+  if (!nombre) {
+    return res.status(400).json({ error: "El nombre del área es obligatorio" });
+  }
+
+  try {
+    const { data, error } = await supabaseAdmin
+      .from("areas")
+      .update({ nombre })
+      .eq("id", id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    res.status(200).json(data);
+  } catch (error) {
+    console.error("❌ Error al actualizar área:", error);
+    res.status(500).json({ error: "Error al actualizar área", detalle: error.message });
+  }
+});
+
+// Eliminar área por ID
+app.delete("/areas/:id", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const { error } = await supabaseAdmin
+      .from("areas")
+      .delete()
+      .eq("id", id);
+
+    if (error) throw error;
+    res.status(200).json({ message: "Área eliminada correctamente" });
+  } catch (error) {
+    console.error("❌ Error al eliminar área:", error);
+    res.status(500).json({ error: "Error al eliminar área", detalle: error.message });
+  }
+});
+
+/* ───────── CARGOS ───────── */
+
+// Crear nuevo cargo
+app.post("/cargos", async (req, res) => {
+  const { nombre, personas, area_id, jerarquia_id } = req.body;
+
+  if (!nombre || !area_id || !jerarquia_id) {
+    return res.status(400).json({ error: "Faltan datos requeridos para crear el cargo" });
+  }
+
+  try {
+    const { data, error } = await supabaseAdmin
+      .from("cargos")
+      .insert([{ nombre, personas: personas || 0, area_id, jerarquia_id }])
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    res.status(201).json(data);
+  } catch (error) {
+    console.error("❌ Error al crear cargo:", error);
+    res.status(500).json({ error: "Error al crear cargo", detalle: error.message });
+  }
+});
+
+// Obtener todos los cargos
+app.get("/cargos", async (req, res) => {
+  try {
+    const { data, error } = await supabase.from("cargos").select("*");
+
+    if (error) throw error;
+
+    res.status(200).json(data);
+  } catch (error) {
+    console.error("❌ Error al obtener cargos:", error);
+    res.status(500).json({ error: "Error al obtener cargos", detalle: error.message });
+  }
+});
+
+// Actualizar cargo
+app.put("/cargos/:id", async (req, res) => {
+  const { id } = req.params;
+  const { nombre, personas } = req.body;
+
+  try {
+    const { data, error } = await supabaseAdmin
+      .from("cargos")
+      .update({ nombre, personas })
+      .eq("id", id)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    res.status(200).json(data);
+  } catch (error) {
+    console.error("❌ Error al actualizar cargo:", error);
+    res.status(500).json({ error: "Error al actualizar cargo", detalle: error.message });
+  }
+});
+
+// Eliminar cargo
+app.delete("/cargos/:id", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const { error } = await supabaseAdmin
+      .from("cargos")
+      .delete()
+      .eq("id", id);
+
+    if (error) throw error;
+
+    res.status(200).json({ message: "Cargo eliminado correctamente" });
+  } catch (error) {
+    console.error("❌ Error al eliminar cargo:", error);
+    res.status(500).json({ error: "Error al eliminar cargo", detalle: error.message });
+  }
+});
+
+/* ───────── SUBCARGOS ───────── */
+
+// Obtener todos los subcargos
+app.get("/subcargos", async (req, res) => {
+  try {
+    const { data, error } = await supabase.from("subcargos").select("*");
+
+    if (error) throw error;
+    res.status(200).json(data);
+  } catch (error) {
+    console.error("❌ Error al obtener subcargos:", error);
+    res.status(500).json({ error: "Error al obtener subcargos", detalle: error.message });
+  }
+});
+
+// Obtener subcargos por cargo
+app.get("/subcargos/cargo/:cargoId", async (req, res) => {
+  const { cargoId } = req.params;
+  try {
+    const { data, error } = await supabase
+      .from("subcargos")
+      .select("*")
+      .eq("cargo_id", cargoId);
+
+    if (error) throw error;
+    res.status(200).json(data);
+  } catch (error) {
+    console.error("❌ Error al obtener subcargos por cargo:", error);
+    res.status(500).json({ error: "Error al obtener subcargos", detalle: error.message });
+  }
+});
+
+// Crear subcargo
+app.post("/subcargos", async (req, res) => {
+  const { nombre, personas, cargo_id } = req.body;
+
+  if (!nombre || !cargo_id) {
+    return res.status(400).json({ error: "Faltan datos requeridos para crear el subcargo" });
+  }
+
+  try {
+    const { data, error } = await supabaseAdmin
+      .from("subcargos")
+      .insert([{ nombre, personas: personas || 0, cargo_id }])
+      .select()
+      .single();
+
+    if (error) throw error;
+    res.status(201).json(data);
+  } catch (error) {
+    console.error("❌ Error al crear subcargo:", error);
+    res.status(500).json({ error: "Error al crear subcargo", detalle: error.message });
+  }
+});
+
+// Eliminar subcargo
+app.delete("/subcargos/:id", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const { error } = await supabaseAdmin
+      .from("subcargos")
+      .delete()
+      .eq("id", id);
+
+    if (error) throw error;
+    res.status(200).json({ message: "Subcargo eliminado correctamente" });
   } catch (error) {
     console.error("❌ Error al eliminar subcargo:", error);
-    res.status(500).json({ error: "Error interno al eliminar subcargo" });
+    res.status(500).json({ error: "Error al eliminar subcargo", detalle: error.message });
   }
 });
 
-// Eliminar un área específica de una empresa
-app.delete("/areas/:empresaId/:areaName", async (req, res) => {
-  const { empresaId, areaName } = req.params;
+/* ───────── USUARIOS ───────── */
 
+app.get("/usuarios", async (req, res) => {
   try {
-    console.log(`🧹 Eliminando área "${areaName}" de la empresa con ID ${empresaId}`);
+    const { data, error } = await supabase.from("usuarios").select("*");
 
-    const empresa = await Empresa.findByPk(empresaId);
-    if (!empresa) {
-      return res.status(404).json({ error: "Empresa no encontrada" });
-    }
-
-    const areas = empresa.areas_nombres || [];
-    if (!areas.includes(areaName)) {
-      return res.status(404).json({ error: "Área no encontrada en la empresa" });
-    }
-
-    const updatedAreas = areas.filter((area) => area !== areaName);
-    empresa.areas_nombres = updatedAreas;
-
-    await empresa.save();
-
-    res.status(200).json({ message: "Área eliminada correctamente", areas_nombres: updatedAreas });
+    if (error) throw error;
+    res.status(200).json(data);
   } catch (error) {
-    console.error("❌ Error al eliminar el área:", error);
-    res.status(500).json({ error: "Error al eliminar el área" });
+    console.error("❌ Error al obtener usuarios:", error);
+    res.status(500).json({ error: "Error al obtener usuarios", detalle: error.message });
   }
 });
 
-// Iniciar servidor
+/* ───────── INICIO DEL SERVIDOR ───────── */
+
 app.listen(3000, () => {
   console.log("🚀 Servidor corriendo en http://localhost:3000");
 });
