@@ -1,6 +1,5 @@
-import logoInnlab from "/src/assets/logos/logoInnlab.png";
-import "./NavBar.css";
-
+import logoInnlab from "../../../public/Innlab.png";
+import "./Navbar.css";
 export function NavBar() {
     return (
         <nav className="navbar">

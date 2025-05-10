@@ -1,14 +1,7 @@
-<<<<<<< HEAD
-import './DownloadPage.css'
-import { TitleSection, Description, Button } from '../../components/index'
-import { generarExcelDesdeTabla } from "../../components/Table/exportExcel"
-import { useEmpresaData } from '../../components/Table/useEmpresaData'
-=======
 import './DownloadPage.css';
-import { BackButton, NextButton, DownloadButton, TitleSection, Description } from '../../components/index';
+import { TitleSection, Description } from '../../components/index';
 import { generarExcelDesdeBD } from '../../components/Table/exportExcel'; // <-- Asegúrate que sea la ruta correcta
 import { useEmpresaData } from '../../components/Table/useEmpresaData';
->>>>>>> supabasecuadros
 
 export function DownloadPage() {
   const { tableData } = useEmpresaData();

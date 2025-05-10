@@ -1,11 +1,6 @@
 import { useState } from "react";
-<<<<<<< HEAD
-import { Tooltip, TitleSection, Form, Subtitle, Description, Button, NavBar } from '../../components/index';
-import { useNavigate } from "react-router-dom"; // Importar useNavigate
-=======
-import { Tooltip, NextButton, BackButton, TitleSection, Form, Subtitle, Description } from '../../components/index';
+import { Tooltip, TitleSection, Form, Subtitle, Description,NavBar,Button } from '../../components/index';
 import { useNavigate } from "react-router-dom";
->>>>>>> supabasecuadros
 import "./innlab-form.css";
 
 export function InnlabForm() {
@@ -101,7 +96,7 @@ export function InnlabForm() {
   return (
     <section className="container">
       <div className="containerNavBar">
-        <NavBar />
+        <NavBar/>
       </div>
       <div className="innlab-form-header">
         <div className="jerarquia-header">

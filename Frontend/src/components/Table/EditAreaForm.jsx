@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Button } from '../index';
 
 export default function EditAreaForm({ areaName, onChange, onSave, onCancel, onDelete }) {
 	const [error, setError] = useState('');
@@ -33,12 +34,7 @@ export default function EditAreaForm({ areaName, onChange, onSave, onCancel, onD
 						<button onClick={onCancel} className='cancel-button'>
 							Cancelar
 						</button>
-						<Button type='button' variant='delete' className='small-button' onClick={onDelete}>
-							Eliminar
-						</Button>
-						<Button type='submit' variant='submit' className='small-button' onClick={onSave}>
-							Guardar
-						</Button>
+	
 					</div>
 				</div>
 			</div>

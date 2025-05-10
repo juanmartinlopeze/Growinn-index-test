@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import './Table.css';
 import { Tooltip } from '../index';
-import ProgressBar from './ProgressBar';
+import ProgressBar from '../ProgressBar/ProgressBar';
 import EditAreaForm from './EditAreaForm';
 import EditRoleModal from './EditRoleModal';
 import RoleCell from './RoleCell';
