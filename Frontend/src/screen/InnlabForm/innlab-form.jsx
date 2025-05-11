@@ -1,5 +1,13 @@
 import { useState } from "react";
-import { Tooltip, TitleSection, Form, Subtitle, Description,NavBar,Button } from '../../components/index';
+import {
+  Tooltip,
+  TitleSection,
+  Form,
+  Subtitle,
+  Description,
+  NavBar,
+  Button,
+} from "../../components/index";
 import { useNavigate } from "react-router-dom";
 import "./innlab-form.css";
 
@@ -16,23 +24,79 @@ export function InnlabForm() {
   const navigate = useNavigate();
 
   const questions = [
-    { id: 1, title: "¿Cuántos empleados tiene tu empresa?", placeholder: "Digite aquí", icon: null, field: "empleados" },
-    { id: 2, title: "¿Cuántos empleados hay en la jerarquía 1?", placeholder: "Digite aquí", icon: <Tooltip triggerText={<img src="/info-circle.png" alt="Jerarquía 1" />} popupText="La Jerarquía 1 (Ejecución): realiza tareas operativas esenciales." />, field: "jerarquia1" },
-    { id: 3, title: "¿Cuántos empleados hay en la jerarquía 2?", placeholder: "Digite aquí", icon: <Tooltip triggerText={<img src="/info-circle.png" alt="Jerarquía 2" />} popupText="La Jerarquía 2 (Supervisión): asegura que las tareas se cumplan según procedimientos y estándares." />, field: "jerarquia2" },
-    { id: 4, title: "¿Cuántos empleados hay en la jerarquía 3?", placeholder: "Digite aquí", icon: <Tooltip triggerText={<img src="/info-circle.png" alt="Jerarquía 3" />} popupText="La Jerarquía 3 (Gerencial): implementa estrategias y toma decisiones a mediano plazo." />, field: "jerarquia3" },
-    { id: 5, title: "¿Cuántos empleados hay en la jerarquía 4?", placeholder: "Digite aquí", icon: <Tooltip triggerText={<img src="/info-circle.png" alt="Jerarquía 4" />} popupText="La Jerarquía 4 (Directivo): define la estrategia general, establece objetivos y asigna recursos." />, field: "jerarquia4" },
-    { id: 6, title: "¿Cuántas áreas tiene tu empresa?", placeholder: "Digite aquí", icon: null, field: "areas" },
+    {
+      id: 1,
+      title: "¿Cuántos empleados tiene tu empresa?",
+      placeholder: "Digite aquí",
+      icon: null,
+      field: "empleados",
+    },
+    {
+      id: 2,
+      title: "¿Cuántos empleados hay en la jerarquía 1?",
+      placeholder: "Digite aquí",
+      icon: (
+        <Tooltip
+          triggerText={<img src="/info-circle.png" alt="Jerarquía 1" />}
+          popupText="La Jerarquía 1 (Ejecución): realiza tareas operativas esenciales."
+        />
+      ),
+      field: "jerarquia1",
+    },
+    {
+      id: 3,
+      title: "¿Cuántos empleados hay en la jerarquía 2?",
+      placeholder: "Digite aquí",
+      icon: (
+        <Tooltip
+          triggerText={<img src="/info-circle.png" alt="Jerarquía 2" />}
+          popupText="La Jerarquía 2 (Supervisión): asegura que las tareas se cumplan según procedimientos y estándares."
+        />
+      ),
+      field: "jerarquia2",
+    },
+    {
+      id: 4,
+      title: "¿Cuántos empleados hay en la jerarquía 3?",
+      placeholder: "Digite aquí",
+      icon: (
+        <Tooltip
+          triggerText={<img src="/info-circle.png" alt="Jerarquía 3" />}
+          popupText="La Jerarquía 3 (Gerencial): implementa estrategias y toma decisiones a mediano plazo."
+        />
+      ),
+      field: "jerarquia3",
+    },
+    {
+      id: 5,
+      title: "¿Cuántos empleados hay en la jerarquía 4?",
+      placeholder: "Digite aquí",
+      icon: (
+        <Tooltip
+          triggerText={<img src="/info-circle.png" alt="Jerarquía 4" />}
+          popupText="La Jerarquía 4 (Directivo): define la estrategia general, establece objetivos y asigna recursos."
+        />
+      ),
+      field: "jerarquia4",
+    },
+    {
+      id: 6,
+      title: "¿Cuántas áreas tiene tu empresa?",
+      placeholder: "Digite aquí",
+      icon: null,
+      field: "areas",
+    },
   ];
 
   const handleInputChange = (field, value) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
   };
 
-  const handleSubmit = async () => {
-    const isFormComplete = Object.values(formData).every(val => val.trim() !== "");
+  const handleSubmit = () => {
+    const isFormComplete = Object.values(formData).every((val) => val.trim() !== "");
 
     if (!isFormComplete) {
       alert("Por favor, completa todos los campos antes de continuar.");
@@ -47,53 +111,28 @@ export function InnlabForm() {
       Number(formData.jerarquia4);
 
     if (sumaJerarquias !== totalEmpleados) {
-      alert(`La suma de las jerarquías (${sumaJerarquias}) no coincide con el total de empleados (${totalEmpleados}).`);
+      alert(
+        `La suma de las jerarquías (${sumaJerarquias}) no coincide con el total de empleados (${totalEmpleados}).`
+      );
       return;
     }
 
-    const totalAreas = Number(formData.areas || 0);
+    const totalAreas = Number(formData.areas);
 
-    const payload = {
-      nombre: "Empresa sin nombre",
-      cantidad_empleados: totalEmpleados,
-      jerarquia: 4,
-      jerarquia1: Number(formData.jerarquia1),
-      jerarquia2: Number(formData.jerarquia2),
-      jerarquia3: Number(formData.jerarquia3),
-      jerarquia4: Number(formData.jerarquia4),
-      areas: Array.from({ length: totalAreas }, (_, i) => `Área ${i + 1}`),
-    };
-
-    try {
-      const res = await fetch("http://localhost:3000/empresas", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      if (res.ok) {
-        alert("✅ Empresa registrada correctamente");
-        setFormData({
-          empleados: "",
-          jerarquia1: "",
-          jerarquia2: "",
-          jerarquia3: "",
-          jerarquia4: "",
-          areas: "",
-        });
-        navigate("/areas_form", { state: { totalAreas } });
-      } else {
-        const error = await res.json();
-        console.error("Error:", error);
-        alert(error.error || "❌ Error al enviar el formulario");
-      }
-    } catch (err) {
-      console.error("❌ Error en la petición:", err);
-      alert("❌ No se pudo enviar el formulario");
-    }
+    // Navegar a /areas_form y pasar toda la data relevante
+    navigate("/areas_form", {
+      state: {
+        totalAreas,
+        empleados: formData.empleados,
+        jerarquia1: formData.jerarquia1,
+        jerarquia2: formData.jerarquia2,
+        jerarquia3: formData.jerarquia3,
+        jerarquia4: formData.jerarquia4,
+      },
+    });
   };
 
-  return (
+ return (
     <section className="container">
       <div className="containerNavBar">
         <NavBar/>
