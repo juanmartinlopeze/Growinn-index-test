@@ -7,3 +7,4 @@ export * from "./Subtitle/sub_title";
 export * from "./Description/description";
 export * from "./ProgressBar/ProgressBar";
 export * from "./NavBar/Navbar";
+export * from "./FormAreas/form_areas"

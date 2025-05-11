@@ -81,7 +81,7 @@ export function InnlabForm() {
           jerarquia4: "",
           areas: "",
         });
-        navigate("/datos_prueba");
+        navigate("/areas_form", { state: { totalAreas } });
       } else {
         const error = await res.json();
         console.error("Error:", error);
