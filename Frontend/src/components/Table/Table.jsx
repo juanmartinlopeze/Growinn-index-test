@@ -96,9 +96,17 @@ export function Table() {
 			alert('Completa todos los campos')
 			return
 		}
+
 		const totalSub = subcargoList.reduce((t, s) => t + (s.personas || 0), 0)
-		if (totalSub > parseInt(employees, 10)) {
-			alert('La suma de subcargos supera el total.')
+		const totalCargo = parseInt(employees, 10)
+
+		if (totalSub > totalCargo) {
+			alert('❌ La suma de subcargos supera el total de empleados asignado al cargo.')
+			return
+		}
+
+		if (totalSub < totalCargo) {
+			alert('⚠️ Faltan empleados por distribuir entre los subcargos.')
 			return
 		}
 
