@@ -1,0 +1,11 @@
+.jerarquia-header {
+    width: max-content;
+    text-align: start;
+    margin-bottom: 20px;
+}
+
+.forms-container .form-areas {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+}
