@@ -5,7 +5,6 @@ import {
   Form,
   Subtitle,
   Description,
-  NavBar,
   Button,
 } from "../../components/index";
 import { useNavigate } from "react-router-dom";
@@ -132,11 +131,8 @@ export function InnlabForm() {
     });
   };
 
- return (
+  return (
     <section className="container">
-      <div className="containerNavBar">
-        <NavBar/>
-      </div>
       <div className="innlab-form-header">
         <div className="jerarquia-header">
           <TitleSection title="Jerarquías y cargos" />

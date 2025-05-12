@@ -1,6 +1,6 @@
 // Table.js
 import React, { useEffect, useState } from 'react'
-import { Tooltip } from '../index'
+import { Tooltip, FeedbackMessage } from '../index'
 import ProgressBar from '../ProgressBar/ProgressBar'
 import { deleteCargo, deleteSubcargo, fetchAreas, fetchCargos, fetchEmpresas, fetchSubcargos, fetchSubcargosByCargo, fetchUsuarios, saveCargo, saveSubcargo, updateArea, updateCargo } from './api'
 import EditAreaForm from './EditAreaForm'
@@ -96,9 +96,17 @@ export function Table() {
 			alert('Completa todos los campos')
 			return
 		}
+
 		const totalSub = subcargoList.reduce((t, s) => t + (s.personas || 0), 0)
-		if (totalSub > parseInt(employees, 10)) {
-			alert('La suma de subcargos supera el total.')
+		const totalCargo = parseInt(employees, 10)
+
+		if (totalSub > totalCargo) {
+			alert('❌ La suma de subcargos supera el total de empleados asignado al cargo.')
+			return
+		}
+
+		if (totalSub < totalCargo) {
+			alert('⚠️ Faltan empleados por distribuir entre los subcargos.')
 			return
 		}
 
@@ -194,22 +202,6 @@ export function Table() {
 		setAreaModal(false)
 	}
 
-	let feedbackMessage
-
-	if (empleadosAsignados === 0) {
-		feedbackMessage = (
-			<p className='feedbackNeutral'>
-				ℹ️ Aún no has asignado empleados a ninguna área. <br></br>Por favor, comienza a llenar la tabla para continuar con el proceso de distribución.
-			</p>
-		)
-	} else if (empleadosAsignados === totalEmpleados) {
-		feedbackMessage = <p className='feedbackSuccess'>✅ Has completado correctamente. Todos los empleados han sido asignados.</p>
-	} else if (empleadosAsignados < totalEmpleados && empleadosAsignados >= 1) {
-		feedbackMessage = <p className='feedbackWarning'>⚠️ Faltan empleados por asignar. Revisa si aún quedan áreas sin completar.</p>
-	} else if (empleadosAsignados > totalEmpleados) {
-		feedbackMessage = <p className='feedbackError'>❌ Se han ingresado más empleados de los indicados inicialmente. Revisa si hubo un error en la asignación.</p>
-	}
-
 	return (
 		<>
 			<div style={{ margin: '16px 0' }}>
@@ -223,8 +215,12 @@ export function Table() {
 							{jerarquias.map((j) => (
 								<th key={j} className='jerarquia'>
 									<div>
-										<p>{j}</p>
-										<Tooltip triggerText={<img src={jerarquiaIcons[j]} alt={j} width={40} />} popupText={nivelesJerarquia[j]} />
+										<div>
+											<p>{j}</p>
+										</div>
+										<div>
+											<Tooltip triggerText={<img src={jerarquiaIcons[j]} alt={j} width={40} />} popupText={nivelesJerarquia[j]} />
+										</div>
 									</div>
 								</th>
 							))}
@@ -292,6 +288,10 @@ export function Table() {
 						</tr>
 					</tfoot>
 				</table>
+				<FeedbackMessage
+					empleadosAsignados={empleadosAsignados}
+					totalEmpleados={totalEmpleados}
+				/>
 			</div>
 
 			{modal && (

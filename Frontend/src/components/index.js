@@ -8,3 +8,4 @@ export * from "./Description/description";
 export * from "./ProgressBar/ProgressBar";
 export * from "./NavBar/Navbar";
 export * from "./FormAreas/form_areas"
+export * from "./FeedbackMessage/FeedbackMessage"

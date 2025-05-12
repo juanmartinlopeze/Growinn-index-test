@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { NavBar, Button } from "../../components/index";
+import { Button } from "../../components/index";
 import { useLocation, useNavigate } from "react-router-dom";
 import { FormAreas } from "../../components/FormAreas/form_areas";
 import { TitleSection, Subtitle, Description } from "../../components/index";
@@ -79,11 +79,8 @@ export function AreasForm() {
     }
   };
 
- return (
+  return (
     <section className="container">
-      <div className="containerNavBar">
-        <NavBar />
-      </div>
       <div className="innlab-form-header">
         <div className="jerarquia-header">
           <TitleSection title="Áreas" />
