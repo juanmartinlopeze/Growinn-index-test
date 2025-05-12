@@ -215,8 +215,12 @@ export function Table() {
 							{jerarquias.map((j) => (
 								<th key={j} className='jerarquia'>
 									<div>
-										<p>{j}</p>
-										<Tooltip triggerText={<img src={jerarquiaIcons[j]} alt={j} width={40} />} popupText={nivelesJerarquia[j]} />
+										<div>
+											<p>{j}</p>
+										</div>
+										<div>
+											<Tooltip triggerText={<img src={jerarquiaIcons[j]} alt={j} width={40} />} popupText={nivelesJerarquia[j]} />
+										</div>
 									</div>
 								</th>
 							))}

@@ -4,7 +4,9 @@ import './ToolTip.css';
 export const Tooltip = ({ triggerText, popupText }) => {
     return (
         <div className="popup">
-            {triggerText}
+            <div>
+                {triggerText}
+            </div>
             <span className="popuptext">{popupText}</span>
         </div>
     );
