@@ -1,8 +1,9 @@
 .table-container {
+	width: 100%;
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
-	padding: 20px;
+	padding: 20px 0;
 }
 
 table {
