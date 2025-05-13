@@ -1,6 +1,6 @@
 import './DownloadPage.css';
-import { TitleSection, Description } from '../../components/index';
-import { generarExcelDesdeBD } from '../../components/Table/exportExcel'; // <-- Asegúrate que sea la ruta correcta
+import { TitleSection, Description,Button } from '../../components/index';
+import { generarExcelDesdeBD } from '../../components/Table/exportExcel';
 import { useEmpresaData } from '../../components/Table/useEmpresaData';
 
 export function DownloadPage() {
