@@ -71,7 +71,9 @@ export function AreasForm() {
       const data = await res.json();
       console.log("✅ Empresa creada con áreas:", data);
 
-      navigate("/datos_prueba", { state: { empresaId: data.empresa.id } });
+     const areaNames = Object.values(formData);
+
+    navigate("/datos_prueba", { state: { areas: areaNames } });
 
     } catch (err) {
       console.error("❌ Error en la petición:", err);

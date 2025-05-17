@@ -47,12 +47,37 @@ app.post("/empresas", async (req, res) => {
 
     if (areasError) throw areasError;
 
-    res.status(201).json({ empresa: empresaData, areas: areasData });
+    const totalAreas = areas.length;
+    console.log("🔧 Total de áreas:", totalAreas);
+
+    const { error: updateError } = await supabaseAdmin
+      .from("empresas")
+      .update({ areas: totalAreas })
+      .eq("id", empresa_id);
+
+    if (updateError) {
+      console.error("❌ Error al actualizar campo 'areas' en empresa:", updateError);
+      throw updateError;
+    }
+
+    console.log("✅ Campo 'areas' actualizado correctamente en la empresa.");
+
+    // 🔁 Refetch empresa ya actualizada
+    const { data: updatedEmpresa, error: fetchUpdatedError } = await supabaseAdmin
+      .from("empresas")
+      .select("*")
+      .eq("id", empresa_id)
+      .single();
+
+    if (fetchUpdatedError) throw fetchUpdatedError;
+
+    res.status(201).json({ empresa: updatedEmpresa, areas: areasData });
   } catch (error) {
     console.error("❌ Error al crear empresa y áreas:", error);
     res.status(500).json({ error: "Error al crear empresa", detalle: error.message });
   }
 });
+
 
 // Obtener todas las empresas
 app.get("/empresas", async (req, res) => {
