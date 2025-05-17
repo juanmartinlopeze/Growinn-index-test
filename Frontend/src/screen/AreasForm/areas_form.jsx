@@ -9,7 +9,7 @@ export function AreasForm() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Recibimos todo el estado enviado desde InnlabForm
+  // Recibir datos desde InnlabForm
   const {
     totalAreas = 0,
     empleados,
@@ -21,6 +21,7 @@ export function AreasForm() {
 
   const [formData, setFormData] = useState({});
 
+  // Generar inputs dinámicos para nombres de áreas
   const questions = Array.from({ length: totalAreas }, (_, i) => ({
     id: i + 1,
     field: `area${i + 1}`,
@@ -36,15 +37,15 @@ export function AreasForm() {
   };
 
   const handleSubmit = async () => {
-    const nombresAreas = Object.values(formData).map(nombre => nombre.trim());
+    const nombresAreas = Object.values(formData).map((nombre) => nombre.trim());
 
-    if (nombresAreas.some(nombre => nombre === "")) {
+    if (nombresAreas.some((nombre) => nombre === "")) {
       alert("Por favor completa todos los nombres de áreas.");
       return;
     }
 
     const payload = {
-      nombre: "Empresa sin nombre", // puedes reemplazar esto si tienes un nombre real
+      nombre: "Empresa sin nombre", // puedes ajustar esto si lo recolectas antes
       cantidad_empleados: Number(empleados),
       jerarquia: 4,
       jerarquia1: Number(jerarquia1),
@@ -53,6 +54,8 @@ export function AreasForm() {
       jerarquia4: Number(jerarquia4),
       areas: nombresAreas,
     };
+
+    console.log("📦 Payload que se envía al backend:", payload);
 
     try {
       const res = await fetch("http://localhost:3000/empresas", {
@@ -71,9 +74,8 @@ export function AreasForm() {
       const data = await res.json();
       console.log("✅ Empresa creada con áreas:", data);
 
-     const areaNames = Object.values(formData);
-
-    navigate("/datos_prueba", { state: { areas: areaNames } });
+      // Redirigir a la siguiente vista
+      navigate("/datos_prueba", { state: { areas: nombresAreas } });
 
     } catch (err) {
       console.error("❌ Error en la petición:", err);
@@ -110,22 +112,14 @@ export function AreasForm() {
         <Button
           variant="back"
           text="Atrás"
-          onClick={() => navigate("/")} // Redirige al home
+          onClick={() => navigate("/")}
         />
         <Button variant="next" text="Siguiente" onClick={handleSubmit} />
       </div>
 
       {/* Imágenes decorativas */}
-      <img
-        className="linea-curva"
-        src="/BgLine-decoration.png"
-        alt="Imagen decorativa"
-      />
-      <img
-        className="puntos"
-        src="/BgPoints-decoration.png"
-        alt="Imagen decorativa"
-      />
+      <img className="linea-curva" src="/BgLine-decoration.png" alt="Decoración" />
+      <img className="puntos" src="/BgPoints-decoration.png" alt="Decoración" />
     </section>
   );
 }

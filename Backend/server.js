@@ -29,9 +29,18 @@ app.post("/empresas", async (req, res) => {
       return res.status(400).json({ error: "Faltan datos requeridos o áreas vacías" });
     }
 
+    // Crear la empresa
     const { data: empresaData, error: empresaError } = await supabaseAdmin
       .from("empresas")
-      .insert([{ nombre, cantidad_empleados: empleados, jerarquia: 4, jerarquia1, jerarquia2, jerarquia3, jerarquia4 }])
+      .insert([{
+        nombre,
+        cantidad_empleados: empleados,
+        jerarquia: 4,
+        jerarquia1,
+        jerarquia2,
+        jerarquia3,
+        jerarquia4
+      }])
       .select("id")
       .single();
 
@@ -39,7 +48,17 @@ app.post("/empresas", async (req, res) => {
 
     const empresa_id = empresaData.id;
 
-    const areaInserts = areas.map(nombre => ({ nombre, empresa_id }));
+    // Construir los datos para insertar áreas (incluyendo jerarquías)
+    const areaInserts = areas.map(nombre => ({
+      nombre,
+      empresa_id,
+      jerarquia1,
+      jerarquia2,
+      jerarquia3,
+      jerarquia4
+    }));
+
+    console.log("🧪 Insertando en áreas:", areaInserts);
 
     const { data: areasData, error: areasError } = await supabaseAdmin
       .from("areas")
@@ -47,22 +66,19 @@ app.post("/empresas", async (req, res) => {
 
     if (areasError) throw areasError;
 
+    // Actualizar campo 'areas' en empresas (opcional)
     const totalAreas = areas.length;
-    console.log("🔧 Total de áreas:", totalAreas);
-
     const { error: updateError } = await supabaseAdmin
       .from("empresas")
       .update({ areas: totalAreas })
       .eq("id", empresa_id);
 
     if (updateError) {
-      console.error("❌ Error al actualizar campo 'areas' en empresa:", updateError);
+      console.error("❌ Error al actualizar campo 'areas':", updateError);
       throw updateError;
     }
 
-    console.log("✅ Campo 'areas' actualizado correctamente en la empresa.");
-
-    // 🔁 Refetch empresa ya actualizada
+    // Obtener la empresa actualizada para devolverla
     const { data: updatedEmpresa, error: fetchUpdatedError } = await supabaseAdmin
       .from("empresas")
       .select("*")
@@ -77,6 +93,8 @@ app.post("/empresas", async (req, res) => {
     res.status(500).json({ error: "Error al crear empresa", detalle: error.message });
   }
 });
+
+
 
 
 // Obtener todas las empresas
