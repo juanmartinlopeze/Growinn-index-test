@@ -1,19 +1,17 @@
 import './DownloadPage.css';
 import { TitleSection, Description,Button } from '../../components/index';
-import { generarExcelDesdeBD } from '../../components/Table/exportExcel';
+import { generarExcelDesdeBD } from './generarExcel/generarExcel';
 import { useEmpresaData } from '../../components/Table/useEmpresaData';
 
-export function DownloadPage() {
-  const { tableData } = useEmpresaData();
 
+
+export function DownloadPage() {
+const { empresaId } = useEmpresaData();
+  
   const handleDownload = () => {
-    generarExcelDesdeBD({
-      areas: tableData.areas || [],
-      cargos: tableData.cargos || [],
-      subcargos: tableData.subcargos || [],
-      usuarios: tableData.usuarios || []
-    });
-  };
+  if (!empresaId) return alert("❌ No se ha cargado la empresa correctamente.");
+  generarExcelDesdeBD(empresaId);
+};
 
   return (
     <section className='download-page-section'>
