@@ -6,6 +6,7 @@ import {
   Subtitle,
   Description,
   Button,
+  Alert,
 } from "../../components/index";
 import { useNavigate } from "react-router-dom";
 import "./innlab-form.css";
@@ -142,6 +143,7 @@ export function InnlabForm() {
           text="Los datos que solicitamos sobre jerarquías y áreas de la empresa nos permiten comprender cómo se distribuyen las funciones y la toma de decisiones. Esta información es clave para evaluar el nivel de innovación y detectar oportunidades de mejora dentro de la organización."
           variant="forms"
         />
+        <Alert type="" />
       </div>
 
       <div className="forms-container">
