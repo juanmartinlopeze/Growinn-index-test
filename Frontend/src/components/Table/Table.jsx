@@ -1,12 +1,13 @@
 // Table.jsx
 import React, { useEffect, useState } from 'react'
-import { FeedbackMessage, Tooltip } from '../index'
+import { FeedbackMessage, Tooltip, Alert } from '../index'
 import ProgressBar from '../ProgressBar/ProgressBar'
 import { handleAddArea } from './addArea'
 import { deleteCargo, deleteSubcargo, fetchAreas, fetchCargos, fetchEmpresas, fetchSubcargos, fetchSubcargosByCargo, fetchUsuarios, saveCargo, saveSubcargo, updateArea, updateCargo } from './api'
 import EditAreaForm from './EditAreaForm'
 import EditRoleModal from './EditRoleModal'
 import RoleCell from './RoleCell'
+import { useAlert } from '../Alerts/useAlert'
 import './Table.css'
 import { useEmpresaData } from './useEmpresaData'
 
@@ -30,6 +31,8 @@ export function Table() {
 
 	const [areaName, setAreaName] = useState('')
 	const [areaIndex, setAreaIndex] = useState(null)
+	const [alert, setAlert] = useState({ show: false, message: '', type: 'error' })
+	const { alertInfo, showAlert } = useAlert()
 
 	// Métricas y recarga
 	const { empleadosPorJerarquia, jerarquiasPlaneadas, empleadosAsignados, totalEmpleados, refetch } = useEmpresaData()
@@ -92,16 +95,29 @@ export function Table() {
 	}
 
 	const handleSaveEverything = async () => {
+		// Validación 2: Campos obligatorios
 		if (!position || !employees) {
-			alert('Por favor completa todos los campos.')
-			return
+			showAlert('error', 'Campos incompletos', 'El nombre del cargo y el total de empleados son obligatorios.');
+			return;
+		}
+
+		// Validación 2: Mínimo 1 subcargo
+		if (subcargoList.length === 0) {
+			showAlert(
+				'error',
+				'Subcargos requeridos',
+				'Debes agregar al menos un subcargo para crear el cargo.'
+			);
+			return;
 		}
 
 		// **Validación: la suma de subcargos debe ser EXACTAMENTE igual a employees**
 		const totalSub = subcargoList.reduce((sum, s) => sum + (s.personas || 0), 0)
 		const totalEmp = parseInt(employees, 10)
 		if (subcargoList.length > 0 && totalSub !== totalEmp) {
-			alert(`La suma de subcargos (${totalSub}) debe ser igual al total de empleados (${totalEmp}).`)
+			showAlert('error', 'Error de validación',
+				`La suma de empleados en subcargos (${totalSub}) no coincide con el total del cargo (${totalEmp}).\n\nPor favor ajusta las cantidades.`
+			)
 			return
 		}
 
@@ -141,7 +157,12 @@ export function Table() {
 			setSubcargoList(subAct)
 		} catch (err) {
 			console.error('❌ Error al guardar cargo/subcargos:', err)
-			alert('Error al guardar cargo o subcargos')
+			setAlert({
+				show: true,
+				message: 'Error al guardar cargo o subcargos',
+				type: 'generalError'
+			})
+
 			return
 		}
 
@@ -157,18 +178,27 @@ export function Table() {
 
 	const handleDeleteRole = async () => {
 		if (!selectedCargo) return
-		if (!window.confirm(`¿Eliminar cargo "${selectedCargo.nombre}"?`)) return
+
+		const confirmed = await showAlert(
+			'delete',
+			'Eliminar cargo',
+			`¿Estás seguro de eliminar el cargo "${selectedCargo.nombre}"? Esta acción no se puede deshacer.`
+		)
+
+		if (!confirmed) return
 
 		try {
 			await deleteCargo(selectedCargo.id)
 			setCargos((prev) => prev.filter((c) => c.id !== selectedCargo.id))
+
+			// Mostrar confirmación de éxito
+			showAlert('complete', 'Cargo eliminado', '✅ Cargo eliminado correctamente')
 		} catch (err) {
 			console.error('❌ Error al eliminar cargo:', err)
-			alert('Error al eliminar cargo')
-			return
+			showAlert('error', 'Error', '❌ Error al eliminar cargo')
 		}
 
-		// refrescar métricas
+		// Refrescar métricas
 		try {
 			await refetch()
 		} catch (e) {
@@ -183,26 +213,40 @@ export function Table() {
 	}
 
 	const handleDeleteSubcargo = async (id) => {
-		if (!window.confirm('¿Eliminar subcargo?')) return
 		try {
 			await deleteSubcargo(id)
 			setSubcargos((prev) => prev.filter((s) => s.id !== id))
 			setSubcargoList((prev) => prev.filter((s) => s.id !== id))
 		} catch (e) {
 			console.error('❌ Error al eliminar subcargo:', e)
-			alert('Error al eliminar subcargo')
+			setAlert({
+				show: true,
+				message: 'Error al eliminar subcargo',
+				type: 'error'
+			})
+
 		}
 	}
 
 	const handleDeleteArea = async () => {
-		if (!window.confirm(`¿Eliminar área "${areaName}"?`)) return
+		if (!areaName || areaIndex === null) return
+
+		const confirmed = await showAlert(
+			'delete',
+			'Eliminar área',
+			`¿Estás seguro de eliminar el área "${areaName}"?\n\nEsta acción no se puede deshacer.`
+		)
+
+		if (!confirmed) return
+
 		try {
 			const id = areas[areaIndex].id
 			await fetch(`http://localhost:3000/areas/${id}`, { method: 'DELETE' })
-			setAreas((prev) => prev.filter((_, i) => i !== areaIndex))
+			setAreas(prev => prev.filter((_, i) => i !== areaIndex))
+			showAlert('complete', 'Área eliminada', '✅ Área eliminada correctamente')
 		} catch (e) {
 			console.error('❌ Error al eliminar área:', e)
-			alert('Error al eliminar área')
+			showAlert('error', 'Error', '❌ Error al eliminar área')
 		}
 		setAreaModal(false)
 	}
@@ -210,6 +254,14 @@ export function Table() {
 	return (
 		<>
 			<div className='table-container'>
+				{alertInfo && (
+					<Alert
+						{...alertInfo}
+						position="top-center"
+						onConfirm={alertInfo.onConfirm}
+						onCancel={alertInfo.onCancel}
+					/>
+				)}
 				<table>
 					<thead>
 						<tr>
@@ -303,6 +355,7 @@ export function Table() {
 					onDeleteSubcargo={handleDeleteSubcargo}
 					onDeleteRole={handleDeleteRole}
 					onAddSubcargo={handleAddSubcargo}
+					setAlert={setAlert}
 				/>
 			)}
 

@@ -6,6 +6,7 @@ import {
   Subtitle,
   Description,
   Button,
+  Alert,
 } from "../../components/index";
 import { useNavigate } from "react-router-dom";
 import "./innlab-form.css";
@@ -21,6 +22,10 @@ export function InnlabForm() {
   });
 
   const navigate = useNavigate();
+  // estados para mostrar el tipo de alerta
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertType, setAlertType] = useState("complete");
+  const [alertMessage, setAlertMessage] = useState("");
 
   const questions = [
     {
@@ -98,7 +103,9 @@ export function InnlabForm() {
     const isFormComplete = Object.values(formData).every((val) => val.trim() !== "");
 
     if (!isFormComplete) {
-      alert("Por favor, completa todos los campos antes de continuar.");
+      setAlertType("complete");
+      setAlertMessage("Por favor, completa todos los campos antes de continuar.");
+      setShowAlert(true);
       return;
     }
 
@@ -110,9 +117,9 @@ export function InnlabForm() {
       Number(formData.jerarquia4);
 
     if (sumaJerarquias !== totalEmpleados) {
-      alert(
-        `La suma de las jerarquías (${sumaJerarquias}) no coincide con el total de empleados (${totalEmpleados}).`
-      );
+      setAlertType("error");
+      setAlertMessage(`La suma de las jerarquías (${sumaJerarquias}) no coincide con el total de empleados (${totalEmpleados}).`);
+      setShowAlert(true);
       return;
     }
 
@@ -142,6 +149,7 @@ export function InnlabForm() {
           text="Los datos que solicitamos sobre jerarquías y áreas de la empresa nos permiten comprender cómo se distribuyen las funciones y la toma de decisiones. Esta información es clave para evaluar el nivel de innovación y detectar oportunidades de mejora dentro de la organización."
           variant="forms"
         />
+
       </div>
 
       <div className="forms-container">
@@ -163,6 +171,16 @@ export function InnlabForm() {
       {/* imagenes decorativas */}
       <img className="linea-curva" src="/BgLine-decoration.png" alt="Imagen decorativa" />
       <img className="puntos" src="/BgPoints-decoration.png" alt="imagen decorativa" />
+
+      {/* Popup Alerta */}
+      {showAlert && (
+        <Alert
+          type={alertType}
+          message={alertMessage}
+          onClose={() => setShowAlert(false)}
+        />
+      )}
+
     </section>
   );
 }

@@ -78,3 +78,43 @@
 .next:hover {
     background-color: rgba(0, 0, 0, 0.1);
 }
+
+.delete-button {
+    background: #ffe5e5;
+    color: #d60000;
+    padding: 10px 15px;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 5px;
+    border: none;
+}
+
+.delete-button:hover {
+    background: #f8cfcf;
+}
+
+.cancel-button {
+    background: #e0e0e0;
+    color: #333333;
+    padding: 10px 15px;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 5px;
+    border: none;
+}
+
+.cancel-button:hover {
+    background: #d0d0d0;
+}
+
+.ok-button {
+    border-radius: var(--radius-xs, 4px);
+    border: 1px solid #E56C33;
+    background: #E56C33;
+    box-shadow: 0px 1px 2px 0px rgba(16, 24, 40, 0.05);
+    color: white;
+}
+
+.ok-button:hover {
+    background: #ff8045;
+}

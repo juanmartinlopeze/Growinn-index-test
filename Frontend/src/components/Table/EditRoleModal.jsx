@@ -1,6 +1,7 @@
 // EditRoleModal.jsx
-import React from 'react'
-import { Button } from '../Buttons/Button'
+import React, { useState } from 'react'
+import { Button, Alert } from '../index'
+import { useAlert } from '../Alerts/useAlert'
 import './Table.css'
 
 export default function EditRoleModal({
@@ -15,24 +16,31 @@ export default function EditRoleModal({
   onDeleteSubcargo,
   onDeleteRole
 }) {
+  const { alertInfo, showAlert } = useAlert()
+
   // Elimina sólo en el servidor y luego en local
   const handleSubcargoDelete = async (index, subcargo) => {
-    const confirmDelete = window.confirm(`¿Eliminar el subcargo "${subcargo.nombre}"?`)
-    if (!confirmDelete) return
+    const confirmed = await showAlert(
+      'delete',
+      'Eliminar el subcargo',
+      `¿Estás seguro de eliminar "${subcargo.nombre}"? Esta acción no se puede deshacer.`
+    )
+
+    if (!confirmed) return
 
     try {
-      // Esperamos a que el backend borre el subcargo
       await onDeleteSubcargo(subcargo.id)
-      // Luego lo quitamos del state local
       const updated = [...subcargos]
       updated.splice(index, 1)
       onSubcargosChange(updated)
-      alert('✅ Subcargo eliminado correctamente')
+      // Para alertas informativas sin confirmación:
+      showAlert('complete', 'Subcargo eliminado', '✅ Subcargo eliminado correctamente')
     } catch (err) {
       console.error('❌ Error eliminando subcargo:', err)
-      alert('❌ Error al eliminar subcargo')
+      showAlert('error', 'Error', '❌ Error al eliminar subcargo')
     }
   }
+
 
   // Añade sólo en local un nuevo subcargo en blanco
   const handleAddLocalSubcargo = () => {
@@ -43,6 +51,15 @@ export default function EditRoleModal({
     <div className='modal-container'>
       <div className='overlay'>
         <div className='modal-content'>
+          {alertInfo && (
+            <Alert
+              {...alertInfo}
+              position="top-center"
+              // Pasar los handlers del hook
+              onConfirm={alertInfo.onConfirm}
+              onCancel={alertInfo.onCancel}
+            />
+          )}
           <form
             onSubmit={e => {
               e.preventDefault()
