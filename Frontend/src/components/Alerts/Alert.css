@@ -1,0 +1,74 @@
+/* Estilos base */
+.alert {
+    position: fixed;
+    z-index: 9999;
+    max-width: 90%;
+    width: 502px;
+    height: 197px;
+    padding: clamp(0.75rem, 2vw, 1.25rem);
+    font-size: clamp(0.9rem, 2vw, 1rem);
+    box-sizing: border-box;
+    border-radius: var(--radius-2xl, 16px);
+    background: var(--Colors-Background-bg-primary, #FFF);
+    color: #101828;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    word-wrap: break-word;
+    white-space: normal;
+    font-family: "General Sans";
+}
+
+/* Centrar la alerta arriba */
+.alert-position-top-center {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    top: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.alert-title,
+.alert-message {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: left;
+}
+
+.alert-title {
+    align-self: stretch;
+    color: var(--colors-text-text-primary-900, #101828);
+    font-size: 24px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 32px;
+}
+
+.alert-actions {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+    align-items: center;
+    justify-content: end;
+}
+
+/* Adaptaciones extra para pantallas pequeñas */
+@media (max-width: 480px) {
+    .alert {
+        max-width: 95%;
+        font-size: 0.875rem;
+        padding: 0.75rem;
+        border-radius: 0.4rem;
+    }
+
+    .alert-position-top-right,
+    .alert-position-top-left,
+    .alert-position-bottom-right,
+    .alert-position-bottom-left,
+    .alert-position-top-center {
+        top: 0.5rem !important;
+        bottom: auto !important;
+        left: auto;
+        right: auto;
+    }
+}

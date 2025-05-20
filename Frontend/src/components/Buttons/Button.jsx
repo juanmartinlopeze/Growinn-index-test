@@ -75,6 +75,10 @@ export const Button = ({
             return <span className="button-text">{text || "Cancelar"}</span>;
         }
 
+        if (variant === "ok") {
+            return <span className="button-text">{text || "Ok"}</span>;
+        }
+
         // Variante por defecto
         return <span className="button-text">{text}</span>;
     };
@@ -91,6 +95,8 @@ export const Button = ({
                 return "delete-button";
             case "cancel":
                 return "cancel-button";
+            case "ok":
+                return "ok-button";
             default:
                 return variant; // Usa el mismo nombre de la variante para back, next, download, etc.
         }
