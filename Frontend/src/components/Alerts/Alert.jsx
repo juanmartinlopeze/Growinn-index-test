@@ -2,12 +2,6 @@ import React from "react";
 import { Button } from "../index";
 import "./Alert.css";
 
-// Icons de ejemplo (reemplaza con los tuyos)
-// import successIcon from "/public/success-icon.svg";
-// import warningIcon from "/public/warning-icon.svg";
-// import errorIcon from "/public/error-icon.svg";
-// import infoIcon from "/public/info-icon.svg";
-
 export const Alert = ({
     type = "info",
     title,
@@ -21,54 +15,39 @@ export const Alert = ({
 }) => {
 
     const presets = {
-        success: {
+        complete: {
             title: "Completa todos los campos",
             message: "Para continuar asegurate que todos los campos estén correctamente diligenciados.",
-            // icon: <img src={successIcon} alt="Éxito" />,
             buttons: [
                 {
                     variant: "ok",
-                    text: "",
+                    text: "Cerrar",
                     onClick: onClose,
                 }
             ]
         },
         error: {
-            title: "¡Error!",
-            message: "Ocurrió un problema inesperado.",
-            // icon: <img src={errorIcon} alt="Error" />,
+            title: "Error de validación",
+            message: "La suma de las jerarquías no coincide con el total de empleados.",
             buttons: [
                 {
-                    variant: "cancel",
+                    variant: "ok",
                     text: "Cerrar",
                     onClick: onClose
                 }
             ]
         },
-        warning: {
-            title: "Advertencia",
-            message: "Revisa esta información antes de continuar.",
-            // icon: <img src={warningIcon} alt="Advertencia" />,
+        generalError: {
+            title: "Error inesperado",
+            message: "No pudimos procesar tu formulario. Verifica los campos e inténtalo de nuevo.",
             buttons: [
                 {
-                    variant: "cancel",
-                    text: "Entendido",
+                    variant: "ok",
+                    text: "Cerrar",
                     onClick: onClose
                 }
             ]
         },
-        info: {
-            title: "Información",
-            message: "Este es un mensaje informativo.",
-            // icon: <img src={infoIcon} alt="Información" />,
-            buttons: [
-                {
-                    variant: "default",
-                    text: "OK",
-                    onClick: onClose
-                }
-            ]
-        }
     };
 
     // Usa props o presets si no vienen definidas
