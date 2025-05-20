@@ -95,20 +95,29 @@ export function Table() {
 	}
 
 	const handleSaveEverything = async () => {
+		// Validación 2: Campos obligatorios
 		if (!position || !employees) {
-			setAlert({ show: true, message: 'Por favor completa todos los campos.', type: 'error' })
-			return
+			showAlert('error', 'Campos incompletos', 'El nombre del cargo y el total de empleados son obligatorios.');
+			return;
+		}
+
+		// Validación 2: Mínimo 1 subcargo
+		if (subcargoList.length === 0) {
+			showAlert(
+				'error',
+				'Subcargos requeridos',
+				'Debes agregar al menos un subcargo para crear el cargo.'
+			);
+			return;
 		}
 
 		// **Validación: la suma de subcargos debe ser EXACTAMENTE igual a employees**
 		const totalSub = subcargoList.reduce((sum, s) => sum + (s.personas || 0), 0)
 		const totalEmp = parseInt(employees, 10)
 		if (subcargoList.length > 0 && totalSub !== totalEmp) {
-			setAlert({
-				show: true,
-				message: `La suma de subcargos (${totalSub}) debe ser igual al total de empleados (${totalEmp}).`,
-				type: 'error'
-			})
+			showAlert('error', 'Error de validación',
+				`La suma de empleados en subcargos (${totalSub}) no coincide con el total del cargo (${totalEmp}).\n\nPor favor ajusta las cantidades.`
+			)
 			return
 		}
 

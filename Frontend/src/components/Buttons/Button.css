@@ -106,3 +106,15 @@
 .cancel-button:hover {
     background: #d0d0d0;
 }
+
+.ok-button {
+    border-radius: var(--radius-xs, 4px);
+    border: 1px solid #E56C33;
+    background: #E56C33;
+    box-shadow: 0px 1px 2px 0px rgba(16, 24, 40, 0.05);
+    color: white;
+}
+
+.ok-button:hover {
+    background: #ff8045;
+}

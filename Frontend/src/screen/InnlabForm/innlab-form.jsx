@@ -24,7 +24,7 @@ export function InnlabForm() {
   const navigate = useNavigate();
   // estados para mostrar el tipo de alerta
   const [showAlert, setShowAlert] = useState(false);
-  const [alertType, setAlertType] = useState("success");
+  const [alertType, setAlertType] = useState("complete");
   const [alertMessage, setAlertMessage] = useState("");
 
   const questions = [

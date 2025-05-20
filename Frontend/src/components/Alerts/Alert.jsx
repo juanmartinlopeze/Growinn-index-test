@@ -23,7 +23,7 @@ export const Alert = ({
             buttons: [
                 {
                     variant: "ok",
-                    text: "Cerrar",
+                    text: "Ok",
                     onClick: onClose || onCancel,
                 }
             ]
@@ -35,7 +35,7 @@ export const Alert = ({
                 {
                     variant: "ok",
                     text: "Cerrar",
-                    onClick: onClose
+                    onClick: onClose || onCancel
                 }
             ]
         },

@@ -40,12 +40,21 @@
 }
 
 .alert-title {
-    align-self: stretch;
     color: var(--colors-text-text-primary-900, #101828);
+    font-family: "General Sans";
     font-size: 24px;
     font-style: normal;
     font-weight: 500;
     line-height: 32px;
+}
+
+.alert-message {
+    color: #292D32;
+    font-family: "General Sans";
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 20px;
 }
 
 .alert-actions {
