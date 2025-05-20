@@ -65,10 +65,6 @@
         border-radius: 0.4rem;
     }
 
-    .alert-position-top-right,
-    .alert-position-top-left,
-    .alert-position-bottom-right,
-    .alert-position-bottom-left,
     .alert-position-top-center {
         top: 0.5rem !important;
         bottom: auto !important;
