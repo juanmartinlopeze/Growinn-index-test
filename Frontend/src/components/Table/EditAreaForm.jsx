@@ -1,8 +1,10 @@
 import React, { useState } from 'react'
 import { Button } from '../index'
+import { useAlert } from '../Alerts/useAlert'
 
 export default function EditAreaForm({ areaName, onChange, onSave, onCancel, onDelete }) {
 	const [error, setError] = useState('')
+	const { alertInfo, showAlert } = useAlert()
 
 	const handleSave = () => {
 		if (!areaName.trim()) {
@@ -17,18 +19,29 @@ export default function EditAreaForm({ areaName, onChange, onSave, onCancel, onD
 		<div className='modal-container'>
 			<div className='overlay'>
 				<div className='modal-content'>
-					<h3>Editar nombre del área</h3>
-					<input value={areaName} onChange={(e) => onChange(e.target.value)} placeholder='Nuevo nombre del área' />
-					{error && <p style={{ color: 'red', fontSize: '14px' }}>{error}</p>}
+					{alertInfo && (
+						<Alert
+							{...alertInfo}
+							position="top-center"
+							onConfirm={alertInfo.onConfirm}
+							onCancel={alertInfo.onCancel}
+						/>
+					)}
+					<h3>Editar Área</h3>
+					<input
+						type="text"
+						value={areaName}
+						onChange={(e) => onChange(e.target.value)}
+					/>
 					<div className='action-buttons'>
-						<Button type='button' variant='cancel' className='small-button' onClick={onCancel}>
+						<Button variant="submit" onClick={onSave}>
+							Guardar
+						</Button>
+						<Button variant="cancel" onClick={onCancel}>
 							Cancelar
 						</Button>
-						<Button type='button' variant='delete' className='small-button' onClick={onDelete}>
-							Eliminar
-						</Button>
-						<Button type='submit' variant='submit' className='small-button' onClick={handleSave}>
-							Guardar
+						<Button variant="delete" onClick={onDelete}>
+							Eliminar Área
 						</Button>
 					</div>
 				</div>

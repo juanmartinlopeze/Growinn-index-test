@@ -79,12 +79,30 @@
     background-color: rgba(0, 0, 0, 0.1);
 }
 
-.ok-button {
-    border-radius: 50px;
-    background-color: #E56C33;
-    color: white;
+.delete-button {
+    background: #ffe5e5;
+    color: #d60000;
+    padding: 10px 15px;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 5px;
+    border: none;
 }
 
-.ok-button:hover {
-    background-color: #fa8c59
+.delete-button:hover {
+    background: #f8cfcf;
+}
+
+.cancel-button {
+    background: #e0e0e0;
+    color: #333333;
+    padding: 10px 15px;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 5px;
+    border: none;
+}
+
+.cancel-button:hover {
+    background: #d0d0d0;
 }

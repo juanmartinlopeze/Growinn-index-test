@@ -7,6 +7,7 @@ import { deleteCargo, deleteSubcargo, fetchAreas, fetchCargos, fetchEmpresas, fe
 import EditAreaForm from './EditAreaForm'
 import EditRoleModal from './EditRoleModal'
 import RoleCell from './RoleCell'
+import { useAlert } from '../Alerts/useAlert'
 import './Table.css'
 import { useEmpresaData } from './useEmpresaData'
 
@@ -31,6 +32,7 @@ export function Table() {
 	const [areaName, setAreaName] = useState('')
 	const [areaIndex, setAreaIndex] = useState(null)
 	const [alert, setAlert] = useState({ show: false, message: '', type: 'error' })
+	const { alertInfo, showAlert } = useAlert()
 
 	// Métricas y recarga
 	const { empleadosPorJerarquia, jerarquiasPlaneadas, empleadosAsignados, totalEmpleados, refetch } = useEmpresaData()
@@ -167,23 +169,27 @@ export function Table() {
 
 	const handleDeleteRole = async () => {
 		if (!selectedCargo) return
-		if (!window.confirm(`¿Eliminar cargo "${selectedCargo.nombre}"?`)) return
+
+		const confirmed = await showAlert(
+			'delete',
+			'Eliminar cargo',
+			`¿Estás seguro de eliminar el cargo "${selectedCargo.nombre}"? Esta acción no se puede deshacer.`
+		)
+
+		if (!confirmed) return
 
 		try {
 			await deleteCargo(selectedCargo.id)
 			setCargos((prev) => prev.filter((c) => c.id !== selectedCargo.id))
+
+			// Mostrar confirmación de éxito
+			showAlert('complete', 'Cargo eliminado', '✅ Cargo eliminado correctamente')
 		} catch (err) {
 			console.error('❌ Error al eliminar cargo:', err)
-			setAlert({
-				show: true,
-				message: 'Error al eliminar cargo',
-				type: 'generalError'
-			})
-
-			return
+			showAlert('error', 'Error', '❌ Error al eliminar cargo')
 		}
 
-		// refrescar métricas
+		// Refrescar métricas
 		try {
 			await refetch()
 		} catch (e) {
@@ -198,7 +204,6 @@ export function Table() {
 	}
 
 	const handleDeleteSubcargo = async (id) => {
-		if (!window.confirm('¿Eliminar subcargo?')) return
 		try {
 			await deleteSubcargo(id)
 			setSubcargos((prev) => prev.filter((s) => s.id !== id))
@@ -215,18 +220,24 @@ export function Table() {
 	}
 
 	const handleDeleteArea = async () => {
-		if (!window.confirm(`¿Eliminar área "${areaName}"?`)) return
+		if (!areaName || areaIndex === null) return
+
+		const confirmed = await showAlert(
+			'delete',
+			'Eliminar área',
+			`¿Estás seguro de eliminar el área "${areaName}"?\n\nEsta acción no se puede deshacer.`
+		)
+
+		if (!confirmed) return
+
 		try {
 			const id = areas[areaIndex].id
 			await fetch(`http://localhost:3000/areas/${id}`, { method: 'DELETE' })
-			setAreas((prev) => prev.filter((_, i) => i !== areaIndex))
+			setAreas(prev => prev.filter((_, i) => i !== areaIndex))
+			showAlert('complete', 'Área eliminada', '✅ Área eliminada correctamente')
 		} catch (e) {
 			console.error('❌ Error al eliminar área:', e)
-			setAlert({
-				show: true,
-				message: 'Error al eliminar el área',
-				type: 'error'
-			})
+			showAlert('error', 'Error', '❌ Error al eliminar área')
 		}
 		setAreaModal(false)
 	}
@@ -234,14 +245,14 @@ export function Table() {
 	return (
 		<>
 			<div className='table-container'>
-				{alert.show && (
+				{alertInfo && (
 					<Alert
-						type={alert.type}
-						message={alert.message}
-						onClose={() => setAlert({ ...alert, show: false })}
+						{...alertInfo}
+						position="top-center"
+						onConfirm={alertInfo.onConfirm}
+						onCancel={alertInfo.onCancel}
 					/>
 				)}
-
 				<table>
 					<thead>
 						<tr>

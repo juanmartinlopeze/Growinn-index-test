@@ -35,6 +35,10 @@
     justify-content: left;
 }
 
+.alert-overlay {
+    z-index: 1000;
+}
+
 .alert-title {
     align-self: stretch;
     color: var(--colors-text-text-primary-900, #101828);

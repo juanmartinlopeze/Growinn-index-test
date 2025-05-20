@@ -10,6 +10,8 @@ export const Alert = ({
     buttons,
     position = "top-center",
     onClose,
+    onConfirm,
+    onCancel,
     className = "",
     ...props
 }) => {
@@ -22,7 +24,7 @@ export const Alert = ({
                 {
                     variant: "ok",
                     text: "Cerrar",
-                    onClick: onClose,
+                    onClick: onClose || onCancel,
                 }
             ]
         },
@@ -48,34 +50,51 @@ export const Alert = ({
                 }
             ]
         },
+        delete: {
+            title: "Eliminar el subcargo",
+            message: "¿Estás seguro de que quieres eliminar este elemento?",
+            buttons: [
+                {
+                    variant: "cancel",
+                    text: "Cancelar",
+                    onClick: onCancel || onClose
+                },
+                {
+                    variant: "delete",
+                    text: "Eliminar",
+                    onClick: onConfirm || onClose
+                }
+            ]
+        },
     };
 
-    // Usa props o presets si no vienen definidas
     const current = presets[type] || {};
 
     return (
-        <div className={`alert alert-${type} alert-position-${position} ${className}`} {...props}>
-            {(icon || current.icon) && (
-                <div className="alert-icon">
-                    {icon || current.icon}
+        <div className={`alert-overlay`}>
+            <div className={`alert alert-${type} alert-position-${position} ${className}`} {...props}>
+                {(icon || current.icon) && (
+                    <div className="alert-icon">
+                        {icon || current.icon}
+                    </div>
+                )}
+
+                <div className="alert-title"><p>{title || current.title}</p></div>
+                <div className="alert-message"><p>{message || current.message}</p></div>
+
+                <div className="alert-actions">
+                    {(buttons || current.buttons)?.map((btn, index) => (
+                        <Button
+                            key={index}
+                            variant={btn.variant}
+                            text={btn.text}
+                            icon={btn.icon}
+                            to={btn.to}
+                            onClick={btn.onClick}
+                            className={btn.className}
+                        />
+                    ))}
                 </div>
-            )}
-
-            <div className="alert-title"><p>{title || current.title}</p></div>
-            <div className="alert-message"><p>{message || current.message}</p></div>
-
-            <div className="alert-actions">
-                {(buttons || current.buttons)?.map((btn, index) => (
-                    <Button
-                        key={index}
-                        variant={btn.variant}
-                        text={btn.text}
-                        icon={btn.icon}
-                        to={btn.to}
-                        onClick={btn.onClick}
-                        className={btn.className}
-                    />
-                ))}
             </div>
         </div>
     );
