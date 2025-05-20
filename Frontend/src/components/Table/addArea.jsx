@@ -1,5 +1,5 @@
 // Archivo: utils/addArea.js
-export async function handleAddArea(areas, setAreas, empresaId) {
+export async function handleAddArea(areas, setAreas, empresaId, showAlert) {
   try {
     const nombre = `Área ${areas.length + 1}`
 
@@ -20,9 +20,24 @@ export async function handleAddArea(areas, setAreas, empresaId) {
     // 2. Actualizar frontend
     setAreas(prev => [...prev, nuevaArea]);
 
-    alert('✅ Nueva área añadida');
+    if (showAlert) {
+      showAlert({
+        type: 'complete',
+        title: 'Área creada',
+        message: `La nueva área "${nombre}" fue añadida correctamente.`,
+      })
+    }
+
+    return nuevaArea
   } catch (err) {
-    console.error('❌ Error al añadir área:', err);
-    alert('❌ Error al añadir área');
+    console.error('❌ Error al añadir área:', err)
+    if (showAlert) {
+      showAlert({
+        type: 'generalError',
+        title: 'Error al crear área',
+        message: err.message || 'No pudimos añadir la nueva área. Intenta de nuevo.',
+      })
+    }
+    return null
   }
 }

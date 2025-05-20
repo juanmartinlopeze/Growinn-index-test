@@ -1,6 +1,6 @@
 // Table.jsx
 import React, { useEffect, useState } from 'react'
-import { FeedbackMessage, Tooltip } from '../index'
+import { FeedbackMessage, Tooltip, Alert } from '../index'
 import ProgressBar from '../ProgressBar/ProgressBar'
 import { handleAddArea } from './addArea'
 import { deleteCargo, deleteSubcargo, fetchAreas, fetchCargos, fetchEmpresas, fetchSubcargos, fetchSubcargosByCargo, fetchUsuarios, saveCargo, saveSubcargo, updateArea, updateCargo } from './api'
@@ -30,6 +30,7 @@ export function Table() {
 
 	const [areaName, setAreaName] = useState('')
 	const [areaIndex, setAreaIndex] = useState(null)
+	const [alert, setAlert] = useState({ show: false, message: '', type: 'error' })
 
 	// Métricas y recarga
 	const { empleadosPorJerarquia, jerarquiasPlaneadas, empleadosAsignados, totalEmpleados, refetch } = useEmpresaData()
@@ -93,7 +94,7 @@ export function Table() {
 
 	const handleSaveEverything = async () => {
 		if (!position || !employees) {
-			alert('Por favor completa todos los campos.')
+			setAlert({ show: true, message: 'Por favor completa todos los campos.', type: 'error' })
 			return
 		}
 
@@ -101,7 +102,11 @@ export function Table() {
 		const totalSub = subcargoList.reduce((sum, s) => sum + (s.personas || 0), 0)
 		const totalEmp = parseInt(employees, 10)
 		if (subcargoList.length > 0 && totalSub !== totalEmp) {
-			alert(`La suma de subcargos (${totalSub}) debe ser igual al total de empleados (${totalEmp}).`)
+			setAlert({
+				show: true,
+				message: `La suma de subcargos (${totalSub}) debe ser igual al total de empleados (${totalEmp}).`,
+				type: 'error'
+			})
 			return
 		}
 
@@ -141,7 +146,12 @@ export function Table() {
 			setSubcargoList(subAct)
 		} catch (err) {
 			console.error('❌ Error al guardar cargo/subcargos:', err)
-			alert('Error al guardar cargo o subcargos')
+			setAlert({
+				show: true,
+				message: 'Error al guardar cargo o subcargos',
+				type: 'generalError'
+			})
+
 			return
 		}
 
@@ -164,7 +174,12 @@ export function Table() {
 			setCargos((prev) => prev.filter((c) => c.id !== selectedCargo.id))
 		} catch (err) {
 			console.error('❌ Error al eliminar cargo:', err)
-			alert('Error al eliminar cargo')
+			setAlert({
+				show: true,
+				message: 'Error al eliminar cargo',
+				type: 'generalError'
+			})
+
 			return
 		}
 
@@ -190,7 +205,12 @@ export function Table() {
 			setSubcargoList((prev) => prev.filter((s) => s.id !== id))
 		} catch (e) {
 			console.error('❌ Error al eliminar subcargo:', e)
-			alert('Error al eliminar subcargo')
+			setAlert({
+				show: true,
+				message: 'Error al eliminar subcargo',
+				type: 'error'
+			})
+
 		}
 	}
 
@@ -202,7 +222,11 @@ export function Table() {
 			setAreas((prev) => prev.filter((_, i) => i !== areaIndex))
 		} catch (e) {
 			console.error('❌ Error al eliminar área:', e)
-			alert('Error al eliminar área')
+			setAlert({
+				show: true,
+				message: 'Error al eliminar el área',
+				type: 'error'
+			})
 		}
 		setAreaModal(false)
 	}
@@ -210,6 +234,14 @@ export function Table() {
 	return (
 		<>
 			<div className='table-container'>
+				{alert.show && (
+					<Alert
+						type={alert.type}
+						message={alert.message}
+						onClose={() => setAlert({ ...alert, show: false })}
+					/>
+				)}
+
 				<table>
 					<thead>
 						<tr>
@@ -303,6 +335,7 @@ export function Table() {
 					onDeleteSubcargo={handleDeleteSubcargo}
 					onDeleteRole={handleDeleteRole}
 					onAddSubcargo={handleAddSubcargo}
+					setAlert={setAlert}
 				/>
 			)}
 

@@ -172,6 +172,7 @@ export function InnlabForm() {
       <img className="linea-curva" src="/BgLine-decoration.png" alt="Imagen decorativa" />
       <img className="puntos" src="/BgPoints-decoration.png" alt="imagen decorativa" />
 
+      {/* Popup Alerta */}
       {showAlert && (
         <Alert
           type={alertType}

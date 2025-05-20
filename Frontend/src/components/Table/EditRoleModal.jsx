@@ -1,6 +1,6 @@
 // EditRoleModal.jsx
-import React from 'react'
-import { Button } from '../Buttons/Button'
+import React, { useState } from 'react'
+import { Button, Alert } from '../index'
 import './Table.css'
 
 export default function EditRoleModal({
@@ -15,6 +15,12 @@ export default function EditRoleModal({
   onDeleteSubcargo,
   onDeleteRole
 }) {
+  const [alertInfo, setAlertInfo] = useState(null)
+
+  const showAlert = (type, title, message) => {
+    setAlertInfo({ type, title, message })
+  }
+
   // Elimina sólo en el servidor y luego en local
   const handleSubcargoDelete = async (index, subcargo) => {
     const confirmDelete = window.confirm(`¿Eliminar el subcargo "${subcargo.nombre}"?`)
@@ -27,10 +33,10 @@ export default function EditRoleModal({
       const updated = [...subcargos]
       updated.splice(index, 1)
       onSubcargosChange(updated)
-      alert('✅ Subcargo eliminado correctamente')
+      showAlert('complete', 'Subcargo eliminado', '✅ Subcargo eliminado correctamente')
     } catch (err) {
       console.error('❌ Error eliminando subcargo:', err)
-      alert('❌ Error al eliminar subcargo')
+      showAlert('error', 'Error', '❌ Error al eliminar subcargo')
     }
   }
 
@@ -43,6 +49,15 @@ export default function EditRoleModal({
     <div className='modal-container'>
       <div className='overlay'>
         <div className='modal-content'>
+          {alertInfo && (
+            <Alert
+              type={alertInfo.type}
+              title={alertInfo.title}
+              message={alertInfo.message}
+              onClose={() => setAlertInfo(null)}
+              position="top-center"
+            />
+          )}
           <form
             onSubmit={e => {
               e.preventDefault()

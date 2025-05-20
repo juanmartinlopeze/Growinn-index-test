@@ -2,12 +2,16 @@ import React, { useState } from "react";
 import { Button } from "../../components/index";
 import { useLocation, useNavigate } from "react-router-dom";
 import { FormAreas } from "../../components/FormAreas/form_areas";
-import { TitleSection, Subtitle, Description } from "../../components/index";
+import { TitleSection, Subtitle, Description, Alert } from "../../components/index";
 import "./areas_form.css";
 
 export function AreasForm() {
   const location = useLocation();
   const navigate = useNavigate();
+  // estados para mostrar el tipo de alerta
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertType, setAlertType] = useState("");
+  const [alertMessage, setAlertMessage] = useState("");
 
   // Recibir datos desde InnlabForm
   const {
@@ -40,7 +44,9 @@ export function AreasForm() {
     const nombresAreas = Object.values(formData).map((nombre) => nombre.trim());
 
     if (nombresAreas.some((nombre) => nombre === "")) {
-      alert("Por favor completa todos los nombres de áreas.");
+      setAlertType("complete");
+      setAlertMessage("Por favor, completa todos los nombres de las áreas para continuar.");
+      setShowAlert(true);
       return;
     }
 
@@ -67,7 +73,9 @@ export function AreasForm() {
       if (!res.ok) {
         const error = await res.json();
         console.error("Error:", error);
-        alert(error.error || "❌ Error al crear empresa");
+        setAlertType("generalError");
+        setAlertMessage(error.error || "❌ Error al crear empresa");
+        setShowAlert(true);
         return;
       }
 
@@ -79,7 +87,9 @@ export function AreasForm() {
 
     } catch (err) {
       console.error("❌ Error en la petición:", err);
-      alert("No se pudo guardar la empresa");
+      setAlertType("generalError");
+      setAlertMessage("No se pudo guardar la empresa");
+      setShowAlert(true);
     }
   };
 
@@ -120,6 +130,15 @@ export function AreasForm() {
       {/* Imágenes decorativas */}
       <img className="linea-curva" src="/BgLine-decoration.png" alt="Decoración" />
       <img className="puntos" src="/BgPoints-decoration.png" alt="Decoración" />
+
+      {/* Popup Alerta */}
+      {showAlert && (
+        <Alert
+          type={alertType}
+          message={alertMessage}
+          onClose={() => setShowAlert(false)}
+        />
+      )}
     </section>
   );
 }
