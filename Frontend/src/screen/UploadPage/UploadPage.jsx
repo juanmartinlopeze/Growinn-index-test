@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import './UploadPage.css';
 import { TitleSection, Description, Button } from '../../components/index';
+import { useEmpresaData } from '../../components/Table/useEmpresaData';
 
 export function UploadPage() {
+  const { empresaId } = useEmpresaData();
   const [file, setFile] = useState(null);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -25,8 +27,14 @@ export function UploadPage() {
       setError('Por favor selecciona un archivo .xlsx');
       return;
     }
+    if (!empresaId) {
+      setError('❌ No se ha identificado la empresa.');
+      return;
+    }
+
     const formData = new FormData();
     formData.append('file', file);
+    formData.append('empresaId', empresaId);
 
     try {
       const res = await fetch('http://localhost:3000/upload-excel', {
@@ -34,8 +42,17 @@ export function UploadPage() {
         body: formData,
       });
       const body = await res.json();
-      if (!res.ok) throw new Error(body.error || 'Error desconocido');
-      setSuccess('✔️ Archivo procesado correctamente.');
+      if (!res.ok) {
+        // si devolvió warnings
+        if (body.warnings) {
+          const msgs = body.warnings
+            .map(w => `Fila ${w.row}: ${w.issues.join(', ')}`)
+            .join('\n');
+          throw new Error(msgs);
+        }
+        throw new Error(body.error || 'Error desconocido');
+      }
+      setSuccess(`✔️ Procesadas ${body.inserted} filas correctamente.`);
     } catch (err) {
       console.error('Error al subir Excel:', err);
       setError(`❌ ${err.message}`);
@@ -64,12 +81,17 @@ export function UploadPage() {
         </label>
       </div>
 
-      {error && <p className="error-message">{error}</p>}
+      {error   && <p className="error-message">{error}</p>}
       {success && <p className="success-message">{success}</p>}
 
       <section className='navigation-buttons'>
         <Button variant='back' to="/download_page" />
-        <Button variant='next' text='Procesar' onClick={handleSubmit} />
+        <Button
+          variant='next'
+          text='Procesar'
+          onClick={handleSubmit}
+          disabled={!file || !empresaId}
+        />
       </section>
     </section>
   );
