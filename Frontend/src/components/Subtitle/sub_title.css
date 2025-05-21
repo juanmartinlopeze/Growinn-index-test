@@ -1,11 +1,9 @@
 .subtitle {
     color: var(--neutral-black, #090011);
-    font-family: ABeeZee;
-    font-size: 21px;
-    font-style: italic;
-    font-weight: 400;
+    font-size: 1.313rem;
+    font-style: normal;
+    font-weight: 500;
     line-height: 120%; /* 25.2px */
     text-align: left;
-    margin-bottom: 4px;
 }
 
