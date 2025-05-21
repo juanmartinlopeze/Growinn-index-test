@@ -10,3 +10,6 @@ export * from "./NavBar/Navbar";
 export * from "./FormAreas/form_areas"
 export * from "./FeedbackMessage/FeedbackMessage"
 export * from "./Alerts/Alert"
+export * from "./HomeTitle/home_title"
+export * from "./JerarquiasTitle/TitleJerarquias"
+export * from "./List/list"

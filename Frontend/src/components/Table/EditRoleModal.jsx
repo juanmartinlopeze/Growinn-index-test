@@ -5,6 +5,7 @@ import { useAlert } from '../Alerts/useAlert'
 import './Table.css'
 
 export default function EditRoleModal({
+  title,
   position,
   employees,
   subcargos,
@@ -66,7 +67,7 @@ export default function EditRoleModal({
               onSave()
             }}
           >
-            <h3>Editar Cargo</h3>
+            <h3>{title}</h3>
 
             <div className='input-row'>
               <div className='input-group'>

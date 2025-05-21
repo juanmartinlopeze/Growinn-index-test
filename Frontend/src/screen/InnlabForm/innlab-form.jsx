@@ -165,7 +165,7 @@ export function InnlabForm() {
       </div>
 
       <div className="buttons-container">
-        <Button variant="back" />
+        <Button variant="back" to="/" />
         <Button variant="next" text="Siguiente" onClick={handleSubmit} />
       </div>
       {/* imagenes decorativas */}
