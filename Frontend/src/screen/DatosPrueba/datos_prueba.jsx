@@ -34,7 +34,7 @@ export function DatosPrueba() {
       <Table />
 
       <section className="navigation-buttons">
-        <Button variant="back" to="/" />
+        <Button variant="back" to="/innlab_form" />
         <Button variant="next" text='Siguiente' to="/download_page" />
       </section>
     </section>

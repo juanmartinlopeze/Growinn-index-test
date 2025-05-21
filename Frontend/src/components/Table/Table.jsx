@@ -344,6 +344,7 @@ export function Table() {
 
 			{modal && (
 				<EditRoleModal
+				title={`Editar cargo (${selectedJerarquia} – ${selectedArea.nombre})`}
 					position={position}
 					employees={employees}
 					subcargos={subcargoList}

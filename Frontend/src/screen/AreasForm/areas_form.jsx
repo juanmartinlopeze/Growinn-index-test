@@ -122,7 +122,7 @@ export function AreasForm() {
         <Button
           variant="back"
           text="Atrás"
-          onClick={() => navigate("/")}
+          onClick={() => navigate("/innlab_form")}
         />
         <Button variant="next" text="Siguiente" onClick={handleSubmit} />
       </div>
