@@ -1,8 +1,14 @@
 @import 'tailwindcss';
 
+@font-face {
+	font-family: 'AdventuresUnlimited';
+	src: url('/fonts/AdventuresUnlimited.woff2') format('woff2');
+}
+
 @layer base {
 	:root {
-		--default-font-family: 'Roboto', sans-serif;
+		--default-font-family: 'General Sans', sans-serif;
+		--secondary-font-family: 'AdventuresUnlimited', sans-serif;
 		--bg-light: #ffffff;
 		--bg-dark: #111111;
 	}
