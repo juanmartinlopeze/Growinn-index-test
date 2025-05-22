@@ -6,29 +6,37 @@ import { useEmpresaData } from '../../components/Table/useEmpresaData';
 export function UploadPage() {
   const { empresaId } = useEmpresaData();
   const [file, setFile] = useState(null);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [generalError, setGeneralError] = useState('');   
+  const [excelWarnings, setExcelWarnings] = useState([]); 
+  const [successMsg, setSuccessMsg] = useState('');
 
   const handleFileChange = e => {
-    setError('');
-    setSuccess('');
+    setGeneralError('');
+    setExcelWarnings([]);
+    setSuccessMsg('');
     const chosen = e.target.files[0];
-    if (chosen && chosen.type === 
-        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
+    if (
+      chosen &&
+      chosen.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    ) {
       setFile(chosen);
     } else {
       setFile(null);
-      setError('Solo se permite .xlsx');
+      setGeneralError('Solo se permite archivo .xlsx');
     }
   };
 
   const handleSubmit = async () => {
+    setGeneralError('');
+    setExcelWarnings([]);
+    setSuccessMsg('');
+
     if (!file) {
-      setError('Por favor selecciona un archivo .xlsx');
+      setGeneralError('Por favor selecciona un archivo .xlsx');
       return;
     }
     if (!empresaId) {
-      setError('❌ No se ha identificado la empresa.');
+      setGeneralError('❌ No se ha identificado la empresa.');
       return;
     }
 
@@ -41,30 +49,34 @@ export function UploadPage() {
         method: 'POST',
         body: formData,
       });
-      const body = await res.json();
+      const body = await res.json().catch(() => ({}));
+
+      // 1) Si vienen warnings
+      if (!res.ok && Array.isArray(body.warnings)) {
+        setExcelWarnings(body.warnings);
+        return;
+      }
+      // 2) Si error genérico
       if (!res.ok) {
-        // si devolvió warnings
-        if (body.warnings) {
-          const msgs = body.warnings
-            .map(w => `Fila ${w.row}: ${w.issues.join(', ')}`)
-            .join('\n');
-          throw new Error(msgs);
-        }
         throw new Error(body.error || 'Error desconocido');
       }
-      setSuccess(`✔️ Procesadas ${body.inserted} filas correctamente.`);
+      // 3) éxito
+      setSuccessMsg(`✔️ Procesadas ${body.inserted} filas correctamente.`);
+      setFile(null);
     } catch (err) {
       console.error('Error al subir Excel:', err);
-      setError(`❌ ${err.message}`);
+      setGeneralError(`❌ ${err.message}`);
     }
   };
 
   return (
-    <section className='upload-page-section'>
-      <div className='description-content'>
+    <section className="upload-page-section">
+      <div className="description-content">
         <TitleSection title="Cargar archivo." />
-        <Description variant="p" text="Por favor, proporcione el archivo Excel con toda la información correctamente documentada. Esta información será validada automáticamente para asegurar que esté completa y en el formato adecuado." />
-        <Description variant="p" text="Este paso es esencial para obtener un análisis preciso y representativo del ambiente de innovación en su organización." />
+        <Description
+          variant="p"
+          text="Por favor, sube el Excel con los datos finales para procesarlos."
+        />
       </div>
 
       <div className="upload-container">
@@ -76,19 +88,32 @@ export function UploadPage() {
           onChange={handleFileChange}
         />
         <label htmlFor="file-upload" className="upload-label">
-          <p>Click to upload or drag and drop</p>
-          <span>Maximum file size 50 MB</span>
+          <p>Haz click o arrastra para subir</p>
+          <span>Máx. 50 MB</span>
         </label>
       </div>
 
-      {error   && <p className="error-message">{error}</p>}
-      {success && <p className="success-message">{success}</p>}
+      {generalError && <p className="error-message">{generalError}</p>}
+      {successMsg   && <p className="success-message">{successMsg}</p>}
 
-      <section className='navigation-buttons'>
-        <Button variant='back' to="/download_page" />
+      {excelWarnings.length > 0 && (
+        <div className="excel-warnings">
+          <h4>Advertencias en el Excel:</h4>
+          <ul>
+            {excelWarnings.map(({ row, issues }) => (
+              <li key={row}>
+                <strong>Fila {row}:</strong> {issues.join('; ')}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      <section className="navigation-buttons">
+        <Button variant="back" to="/download_page" />
         <Button
-          variant='next'
-          text='Procesar'
+          variant="next"
+          text="Procesar"
           onClick={handleSubmit}
           disabled={!file || !empresaId}
         />
