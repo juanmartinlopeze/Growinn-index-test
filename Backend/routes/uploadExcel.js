@@ -47,41 +47,37 @@ router.post('/upload-excel', upload.single('file'), async (req, res) => {
     sheet.eachRow((row, rowNumber) => {
       if (rowNumber === 1) return; // salta cabecera
 
-      // Defensivamente: row.values puede ser null
       const raw = row.values || [];
-      // extraigo valores desde la columna 1 (ignoro índice 0)
       const vals = raw.slice(1);
-      // si no hay celdas o todas están vacías, salto
-      if (!Array.isArray(vals) || vals.length === 0 || vals.every(v => v == null || v === '')) {
-        return;
+      if (!Array.isArray(vals) || vals.every(v => v == null || v === '')) {
+        return; // fila vacía
       }
 
       const [nombre, cedula, correo, cargoName, areaName, , jerarquiaText] = vals;
-      const rowIssues = [];
+      const issues = [];
 
-      if (!nombre) rowIssues.push('nombre vacío');
-      if (!cedula) rowIssues.push('cédula vacía');
-      if (!correo) rowIssues.push('correo vacío');
+      if (!nombre)   issues.push('nombre vacío');
+      if (!cedula)   issues.push('cédula vacía');
+      if (!correo)   issues.push('correo vacío');
 
       const areaId = areaMap[areaName];
-      if (!areaId) rowIssues.push(`área “${areaName}” no existe`);
+      if (!areaId) issues.push(`área “${areaName}” no existe`);
 
       const cargo = cargoMap[cargoName];
       if (!cargo) {
-        rowIssues.push(`cargo “${cargoName}” no existe`);
+        issues.push(`cargo “${cargoName}” no existe`);
       } else if (cargo.area_id !== areaId) {
-        rowIssues.push(`cargo “${cargoName}” no pertenece al área “${areaName}”`);
+        issues.push(`cargo “${cargoName}” no pertenece al área “${areaName}”`);
       }
 
-      // “Jerarquía N” → “JN”
       const m = jerarquiaText?.match(/Jerarqu[ií]a\s+(\d+)/i);
       const jerarquiaId = m ? `J${m[1]}` : null;
       if (!jerarquiaId || (cargo && cargo.jerarquia_id !== jerarquiaId)) {
-        rowIssues.push(`jerarquía “${jerarquiaText}” no coincide`);
+        issues.push(`jerarquía “${jerarquiaText}” no coincide`);
       }
 
-      if (rowIssues.length) {
-        warnings.push({ row: rowNumber, issues: rowIssues });
+      if (issues.length) {
+        warnings.push({ row: rowNumber, issues });
       } else {
         rowsToInsert.push({
           empresa_id:      parseInt(empresaId, 10),
@@ -95,19 +91,17 @@ router.post('/upload-excel', upload.single('file'), async (req, res) => {
       }
     });
 
-    // 4️⃣ Si hay advertencias, las devolvemos
+    // 4️⃣ Devolver warnings si los hay
     if (warnings.length) {
       return res.status(400).json({ warnings });
     }
-
-    // 4.1️⃣ Sin filas válidas
     if (rowsToInsert.length === 0) {
       return res.status(400).json({ error: 'No se encontraron filas válidas en el Excel.' });
     }
 
-    // 5️⃣ Insertar en 'empleados'
+    // 5️⃣ Insertar en la nueva tabla singular "usuario"
     const { data: inserted, error: errInsert } = await supabaseAdmin
-      .from('empleados')
+      .from('usuario')
       .insert(rowsToInsert);
     if (errInsert) throw errInsert;
 

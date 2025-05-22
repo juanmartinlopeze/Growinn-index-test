@@ -6,8 +6,8 @@ import { useEmpresaData } from '../../components/Table/useEmpresaData';
 export function UploadPage() {
   const { empresaId } = useEmpresaData();
   const [file, setFile] = useState(null);
-  const [generalError, setGeneralError] = useState('');   
-  const [excelWarnings, setExcelWarnings] = useState([]); 
+  const [generalError, setGeneralError] = useState('');
+  const [excelWarnings, setExcelWarnings] = useState([]);
   const [successMsg, setSuccessMsg] = useState('');
 
   const handleFileChange = e => {
@@ -51,16 +51,14 @@ export function UploadPage() {
       });
       const body = await res.json().catch(() => ({}));
 
-      // 1) Si vienen warnings
       if (!res.ok && Array.isArray(body.warnings)) {
         setExcelWarnings(body.warnings);
         return;
       }
-      // 2) Si error genérico
       if (!res.ok) {
         throw new Error(body.error || 'Error desconocido');
       }
-      // 3) éxito
+
       setSuccessMsg(`✔️ Procesadas ${body.inserted} filas correctamente.`);
       setFile(null);
     } catch (err) {
