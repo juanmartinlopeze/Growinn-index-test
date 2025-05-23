@@ -16,16 +16,7 @@ export function UploadPage() {
     setSuccessMsg('');
 
     const chosen = e.target.files ? e.target.files[0] : e;
-
-    if (chosen &&
-      (chosen.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' ||
-        chosen.name.endsWith('.xlsx'))
-    ) {
-      setFile(chosen);
-    } else {
-      setFile(null);
-      setGeneralError('Solo se permite archivo .xlsx');
-    }
+    setFile(chosen);
   };
 
   const handleSubmit = async () => {
