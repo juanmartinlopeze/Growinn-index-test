@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import './UploadPage.css';
-import { TitleSection, Description, Button } from '../../components/index';
+import { TitleSection, Description, Button, FileUploadPreview } from '../../components/index';
 import { useEmpresaData } from '../../components/Table/useEmpresaData';
 
 export function UploadPage() {
@@ -14,16 +14,9 @@ export function UploadPage() {
     setGeneralError('');
     setExcelWarnings([]);
     setSuccessMsg('');
-    const chosen = e.target.files[0];
-    if (
-      chosen &&
-      chosen.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-    ) {
-      setFile(chosen);
-    } else {
-      setFile(null);
-      setGeneralError('Solo se permite archivo .xlsx');
-    }
+
+    const chosen = e.target.files ? e.target.files[0] : e;
+    setFile(chosen);
   };
 
   const handleSubmit = async () => {
@@ -77,22 +70,14 @@ export function UploadPage() {
         />
       </div>
 
-      <div className="upload-container">
-        <input
-          type="file"
-          id="file-upload"
-          className="file-input"
-          accept=".xlsx"
-          onChange={handleFileChange}
-        />
-        <label htmlFor="file-upload" className="upload-label">
-          <p>Haz click o arrastra para subir</p>
-          <span>Máx. 50 MB</span>
-        </label>
-      </div>
+      <FileUploadPreview
+        onFileChange={handleFileChange}
+        file={file}
+        accept=".xlsx"
+      />
 
       {generalError && <p className="error-message">{generalError}</p>}
-      {successMsg   && <p className="success-message">{successMsg}</p>}
+      {successMsg && <p className="success-message">{successMsg}</p>}
 
       {excelWarnings.length > 0 && (
         <div className="excel-warnings">
