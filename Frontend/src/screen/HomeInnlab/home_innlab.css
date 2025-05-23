@@ -6,7 +6,7 @@
 	width: 100%;
 	max-width: 1740px;
 	height: 100vh;
-	gap: 4coderem;
+	gap: 4rem;
 	padding: 5% 10% 0 10%;
 	position: relative;
 }
@@ -30,7 +30,7 @@
 }
 
 .info h2 {
-   margin-bottom: 1rem;
+	margin-bottom: 1rem;
 }
 
 .img-link {

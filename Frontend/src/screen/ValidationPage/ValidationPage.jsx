@@ -1,5 +1,7 @@
-import React, { useState } from 'react'
-import './FileUploadPreview.css'
+import React from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
+import { Button, Description, TitleSection } from '../../components/index'
+import './ValidationPage.css'
 
 const excelIcon = (
 	<svg className='excel-icon' width='20' height='20' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'>
@@ -52,85 +54,70 @@ const excelIcon = (
 	</svg>
 )
 
-export const FileUploadPreview = ({ onFileChange, file, accept }) => {
-	const [isDragging, setIsDragging] = useState(false)
-	const [localError, setLocalError] = useState('')
+export function ValidationPage() {
+	const location = useLocation()
+	const navigate = useNavigate()
+	const excelWarnings = location.state?.excelWarnings || []
+	const file = location.state?.file || null
 
-	const handleFileValidation = (file) => {
-		setLocalError('')
-		const isValid = file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' || file.name.endsWith('.xlsx')
+	return (
+		<section className='validation-page-section'>
+			<TitleSection title='Resultado de la validación' />
+			<Description
+				variant='p'
+				text='A continuación, encontrarás el resultado de la validación automática del archivo Excel que proporcionaste. Revisa si hay datos faltantes o formatos incorrectos que debas corregir. Una vez validado correctamente, este será el último paso del proceso.'
+			/>
 
-		if (isValid) {
-			onFileChange({ target: { files: [file] } })
-		} else {
-			setLocalError('Solo se permiten archivos .xlsx')
-			onFileChange({ target: { files: [] } })
-		}
-	}
+			<div className='validation-layout'>
+				<div className='file-preview-container'>
+					<div className='excel-preview'>
+						{excelIcon}
+						<div className='file-info'>
+							<p className='file-name'>{file?.name || 'Nombre no disponible'}</p>
+							<p className='file-details'>
+								<span className='file-type'>Archivo Excel</span>
+								{file && <span className='file-size'>{(file.size / 1024 / 1024).toFixed(2)} MB</span>}
+							</p>
+						</div>
+					</div>
+				</div>
 
-	const renderFileActions = () => (
-		<div className='file-actions'>
-			<button type='button' className='change-file-button' onClick={() => document.getElementById('file-upload').click()}>
-				Seleccionar otro archivo
-			</button>
-		</div>
-	)
+				<div className='validation-summary'>
+					<div className='validation-errors'>
+						<div className='validation-errors-head'>
+							<h3>Resumen de resultados</h3>
+							{excelWarnings.length > 0 ? <p>Se encontraron {excelWarnings.length} errores en total</p> : <p>No se encontraron errores.</p>}
+						</div>
 
-	const renderFilePreview = () => {
-		if (!file) return null
+						{excelWarnings.length > 0 ? (
+							<>
+								<h4 className='error-title'>Errores encontrados ({excelWarnings.length})</h4>
+								<div className='error-list-container'>
+									<ul className='error-list'>
+										{excelWarnings.map(({ row, issues }) => (
+											<li key={row}>
+												<p className='bold'>Fila {row}: </p>{' '}
+												{issues.map((issue, index) => (
+													<span key={index}>
+														{issue}
+														{index < issues.length - 1 && <span className='issue-separator'> | </span>}
+													</span>
+												))}
+											</li>
+										))}
+									</ul>
+								</div>
+							</>
+						) : (
+							<p className='no-errors-message'>Validación completada: No se encontraron errores.</p>
+						)}
+					</div>
 
-		return (
-			<div className='file-preview-container'>
-				<div className='excel-preview'>
-					{excelIcon}
-					<div className='file-info'>
-						<p className='file-name'>{file.name}</p>
-						<p className='file-details'>
-							<span className='file-type'>Archivo Excel</span>
-							<span className='file-size'>{(file.size / 1024 / 1024).toFixed(2)} MB</span>
-						</p>
-						{renderFileActions()}
+					<div className='validation-buttons'>
+						<Button variant='next' text='Corregir archivo' onClick={() => navigate('/upload_page')} />
 					</div>
 				</div>
 			</div>
-		)
-	}
-
-	const handleDragOver = (e) => {
-		e.preventDefault()
-		setIsDragging(true)
-	}
-
-	const handleDragLeave = (e) => {
-		e.preventDefault()
-		setIsDragging(false)
-	}
-
-	const handleDrop = (e) => {
-		e.preventDefault()
-		setIsDragging(false)
-
-		const droppedFile = e.dataTransfer.files[0]
-		if (droppedFile) {
-			handleFileValidation(droppedFile)
-		}
-	}
-
-	return (
-		<div className={`upload-container ${isDragging ? 'dragging' : ''} ${localError ? 'invalid' : ''}`} onDragOver={handleDragOver} onDragLeave={handleDragLeave} onDrop={handleDrop}>
-			<input type='file' id='file-upload' className='file-input' accept={accept} onChange={(e) => handleFileValidation(e.target.files[0])} />
-			<label htmlFor='file-upload' className='upload-label'>
-				{!file ? (
-					<>
-						<img src='/Icon-FileUpload.svg' alt='Subir archivo' className='upload-icon' />
-						<p>Haz click o arrastra para subir</p>
-						<span>Máx. 50 MB</span>
-						{localError && <div className='error-message'>{localError}</div>}
-					</>
-				) : (
-					renderFilePreview()
-				)}
-			</label>
-		</div>
+		</section>
 	)
 }

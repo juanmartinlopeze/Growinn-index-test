@@ -5,6 +5,7 @@
   flex-direction: column;
   justify-content: center;
   align-items: start;
+  padding: 5% 10% 0 10%;
   gap: 20px;
   font-family: 'General Sans', sans-serif;
 }

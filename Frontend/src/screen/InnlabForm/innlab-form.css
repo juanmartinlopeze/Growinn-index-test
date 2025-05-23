@@ -8,13 +8,6 @@
   gap: 20px;
 }
 
-.jerarquia-header {
-  width: 192px;
-  height: 33px;
-  flex-shrink: 0;
-  margin-bottom: 20px;
-}
-
 .innlab-form-header {
   display: flex;
   flex-direction: column;

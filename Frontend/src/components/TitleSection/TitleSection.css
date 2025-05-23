@@ -4,8 +4,11 @@
 	font-weight: bold;
 	font-style: normal;
 	font-weight: bold;
+   text-align: left;
 }
 
 .title-section {
+   width: max-content;
 	border-bottom: 3px solid #f56f10;
+   margin-bottom: 1.3rem;
 }
