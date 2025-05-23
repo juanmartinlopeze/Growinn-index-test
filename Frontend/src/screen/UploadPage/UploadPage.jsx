@@ -14,10 +14,12 @@ export function UploadPage() {
     setGeneralError('');
     setExcelWarnings([]);
     setSuccessMsg('');
-    const chosen = e.target.files[0];
-    if (
-      chosen &&
-      chosen.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+
+    const chosen = e.target.files ? e.target.files[0] : e;
+
+    if (chosen &&
+      (chosen.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' ||
+        chosen.name.endsWith('.xlsx'))
     ) {
       setFile(chosen);
     } else {
@@ -77,7 +79,11 @@ export function UploadPage() {
         />
       </div>
 
-      <FileUploadPreview />
+      <FileUploadPreview
+        onFileChange={handleFileChange}
+        file={file}
+        accept=".xlsx"
+      />
 
       {generalError && <p className="error-message">{generalError}</p>}
       {successMsg && <p className="success-message">{successMsg}</p>}
