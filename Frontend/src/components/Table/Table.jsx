@@ -1,13 +1,12 @@
 // Table.jsx
 import React, { useEffect, useState } from 'react'
-import { FeedbackMessage, Tooltip, Alert } from '../index'
+import { useAlert } from '../Alerts/useAlert'
+import { Alert, FeedbackMessage, Tooltip } from '../index'
 import ProgressBar from '../ProgressBar/ProgressBar'
-import { handleAddArea } from './addArea'
 import { deleteCargo, deleteSubcargo, fetchAreas, fetchCargos, fetchEmpresas, fetchSubcargos, fetchSubcargosByCargo, fetchUsuarios, saveCargo, saveSubcargo, updateArea, updateCargo } from './api'
 import EditAreaForm from './EditAreaForm'
 import EditRoleModal from './EditRoleModal'
 import RoleCell from './RoleCell'
-import { useAlert } from '../Alerts/useAlert'
 import './Table.css'
 import { useEmpresaData } from './useEmpresaData'
 
@@ -97,27 +96,21 @@ export function Table() {
 	const handleSaveEverything = async () => {
 		// Validación 2: Campos obligatorios
 		if (!position || !employees) {
-			showAlert('error', 'Campos incompletos', 'El nombre del cargo y el total de empleados son obligatorios.');
-			return;
+			showAlert('error', 'Campos incompletos', 'El nombre del cargo y el total de empleados son obligatorios.')
+			return
 		}
 
 		// Validación 2: Mínimo 1 subcargo
 		if (subcargoList.length === 0) {
-			showAlert(
-				'error',
-				'Subcargos requeridos',
-				'Debes agregar al menos un subcargo para crear el cargo.'
-			);
-			return;
+			showAlert('error', 'Subcargos requeridos', 'Debes agregar al menos un subcargo para crear el cargo.')
+			return
 		}
 
 		// **Validación: la suma de subcargos debe ser EXACTAMENTE igual a employees**
 		const totalSub = subcargoList.reduce((sum, s) => sum + (s.personas || 0), 0)
 		const totalEmp = parseInt(employees, 10)
 		if (subcargoList.length > 0 && totalSub !== totalEmp) {
-			showAlert('error', 'Error de validación',
-				`La suma de empleados en subcargos (${totalSub}) no coincide con el total del cargo (${totalEmp}).\n\nPor favor ajusta las cantidades.`
-			)
+			showAlert('error', 'Error de validación', `La suma de empleados en subcargos (${totalSub}) no coincide con el total del cargo (${totalEmp}).\n\nPor favor ajusta las cantidades.`)
 			return
 		}
 
@@ -160,7 +153,7 @@ export function Table() {
 			setAlert({
 				show: true,
 				message: 'Error al guardar cargo o subcargos',
-				type: 'generalError'
+				type: 'generalError',
 			})
 
 			return
@@ -179,11 +172,7 @@ export function Table() {
 	const handleDeleteRole = async () => {
 		if (!selectedCargo) return
 
-		const confirmed = await showAlert(
-			'delete',
-			'Eliminar cargo',
-			`¿Estás seguro de eliminar el cargo "${selectedCargo.nombre}"? Esta acción no se puede deshacer.`
-		)
+		const confirmed = await showAlert('delete', 'Eliminar cargo', `¿Estás seguro de eliminar el cargo "${selectedCargo.nombre}"? Esta acción no se puede deshacer.`)
 
 		if (!confirmed) return
 
@@ -222,27 +211,22 @@ export function Table() {
 			setAlert({
 				show: true,
 				message: 'Error al eliminar subcargo',
-				type: 'error'
+				type: 'error',
 			})
-
 		}
 	}
 
 	const handleDeleteArea = async () => {
 		if (!areaName || areaIndex === null) return
 
-		const confirmed = await showAlert(
-			'delete',
-			'Eliminar área',
-			`¿Estás seguro de eliminar el área "${areaName}"?\n\nEsta acción no se puede deshacer.`
-		)
+		const confirmed = await showAlert('delete', 'Eliminar área', `¿Estás seguro de eliminar el área "${areaName}"?\n\nEsta acción no se puede deshacer.`)
 
 		if (!confirmed) return
 
 		try {
 			const id = areas[areaIndex].id
 			await fetch(`http://localhost:3000/areas/${id}`, { method: 'DELETE' })
-			setAreas(prev => prev.filter((_, i) => i !== areaIndex))
+			setAreas((prev) => prev.filter((_, i) => i !== areaIndex))
 			showAlert('complete', 'Área eliminada', '✅ Área eliminada correctamente')
 		} catch (e) {
 			console.error('❌ Error al eliminar área:', e)
@@ -254,14 +238,7 @@ export function Table() {
 	return (
 		<>
 			<div className='table-container'>
-				{alertInfo && (
-					<Alert
-						{...alertInfo}
-						position="top-center"
-						onConfirm={alertInfo.onConfirm}
-						onCancel={alertInfo.onCancel}
-					/>
-				)}
+				{alertInfo && <Alert {...alertInfo} position='top-center' onConfirm={alertInfo.onConfirm} onCancel={alertInfo.onCancel} />}
 				<table>
 					<thead>
 						<tr>
@@ -339,12 +316,11 @@ export function Table() {
 					</tfoot>
 				</table>
 				<FeedbackMessage empleadosAsignados={empleadosAsignados} totalEmpleados={totalEmpleados} />
-				<button onClick={() => handleAddArea(areas, setAreas, empresaId)}>+ Añadir área</button>
 			</div>
 
 			{modal && (
 				<EditRoleModal
-				title={`Editar cargo (${selectedJerarquia} – ${selectedArea.nombre})`}
+					title={`Editar cargo (${selectedJerarquia} – ${selectedArea.nombre})`}
 					position={position}
 					employees={employees}
 					subcargos={subcargoList}
