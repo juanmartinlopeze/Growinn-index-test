@@ -20,7 +20,7 @@ export default function RoleCell({ areaId, jerarquia, cargos, onClick }) {
 
 	return (
 		<button type='button' className='empty-role' onClick={handleClick}>
-			+
+			<p>Añade un cargo</p> <p>+</p>
 		</button>
 	)
 }
