@@ -1,158 +1,161 @@
 /* CSS del contenedor general */
 .upload-container {
-    border: 2px dashed #5b9eff;
-    border-radius: 10px;
-    padding: 60px;
-    width: 100%;
-    height: 460px;
-    text-align: center;
-    position: relative;
-    cursor: pointer;
-    transition: border-color 0.3s ease;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+	border: 2px dashed #5b9eff;
+	border-radius: 10px;
+	padding: 60px;
+	width: 100%;
+	height: 460px;
+	text-align: center;
+	position: relative;
+	cursor: pointer;
+	transition: border-color 0.3s ease;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
 }
 
 .upload-container:hover {
-    border-color: #125fc4;
-    background-color: #f8f8f8;
+	border-color: #125fc4;
+	background-color: #f8f8f8;
 }
 
 .upload-container.dragging {
-    border-color: #1a73e8;
-    background-color: rgba(26, 115, 232, 0.05);
+	border-color: #1a73e8;
+	background-color: rgba(26, 115, 232, 0.05);
 }
 
 .upload-container.dragging::after {
-    content: 'Suelta el archivo aquí';
-    position: absolute;
-    bottom: 20px;
-    color: #1a73e8;
-    font-size: 14px;
-    font-weight: 500;
+	content: 'Suelta el archivo aquí';
+	position: absolute;
+	bottom: 20px;
+	color: #1a73e8;
+	font-size: 14px;
+	font-weight: 500;
 }
 
 /* CSS contenedor imagen e info del archivo */
 .file-input {
-    display: none;
+	display: none;
 }
 
 .upload-label {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    color: #444;
-    font-family: sans-serif;
-    gap: 1rem;
-    width: 100%;
-    height: 100%;
-    cursor: pointer;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	color: #444;
+	font-family: sans-serif;
+	gap: 1rem;
+	width: 100%;
+	height: 100%;
+	cursor: pointer;
+	border: none;
+	outline: none;
+	box-shadow: none;
 }
 
 .file-preview-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 15px;
-    width: 100%;
-    height: 100%;
-    padding: 20px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 15px;
+	width: 100%;
+	height: 100%;
+	padding: 20px;
 }
 
 .preview-image {
-    max-width: 200px;
-    max-height: 200px;
-    object-fit: contain;
-    border-radius: 8px;
+	max-width: 200px;
+	max-height: 200px;
+	object-fit: contain;
+	border-radius: 8px;
 }
 
 .excel-preview {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 15px;
-    color: #217346;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 15px;
+	color: #217346;
 }
 
 .excel-icon {
-    width: 64px;
-    height: 64px;
+	width: 64px;
+	height: 64px;
 }
 
 .file-info {
-    text-align: center;
-    max-width: 100%;
+	text-align: center;
+	max-width: 100%;
 }
 
 .file-name {
-    font-weight: 500;
-    margin-bottom: 4px;
-    word-break: break-word;
+	font-weight: 500;
+	margin-bottom: 4px;
+	word-break: break-word;
 }
 
 .file-size {
-    color: #666;
-    font-size: 0.9em;
+	color: #666;
+	font-size: 0.9em;
 }
 
 .file-details {
-    display: flex;
-    gap: 12px;
-    justify-content: center;
-    font-size: 0.9em;
+	display: flex;
+	gap: 12px;
+	justify-content: center;
+	font-size: 0.9em;
 }
 
 .file-type {
-    background: #e8f5e9;
-    padding: 2px 8px;
-    border-radius: 4px;
+	background: #e8f5e9;
+	padding: 2px 8px;
+	border-radius: 4px;
 }
 
 .generic-preview {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 15px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 15px;
 }
 
 .file-icon {
-    width: 64px;
-    height: 64px;
+	width: 64px;
+	height: 64px;
 }
 
 /* CSS para botones y feeedback visual de archivo invalidos*/
 .file-actions {
-    margin-top: 20px;
-    display: flex;
-    gap: 15px;
-    justify-content: center;
+	margin-top: 20px;
+	display: flex;
+	gap: 15px;
+	justify-content: center;
 }
 
 .change-file-button {
-    background: #5b9eff;
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background 0.3s ease;
+	background: #5b9eff;
+	color: white;
+	border: none;
+	padding: 8px 16px;
+	border-radius: 4px;
+	cursor: pointer;
+	transition: background 0.3s ease;
 }
 
 .change-file-button:hover {
-    background: #125fc4;
+	background: #125fc4;
 }
 
 .error-message {
-    color: #ff4d4d;
-    margin-top: 10px;
-    font-size: 0.9em;
+	color: #ff4d4d;
+	margin-top: 10px;
+	font-size: 0.9em;
 }
 
 .upload-container.invalid {
-    border-color: #ff4d4d;
-    background-color: rgba(255, 77, 77, 0.05);
+	border-color: #ff4d4d;
+	background-color: rgba(255, 77, 77, 0.05);
 }
