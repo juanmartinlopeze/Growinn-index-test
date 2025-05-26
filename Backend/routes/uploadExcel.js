@@ -45,15 +45,26 @@ router.post('/upload-excel', upload.single('file'), async (req, res) => {
     const rowsToInsert = [];
 
     sheet.eachRow((row, rowNumber) => {
-      if (rowNumber === 1) return; // salta cabecera
+  if (rowNumber === 1) return;
 
-      const raw = row.values || [];
-      const vals = raw.slice(1);
-      if (!Array.isArray(vals) || vals.every(v => v == null || v === '')) {
-        return; // fila vacía
-      }
+  // Extrae el rawValue de la celda 3 (la de correo)
+  const rawCorreo = row.getCell(3).value;
 
-      const [nombre, cedula, correo, cargoName, areaName, , jerarquiaText] = vals;
+  // Si viene como objeto con 'text', úsalo; si no, toma el valor tal cual
+  const correo = (rawCorreo && typeof rawCorreo === 'object' && rawCorreo.text)
+    ? rawCorreo.text
+    : rawCorreo;
+
+    const vals = row.values.slice(1);
+  const [
+    nombre,
+    cedula,
+    ,          // <-- aquí salto el rawCorreo
+    cargoName,
+    areaName,
+    ,
+    jerarquiaText
+  ] = vals;
       const issues = [];
 
       if (!nombre)   issues.push('nombre vacío');
@@ -95,22 +106,31 @@ router.post('/upload-excel', upload.single('file'), async (req, res) => {
     if (warnings.length) {
       return res.status(400).json({ warnings });
     }
-    if (rowsToInsert.length === 0) {
-      return res.status(400).json({ error: 'No se encontraron filas válidas en el Excel.' });
-    }
+   if (rowsToInsert.length === 0) {
+  return res.status(400).json({ error: 'No se encontraron filas válidas en el Excel.' });
+}
 
-    // 5️⃣ Insertar en la nueva tabla singular "usuario"
-    const { data: inserted, error: errInsert } = await supabaseAdmin
-      .from('usuario')
-      .insert(rowsToInsert);
-    if (errInsert) throw errInsert;
+// 5️⃣ Insertar en la tabla (sin hacer select ni leer data)
+const { error: errInsert } = await supabaseAdmin
+    .from('usuarios')
+    .insert(rowsToInsert);
 
-    return res.json({ inserted: inserted.length });
+   if (errInsert) {
+    console.error('❌ Supabase insert error:', errInsert);
+    return res.status(500).json({
+      error: errInsert.message,
+      details: errInsert.details,
+    });
+  }
+
+  // 6️⃣ Sólo devolvemos mensaje de éxito
+  return res.json({ message: 'Todos los registros fueron validados e insertados correctamente.' });
+  
   } catch (error) {
     console.error('❌ Error procesando Excel:', error);
     return res.status(500).json({ error: error.message });
   }
-});
+});  // <-- CIERRE del router.post (callback + paréntesis)
 
+// Ahora sí exportas tu router
 module.exports = router;
-//wuenasessssssssssssssssssssss SIUUUUUUUUUUUUUUU
