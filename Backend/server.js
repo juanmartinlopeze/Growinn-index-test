@@ -16,7 +16,6 @@ app.use('/', excelRouter);
 
 
 /* ───────── EMPRESAS ───────── */
-
 // Crear nueva empresa
 app.post("/empresas", async (req, res) => {
   try {
