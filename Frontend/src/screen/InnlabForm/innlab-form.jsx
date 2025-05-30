@@ -47,7 +47,7 @@ export function InnlabForm() {
           triggerText={<img src='/info-circle.png' alt='Jerarquía 1' />}
           popupText={
             <>
-              <strong>La Jerarquía 1 (Ejecución)</strong>: realiza tareas operativas esenciales.
+              <strong>La Jerarquía 1 (Ejecución)</strong>: es el nivel operativo que se encarga de ejecutar las tareas básicas y esenciales dentro de la organización asegurando el funcionamiento diario.
               <br />
               <br />
               <strong>Ejemplo:</strong> Operarios, auxiliares, agentes de soporte.
@@ -65,7 +65,7 @@ export function InnlabForm() {
           triggerText={<img src='/info-circle.png' alt='Jerarquía 2' />}
           popupText={
             <>
-              <strong>La Jerarquía 2 (Supervisión)</strong>: asegura que las tareas se cumplan según procedimientos y estándares.
+              <strong>La Jerarquía 2 (Supervisión)</strong>: coordina al personal operativo y supervisa el cumplimiento de tareas según procedimientos establecidos, asegurando la calidad del trabajo diario.
               <br />
               <br />
               <strong>Ejemplo:</strong> Supervisores de línea, jefes de turno.
@@ -83,7 +83,7 @@ export function InnlabForm() {
           triggerText={<img src='/info-circle.png' alt='Jerarquía 3' />}
           popupText={
             <>
-              <strong>La Jerarquía 3 (Gerencial)</strong>: implementa estrategias y toma decisiones a mediano plazo.
+              <strong>La Jerarquía 3 (Gerencial)</strong>: lidera equipos y proyectos, define planes tácticos y toma decisiones enfocadas en el logro de objetivos a mediano plazo.
               <br />
               <br />
               <strong>Ejemplo:</strong> Gerentes de área, líderes de proyecto.
@@ -101,7 +101,7 @@ export function InnlabForm() {
           triggerText={<img src='/info-circle.png' alt='Jerarquía 4' />}
           popupText={
             <>
-              <strong>La Jerarquía 4 (Directivo)</strong>: define la estrategia general, establece objetivos y asigna recursos.
+              <strong>La Jerarquía 4 (Directivo)</strong>: establece la visión organizacional, toma decisiones estratégicas y asigna recursos clave para el crecimiento y sostenibilidad de la empresa.
               <br />
               <br />
               <strong>Ejemplo:</strong> CEO, director general, alta dirección.
