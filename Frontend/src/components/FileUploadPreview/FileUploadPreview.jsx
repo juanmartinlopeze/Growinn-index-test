@@ -71,7 +71,7 @@ export const FileUploadPreview = ({ onFileChange, file, accept }) => {
 	const renderFileActions = () => (
 		<div className='file-actions'>
 			<button type='button' className='change-file-button' onClick={() => document.getElementById('file-upload').click()}>
-				Seleccionar otro archivo
+				Remplazar
 			</button>
 		</div>
 	)
@@ -123,7 +123,7 @@ export const FileUploadPreview = ({ onFileChange, file, accept }) => {
 				{!file ? (
 					<>
 						<img src='/Icon-FileUpload.svg' alt='Subir archivo' className='upload-icon' />
-						<p>Haz click o arrastra para subir</p>
+						<p>Haz click o arrastra un archivo aquí para subirlo</p>
 						<span>Máx. 50 MB</span>
 						{localError && <div className='error-message'>{localError}</div>}
 					</>
