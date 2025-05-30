@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "../../components/index";
 import { useLocation, useNavigate } from "react-router-dom";
 import { FormAreas } from "../../components/FormAreas/form_areas";
@@ -8,6 +8,8 @@ import "./areas_form.css";
 export function AreasForm() {
   const location = useLocation();
   const navigate = useNavigate();
+  const storageKey = "areasFormData";
+
   // estados para mostrar el tipo de alerta
   const [showAlert, setShowAlert] = useState(false);
   const [alertType, setAlertType] = useState("");
@@ -23,15 +25,29 @@ export function AreasForm() {
     jerarquia4,
   } = location.state || {};
 
-  const [formData, setFormData] = useState({});
+  // **1. Inicializar formData a partir de localStorage**
+  const [formData, setFormData] = useState(() => {
+    try {
+      const saved = localStorage.getItem(storageKey);
+      return saved ? JSON.parse(saved) : {};
+    } catch (e) {
+      console.error("Error parsing stored formData:", e);
+      return {};
+    }
+  });
 
-  // Generar inputs dinámicos para nombres de áreas
+  // preguntas dinámicas
   const questions = Array.from({ length: totalAreas }, (_, i) => ({
     id: i + 1,
     field: `area${i + 1}`,
     title: `¿Cuál es el nombre del área ${i + 1}?`,
     placeholder: "Digite aquí",
   }));
+
+  // **2. Guardar en localStorage cada vez que formData cambie**
+  useEffect(() => {
+    localStorage.setItem(storageKey, JSON.stringify(formData));
+  }, [formData]);
 
   const handleInputChange = (field, value) => {
     setFormData((prev) => ({
@@ -41,7 +57,7 @@ export function AreasForm() {
   };
 
   const handleSubmit = async () => {
-    const nombresAreas = Object.values(formData).map((nombre) => nombre.trim());
+    const nombresAreas = questions.map(q => (formData[q.field] || "").trim());
 
     if (nombresAreas.some((nombre) => nombre === "")) {
       setAlertType("complete");
@@ -51,7 +67,7 @@ export function AreasForm() {
     }
 
     const payload = {
-      nombre: "Empresa sin nombre", // puedes ajustar esto si lo recolectas antes
+      nombre: "Empresa sin nombre",
       cantidad_empleados: Number(empleados),
       jerarquia: 4,
       jerarquia1: Number(jerarquia1),
@@ -81,6 +97,9 @@ export function AreasForm() {
 
       const data = await res.json();
       console.log("✅ Empresa creada con áreas:", data);
+
+      // **3. Limpiar localStorage al finalizar**
+      localStorage.removeItem(storageKey);
 
       // Redirigir a la siguiente vista
       navigate("/datos_prueba", { state: { areas: nombresAreas } });
@@ -122,16 +141,16 @@ export function AreasForm() {
         <Button
           variant="back"
           text="Atrás"
-          onClick={() => navigate("/innlab_form")}
+          onClick={() => {
+            navigate("/innlab_form");
+          }}
         />
         <Button variant="next" text="Siguiente" onClick={handleSubmit} />
       </div>
 
-      {/* Imágenes decorativas */}
       <img className="linea-curva" src="/BgLine-decoration.png" alt="Decoración" />
       <img className="puntos" src="/BgPoints-decoration.png" alt="Decoración" />
 
-      {/* Popup Alerta */}
       {showAlert && (
         <Alert
           type={alertType}
