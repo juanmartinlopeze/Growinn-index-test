@@ -105,6 +105,17 @@ export async function deleteSubcargo(id) {
 	return data;
 }
 
+export async function updateSubcargo(subcargoId, { nombre, personas }) {
+  const res = await fetch(`${BASE_URL}/subcargos/${subcargoId}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ nombre, personas }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Error actualizando subcargo');
+  return data;
+}
+
 // 👤 USUARIOS
 
 export async function fetchUsuarios() {
