@@ -3,7 +3,7 @@
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
-   align-items: center;
+	align-items: center;
 	padding: 20px 0;
 }
 
@@ -52,6 +52,7 @@ td {
 	border-radius: 30px;
 	border: 8px solid white;
 	padding: 4px 32px;
+	font-weight: 400;
 }
 
 .jerarquia div {
@@ -64,6 +65,10 @@ td {
 .jerarquia p {
 	font-size: 38px;
 	font-weight: 100;
+}
+
+.tooltip-jerarquia .popuptext {
+	width: 14rem;
 }
 
 td button {
@@ -336,15 +341,16 @@ td span .role-name {
 	margin: 0;
 }
 
-.empty-role{
-   font-size: 1rem;
-   font-weight: normal;
-   display: flex;
-   justify-content: center;
-   align-items: center;
-   gap: 10px;
+.empty-role {
+	font-size: 1rem;
+	font-weight: normal;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	gap: 10px;
 }
-.empty-role p:last-child{
-   font-size: 1rem;
-   font-weight: 500;
+
+.empty-role p:last-child {
+	font-size: 1rem;
+	font-weight: 500;
 }
