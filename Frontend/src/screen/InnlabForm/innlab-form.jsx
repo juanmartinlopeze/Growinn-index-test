@@ -45,7 +45,13 @@ export function InnlabForm() {
       icon: (
         <Tooltip
           triggerText={<img src='/info-circle.png' alt='Jerarquía 1' />}
-          popupText='La Jerarquía 1 (Ejecución): realiza tareas operativas esenciales.'
+          popupText={
+            <>
+              <strong>La Jerarquía 1 (Ejecución)</strong>: realiza tareas operativas esenciales.
+              <br />
+              <br />
+              <strong>Ejemplo:</strong> Operarios, auxiliares, agentes de soporte.
+            </>}
         />
       ),
       field: 'jerarquia1',
@@ -57,7 +63,13 @@ export function InnlabForm() {
       icon: (
         <Tooltip
           triggerText={<img src='/info-circle.png' alt='Jerarquía 2' />}
-          popupText='La Jerarquía 2 (Supervisión): asegura que las tareas se cumplan según procedimientos y estándares.'
+          popupText={
+            <>
+              <strong>La Jerarquía 2 (Supervisión)</strong>: asegura que las tareas se cumplan según procedimientos y estándares.
+              <br />
+              <br />
+              <strong>Ejemplo:</strong> Supervisores de línea, jefes de turno.
+            </>}
         />
       ),
       field: 'jerarquia2',
@@ -69,7 +81,13 @@ export function InnlabForm() {
       icon: (
         <Tooltip
           triggerText={<img src='/info-circle.png' alt='Jerarquía 3' />}
-          popupText='La Jerarquía 3 (Gerencial): implementa estrategias y toma decisiones a mediano plazo.'
+          popupText={
+            <>
+              <strong>La Jerarquía 3 (Gerencial)</strong>: implementa estrategias y toma decisiones a mediano plazo.
+              <br />
+              <br />
+              <strong>Ejemplo:</strong> Gerentes de área, líderes de proyecto.
+            </>}
         />
       ),
       field: 'jerarquia3',
@@ -81,7 +99,13 @@ export function InnlabForm() {
       icon: (
         <Tooltip
           triggerText={<img src='/info-circle.png' alt='Jerarquía 4' />}
-          popupText='La Jerarquía 4 (Directivo): define la estrategia general, establece objetivos y asigna recursos.'
+          popupText={
+            <>
+              <strong>La Jerarquía 4 (Directivo)</strong>: define la estrategia general, establece objetivos y asigna recursos.
+              <br />
+              <br />
+              <strong>Ejemplo:</strong> CEO, director general, alta dirección.
+            </>}
         />
       ),
       field: 'jerarquia4',
