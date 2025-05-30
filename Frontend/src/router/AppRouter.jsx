@@ -1,6 +1,6 @@
 import { Route, Routes } from 'react-router-dom'
 import { AreasForm, DatosPrueba, DownloadPage, HomeInnlab, InnlabForm, UploadPage, ValidationPage } from '../screen/index'
-
+import SurveyScreen from '../screen/SurveyScreen/SurveyScreen'
 const AppRouter = () => {
 	return (
 		<>
@@ -12,6 +12,7 @@ const AppRouter = () => {
 				<Route path='/download_page' element={<DownloadPage />} />
 				<Route path='/upload_page' element={<UploadPage />} />
 				<Route path='/validation_page' element={<ValidationPage />} />
+				<Route path="/encuesta" element={<SurveyScreen />} />
 			</Routes>
 		</>
 	)
