@@ -60,18 +60,27 @@ export function UploadPage() {
 	}
 
 	return (
-		<section className='upload-page-section'>
-			<div className='description-content'>
-				<TitleSection title='Cargar archivo.' />
-				<Description variant='p' text='Por favor, sube el Excel con los datos finales para procesarlos.' />
-			</div>
-			<FileUploadPreview onFileChange={handleFileChange} file={file} accept='.xlsx' />
-			{generalError && <p className='error-message'>{generalError}</p>}
-			{successMsg && <p className='success-message'>{successMsg}</p>}
-			<section className='navigation-buttons'>
-				<Button variant='back' to='/download_page' />
-				<Button variant='next' text='Procesar' onClick={handleSubmit} disabled={!file || !empresaId} />
+		<>
+			<section className='upload-page-section'>
+				<div className='description-content'>
+					<TitleSection title='Cargar archivo.' />
+					<Description
+						variant='p'
+						text='Por favor, proporcione el archivo Excel con toda la información correctamente documentada. Esta información será validada automáticamente para asegurar que esté completa y en el formato adecuado.'
+					/>
+					<Description variant='p' text='Este paso es esencial para obtener un análisis preciso y representativo del ambiente de innovación en su organización.' />
+				</div>
+				<FileUploadPreview onFileChange={handleFileChange} file={file} accept='.xlsx' />
+				{generalError && <p className='error-message'>{generalError}</p>}
+				{successMsg && <p className='success-message'>{successMsg}</p>}
+				<section className='navigation-buttons'>
+					<Button variant='back' to='/download_page' />
+					<Button variant='next' text='Procesar' onClick={handleSubmit} disabled={!file || !empresaId} />
+				</section>
 			</section>
-		</section>
+			<img className='line-bckg-img' src='/BgLine-decoration2.png' alt='' />
+			<img className='line-bckg-img2' src='/BgLine-decoration3.png' alt='' />
+         <img className='squares-bckg-img' src='/squaresBckg.png' alt='' />
+		</>
 	)
 }
