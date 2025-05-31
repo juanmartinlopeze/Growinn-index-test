@@ -7,26 +7,42 @@ export function InnlabForm() {
 	const storageKey = 'innlabFormData'
 	const navigate = useNavigate()
 
-	// 1. Cargar datos iniciales desde localStorage (si existen)
-	const [formData, setFormData] = useState(() => {
-		try {
-			const saved = localStorage.getItem(storageKey)
-			return saved ? JSON.parse(saved) : { empleados: '', jerarquia1: '', jerarquia2: '', jerarquia3: '', jerarquia4: '', areas: '' }
-		} catch (e) {
-			console.error('Error parsing innlabFormData:', e)
-			return { empleados: '', jerarquia1: '', jerarquia2: '', jerarquia3: '', jerarquia4: '', areas: '' }
-		}
-	})
+
+  // 1. Cargar datos iniciales desde localStorage (si existen)
+  const EXPIRY_MS   = 1000 * 60 * 60  // 1 hora
+const [formData, setFormData] = useState(() => {
+  try {
+    const raw = localStorage.getItem(storageKey)
+    if (!raw) throw new Error()
+    const { data, savedAt } = JSON.parse(raw)
+    // si ha pasado más de 1h desde savedAt, lo limpiamos
+    if (Date.now() - savedAt > EXPIRY_MS) {
+      localStorage.removeItem(storageKey)
+      throw new Error()
+    }
+    return data
+  } catch {
+    return { empleados: '', jerarquia1: '', jerarquia2: '', jerarquia3: '', jerarquia4: '', areas: '' }
+  }
+})
+
 
 	// estados para mostrar el tipo de alerta
 	const [showAlert, setShowAlert] = useState(false)
 	const [alertType, setAlertType] = useState('complete')
 	const [alertMessage, setAlertMessage] = useState('')
 
-	// 2. Cada vez que formData cambie, lo guardamos en localStorage
-	useEffect(() => {
-		localStorage.setItem(storageKey, JSON.stringify(formData))
-	}, [formData])
+  // 2. Cada vez que formData cambie, lo guardamos en localStorage
+  useEffect(() => {
+  localStorage.setItem(
+    storageKey,
+    JSON.stringify({
+      data: formData,
+      savedAt: Date.now()
+    })
+  )
+}, [formData])
+
 
 	const questions = [
 		{

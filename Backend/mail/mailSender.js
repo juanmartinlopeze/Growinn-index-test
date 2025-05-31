@@ -1,48 +1,58 @@
-// mailSender.js
 require('dotenv').config();
-const fs   = require('fs');
-const path = require('path');
+const fs      = require('fs');
+const path    = require('path');
 const express = require('express');
+const { v4: uuid } = require('uuid');
 const { supabaseAdmin } = require('../supabase/supabase');
 const { MailerSend, EmailParams, Sender, Recipient } = require('mailersend');
 
-const app = express();  
-const PORT = process.env.PORT || 3001;
+const app        = express();  
+const PORT       = process.env.PORT || 3001;
 const mailerSend = new MailerSend({ apiKey: process.env.MAILERSEND_API_KEY });
 
-// Carga la plantilla _una sola vez_ al iniciar
+// Carga la plantilla _una sola vez_
 const templatePath = path.join(__dirname, 'template.html');
 const rawTemplate  = fs.readFileSync(templatePath, 'utf8');
 
-console.log('Plantilla cargada desde:',rawTemplate.slice(0, 100) + '...'); // Muestra los primeros 50 caracteres
-
 app.get('/enviar-correos', async (req, res) => {
   try {
+    // 1️⃣ Trae usuarios con correo y su id
     const { data: usuarios, error } = await supabaseAdmin
       .from('usuarios')
-      .select('correo, nombre_completo')
+      .select('id, correo, nombre_completo')
       .not('correo', 'is', null);
 
-    if (error) {
-      console.error(error);
-      return res.status(500).send('Error al leer la BD');
-    }
-    if (!usuarios.length) {
-      return res.send('No hay usuarios con correo.');
-    }
+    if (error) throw error;
+    if (!usuarios.length) return res.send('No hay usuarios con correo.');
 
     const from = new Sender(process.env.FROM_EMAIL, 'INNLAB');
-    for (const user of usuarios) {
-      const htmlBody = rawTemplate.replace(
-        /{{\s*nombre_completo\s*}}/g,
-        user.nombre_completo
-      );
 
+    for (const user of usuarios) {
+      // 2️⃣ Genera token y lo guarda en survey_tokens
+      const token = uuid();
+      const { error: errToken } = await supabaseAdmin
+        .from('survey_tokens')
+        .insert([{ user_id: user.id, token }]);
+
+      if (errToken) {
+        console.error(`❌ Error guardando token para ${user.correo}:`, errToken);
+        continue; // sigue con el próximo usuario
+      }
+
+      // 3️⃣ Construye el enlace dinámico
+      const surveyLink = `${process.env.BASE_URL}/encuesta?token=${token}`;
+
+      // 4️⃣ Reemplaza placeholders en la plantilla
+      const htmlBody = rawTemplate
+        .replace(/{{\s*nombre_completo\s*}}/g, user.nombre_completo)
+        .replace(/{{\s*survey_link\s*}}/g, surveyLink);
+
+      // 5️⃣ Prepara y envía el correo
       const emailParams = new EmailParams()
         .setFrom(from)
         .setTo([ new Recipient(user.correo, user.nombre_completo) ])
-        .setSubject(`Hola ${user.nombre_completo}!`)
-        .setText(`¡Hola ${user.nombre_completo}! Responde la encuesta aquí: https://forms.gle/ENLACE_EJEMPLO`)
+        .setSubject(`Hola ${user.nombre_completo}, ¡tu encuesta te espera!`)
+        .setText(`Hola ${user.nombre_completo}, completa la encuesta aquí: ${surveyLink}`)
         .setHtml(htmlBody);
 
       try {
@@ -53,7 +63,7 @@ app.get('/enviar-correos', async (req, res) => {
       }
     }
 
-    res.send('✅ Envío completado.');
+    res.send('✅ Envío de encuestas completado.');
   } catch (err) {
     console.error(err);
     res.status(500).send('Error interno.');
