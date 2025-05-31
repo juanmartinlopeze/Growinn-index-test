@@ -127,7 +127,10 @@ export function InnlabForm() {
   }
 
   const handleSubmit = () => {
-    const isFormComplete = Object.values(formData).every(val => val.trim() !== '')
+    const isFormComplete = Object.values(formData).every(val => {
+      const s = val === null || val === undefined ? '' : String(val);
+      return s.trim() !== '';
+    });
 
     if (!isFormComplete) {
       setAlertType('complete')
