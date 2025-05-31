@@ -6,6 +6,7 @@ export function Survey() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState({});
 
+
   useEffect(() => {
     const t = new URLSearchParams(window.location.search).get('token');
     if (t) setToken(t);
