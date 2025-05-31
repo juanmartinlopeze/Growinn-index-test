@@ -364,6 +364,37 @@ app.post("/subcargos", async (req, res) => {
     console.error("❌ Error al crear subcargo:", error);
     res.status(500).json({ error: "Error al crear subcargo", detalle: error.message });
   }
+  
+});
+app.put("/subcargos/:id", async (req, res) => {
+  const { id } = req.params;
+  const { nombre, personas } = req.body;
+
+  // Validación opcional
+  if (!nombre && typeof personas !== "number") {
+    return res
+      .status(400)
+      .json({ error: "Debes enviar al menos nombre o personas para actualizar" });
+  }
+
+  try {
+    const { data, error } = await supabaseAdmin
+      .from("subcargos")
+      .update({
+        // Solo actualiza los campos que vinieron en el body
+        ...(nombre !== undefined ? { nombre } : {}),
+        ...(personas !== undefined ? { personas } : {}),
+      })
+      .eq("id", id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    res.status(200).json(data);
+  } catch (error) {
+    console.error("❌ Error al actualizar subcargo:", error.message);
+    res.status(500).json({ error: "Error al actualizar subcargo", detalle: error.message });
+  }
 });
 
 // Eliminar subcargo

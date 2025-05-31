@@ -1,5 +1,5 @@
 // Table.jsx
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useAlert } from '../Alerts/useAlert'
 import { Alert, FeedbackMessage, Tooltip } from '../index'
 import ProgressBar from '../ProgressBar/ProgressBar'
@@ -81,7 +81,15 @@ export function Table() {
 		setSelectedJerarquia(jerarquia)
 		setPosition(cargo?.nombre || '')
 		setEmployees(cargo?.personas || '')
-		setSubcargoList(subcargos.filter((s) => s.cargo_id === cargo?.id))
+		const actuales = subcargos
+			.filter((s) => s.cargo_id === cargo?.id)
+			.map((s) => ({
+				id: s.id,
+				uid: s.id ? undefined: Date.now() + Math.random(),
+				nombre: s.nombre,
+				personas: s.personas || 0,
+			}))
+		setSubcargoList(actuales)
 		setModal(true)
 	}
 
