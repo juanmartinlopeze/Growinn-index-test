@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { useAlert } from '../Alerts/useAlert'
 import { Alert, FeedbackMessage, Tooltip } from '../index'
 import ProgressBar from '../ProgressBar/ProgressBar'
-import { deleteCargo, deleteSubcargo, fetchAreas, fetchCargos, fetchEmpresas, fetchSubcargos, fetchSubcargosByCargo, fetchUsuarios, saveCargo, saveSubcargo, updateArea, updateCargo } from './api'
+import { deleteCargo, deleteSubcargo, fetchAreas, fetchCargos, fetchEmpresas, fetchSubcargos, fetchSubcargosByCargo, fetchUsuarios, saveCargo, saveSubcargo, updateArea, updateCargo,updateSubcargo } from './api'
 import EditAreaForm from './EditAreaForm'
 import EditRoleModal from './EditRoleModal'
 import RoleCell from './RoleCell'
@@ -135,14 +135,21 @@ export function Table() {
 
 			// 2) Guardar subcargos nuevos
 			for (const sub of subcargoList) {
-				if (!sub.id && sub.nombre.trim()) {
+				if (sub.id) {
+					// existe: enviamos PUT
+					await updateSubcargo(sub.id, {
+					nombre: sub.nombre,
+					personas: sub.personas,
+					})
+				} else if (sub.nombre.trim()) {
+					// es nuevo: POST
 					await saveSubcargo({
-						nombre: sub.nombre,
-						personas: sub.personas,
-						cargo_id: cargoId,
+					nombre: sub.nombre,
+					personas: sub.personas,
+					cargo_id: cargoId,
 					})
 				}
-			}
+				}
 
 			// 3) Recargar sólo los subcargos de este cargo
 			const subAct = await fetchSubcargosByCargo(cargoId)
@@ -155,10 +162,8 @@ export function Table() {
 				message: 'Error al guardar cargo o subcargos',
 				type: 'generalError',
 			})
-
 			return
 		}
-
 		// 4) Refrescar métricas UNA sola vez
 		try {
 			await refetch()

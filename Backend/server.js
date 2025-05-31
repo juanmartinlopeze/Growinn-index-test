@@ -3,6 +3,7 @@ const cors = require("cors");
 const { supabase, supabaseAdmin } = require("./supabase/supabase");
 
 const uploadRouter = require('./routes/uploadExcel');
+const surveyRouter = require('./routes/survey');
 const excelRouter  = require('./routes/excelroute');
 
 
@@ -12,6 +13,9 @@ app.use(cors());
 
 app.use('/', uploadRouter);
 app.use('/', excelRouter); 
+app.use('/encuesta', surveyRouter);
+app.use(express.json());
+app.use(cors({ origin: 'http://localhost:5173' }));
 //esto debe subirse
 
 

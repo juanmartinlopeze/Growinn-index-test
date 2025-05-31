@@ -1,0 +1,317 @@
+[
+  {
+    "id": "q1",
+    "text": "Todos en la organización tenemos una idea clara y emocionante de lo que significa innovar aquí.",
+    "type": "radio",
+    "options": ["1", "2", "3", "4", "5"],
+    "required": true
+  },
+  {
+    "id": "q2",
+    "text": "Existe un diseño de estructura formal (organigrama) donde son claros la jerarquía y los roles de las personas que son críticas en la toma de decisiones sobre los procesos de innovación.",
+    "type": "radio",
+    "options": ["1", "2", "3", "4", "5"],
+    "required": true
+  },
+  {
+    "id": "q3",
+    "text": "Existe una dirección, área o comité de innovación que ayuda a gestionar las iniciativas y la cultura de innovación.",
+    "type": "radio",
+    "options": ["1", "2", "3", "4", "5"],
+    "required": true
+  },
+  {
+    "id": "q4",
+    "text": "Se tiene claro a dónde o a quién hay que acudir cuando se tiene una duda o iniciativa de innovación.",
+    "type": "radio",
+    "options": ["1", "2", "3", "4", "5"],
+    "required": true
+  },
+  {
+    "id": "q5",
+    "text": "Hay una comunicación constante sobre los aspectos relacionados con innovación que fluye en diversas direcciones y en diversos canales. La información es clara, periódica y accesible.",
+    "type": "radio",
+    "options": ["1", "2", "3", "4", "5"],
+    "required": true
+  },
+  {
+    "id": "q6",
+    "text": "El ambiente de la organización motiva a pensar creativamente y “por fuera de la caja” para generar ideas y propuestas novedosas y diferenciadas.",
+    "type": "radio",
+    "options": ["1", "2", "3", "4", "5"],
+    "required": true
+  },
+  {
+    "id": "q7",
+    "text": "Tenemos un grupo humano capacitado y con las competencias para desarrollar proyectos de innovación con éxito.",
+    "type": "radio",
+    "options": ["1", "2", "3", "4", "5"],
+    "required": true
+  },
+  {
+    "id": "q8",
+    "text": "Nuestros líderes nos convocan a actuar. Se promueve movilizarnos hacia la acción. Nos invitan a evitar la parálisis por el análisis.",
+    "type": "radio",
+    "options": ["1", "2", "3", "4", "5"],
+    "required": true
+  },
+  {
+    "id": "q9",
+    "text": "La organización tiene un proceso claro para identificar oportunidades y levantar información relevante para nuevas soluciones e innovaciones. Se hace un monitoreo constante de tendencias, comportamientos del consumidor y análisis del entorno. Hay inmersiones y cercanía con los clientes para reconocer sus necesidades.",
+    "type": "radio",
+    "options": ["1", "2", "3", "4", "5"],
+    "required": true
+  },
+  {
+    "id": "q10",
+    "text": "Se cuenta con los recursos financieros suficientes para respaldar el desarrollo de las iniciativas de innovación. Existe un presupuesto para poder desarrollar proyectos con alto potencial creativo e innovador. Se cuenta con las finanzas para explorar oportunidades prometedoras.",
+    "type": "radio",
+    "options": ["1", "2", "3", "4", "5"],
+    "required": true
+  },
+  {
+    "id": "q11",
+    "text": "La comunidad externa, industria y nuestros clientes tienen la percepción que somos una institución innovadora.",
+    "type": "radio",
+    "options": ["1", "2", "3", "4", "5"],
+    "required": true
+  },
+  {
+    "id": "q12",
+    "text": "La organización ha definido clara y detalladamente cuáles son los tipos y focos de innovación que se esperan desarrollar, el portafolio de innovación a gestionar y ha determinado unos objetivos específicos a alcanzar por parte de las iniciativas y nuevos desarrollos que se generen.",
+    "type": "radio",
+    "options": ["1", "2", "3", "4", "5"],
+    "required": true
+  },
+  {
+    "id": "q13",
+    "text": "La organización ofrece claridad y directrices sobre qué ideas se están buscando y sobre cómo se evaluarán y gestionarán para llevarlas a la realidad. Se tienen claras las reglas de juego para participar en las iniciativas de innovación.",
+    "type": "radio",
+    "options": ["1", "2", "3", "4", "5"],
+    "required": true
+  },
+  {
+    "id": "q14",
+    "text": "Los resultados de las iniciativas de innovación se hacen públicos y se reconocen los impactos positivos generados por individuos, grupos o la organización, dadas las métricas establecidas para medir el éxito.",
+    "type": "radio",
+    "options": ["1", "2", "3", "4", "5"],
+    "required": true
+  },
+  {
+    "id": "q15",
+    "text": "En la organización no nos da miedo fallar y los fracasos son percibidos como una oportunidad para aprender y mejorar. Se tiene muy claro lo que es un fallo y se fomenta el aprendizaje constante, rápido y barato.",
+    "type": "radio",
+    "options": ["1", "2", "3", "4", "5"],
+    "required": true
+  },
+  {
+    "id": "q16",
+    "text": "La organización promueve la diversidad de pensamiento, se respetan las diferencias y se potencian las particularidades de cada uno de los colaboradores.",
+    "type": "radio",
+    "options": ["1", "2", "3", "4", "5"],
+    "required": true
+  },
+  {
+    "id": "q17",
+    "text": "Los líderes asumen un rol activo y predican lo que aplican. Son ejemplo de lo que promueven y con sus actos dan muestra de lo que esperan de innovación. Los líderes son ejemplos a seguir en términos de innovación.",
+    "type": "radio",
+    "options": ["1", "2", "3", "4", "5"],
+    "required": true
+  },
+  {
+    "id": "q18",
+    "text": "Se proporcionan métodos y herramientas a los colaboradores para ayudarlos con la generación, el refinamiento y la implementación de las ideas.",
+    "type": "radio",
+    "options": ["1", "2", "3", "4", "5"],
+    "required": true
+  },
+  {
+    "id": "q19",
+    "text": "Se cuenta con una infraestructura física que fomenta la participación y colaboración en procesos creativos. Los espacios y sus dotaciones flexibles estimulan la creatividad y posibilitan el desarrollo de talleres de innovación.",
+    "type": "radio",
+    "options": ["1", "2", "3", "4", "5"],
+    "required": true
+  },
+  {
+    "id": "q20",
+    "text": "Las iniciativas y proyectos de innovación han logrado impactar positivamente nuestros resultados financieros y de sostenibilidad económica.",
+    "type": "radio",
+    "options": ["1", "2", "3", "4", "5"],
+    "required": true
+  },
+  {
+    "id": "q21",
+    "text": "La organización analiza constantemente el entorno y las tendencias para definir las apuestas e iniciativas de nuevas ofertas (internas y externas) que se deban desarrollar a futuro.",
+    "type": "radio",
+    "options": ["1", "2", "3", "4", "5"],
+    "required": true
+  },
+  {
+    "id": "q22",
+    "text": "Las políticas y reglas de la institución en torno a la innovación permiten explorar nuevas ideas y habilitan a las personas para llevar esos proyectos a altos niveles de desarrollo e implementación.",
+    "type": "radio",
+    "options": ["1", "2", "3", "4", "5"],
+    "required": true
+  },
+  {
+    "id": "q23",
+    "text": "Las personas que participan con ideas o propuestas reciben una retroalimentación transparente, adecuada y oportuna para comprender las decisiones que se han tomado sobre estas.",
+    "type": "radio",
+    "options": ["1", "2", "3", "4", "5"],
+    "required": true
+  },
+  {
+    "id": "q24",
+    "text": "Aquí podemos expresar de manera libre y sin miedos, nuestras opiniones, dudas, propuestas, críticas y sugerencias sobre situaciones, proyectos o iniciativas de innovación.",
+    "type": "radio",
+    "options": ["1", "2", "3", "4", "5"],
+    "required": true
+  },
+  {
+    "id": "q25",
+    "text": "La organización tiene eventos donde se estimula la creatividad y se convoca a la comunidad interesada sobre la innovación para fortalecer lazos y promover nuevas conexiones.",
+    "type": "radio",
+    "options": ["1", "2", "3", "4", "5"],
+    "required": true
+  },
+  {
+    "id": "q26",
+    "text": "Los líderes nos inspiran constantemente con historias sobre colaboradores y equipos que demuestran altos valores y resultados positivos sobre innovación.",
+    "type": "radio",
+    "options": ["1", "2", "3", "4", "5"],
+    "required": true
+  },
+  {
+    "id": "q27",
+    "text": "Desarrollamos sistemas de validación y prototipos de las ideas con mayor potencial. Se generan experimentos para validar el valor de las ideas propuestas. Construimos elementos con los cuales se pueda interactuar y recibir retroalimentación por parte de usuarios potenciales.",
+    "type": "radio",
+    "options": ["1", "2", "3", "4", "5"],
+    "required": true
+  },
+  {
+    "id": "q28",
+    "text": "Se tiene acceso a facilitadores expertos en innovación y en procesos creativos para solucionar dudas sobre cómo desarrollar una idea, iniciativa o proyecto de innovación.",
+    "type": "radio",
+    "options": ["1", "2", "3", "4", "5"],
+    "required": true
+  },
+  {
+    "id": "q29",
+    "text": "Las iniciativas de innovación han generado un impacto positivo e importante en términos generales.",
+    "type": "radio",
+    "options": ["1", "2", "3", "4", "5"],
+    "required": true
+  },
+  {
+    "id": "q30",
+    "text": "Existe una explicación clara respecto a para qué sirve la innovación en la organización.",
+    "type": "radio",
+    "options": ["1", "2", "3", "4", "5"],
+    "required": true
+  },
+  {
+    "id": "q31",
+    "text": "Se cuenta con un sistema integral de métricas o indicadores que miden las entradas, el desarrollo y los resultados del sistema de innovación (Personas, Proyectos, Avances, Costos, Rentabilidad, etc).",
+    "type": "radio",
+    "options": ["1", "2", "3", "4", "5"],
+    "required": true
+  },
+  {
+    "id": "q32",
+    "text": "La organización se caracteriza por tener un gran nivel de colaboración entre las áreas y departamentos. Se promueve la conexión y el intercambio entre diferentes áreas y roles. No existen silos o islas.",
+    "type": "radio",
+    "options": ["1", "2", "3", "4", "5"],
+    "required": true
+  },
+  {
+    "id": "q33",
+    "text": "Aquí no nos conformamos con la realidad del presente y creemos que podemos construir un mejor futuro. Nos motiva un deseo ferviente de crear nuevas posibilidades y nuestra creencia se define por la frase “sí se puede”.",
+    "type": "radio",
+    "options": ["1", "2", "3", "4", "5"],
+    "required": true
+  },
+  {
+    "id": "q34",
+    "text": "La organización tiene un plan de desarrollo y formación constante que desarrolla las habilidades necesarias de las personas y equipos para tener éxito en los proyectos de innovación.",
+    "type": "radio",
+    "options": ["1", "2", "3", "4", "5"],
+    "required": true
+  },
+  {
+    "id": "q35",
+    "text": "Los líderes de la organización patrocinan y apoyan las ideas y los esfuerzos que se hacen hacia la innovación. Hay un involucramiento activo por parte de los líderes, donde estos brindan colaboración, guía, tiempo y apoyo para que las iniciativas lleguen a buen término.",
+    "type": "radio",
+    "options": ["1", "2", "3", "4", "5"],
+    "required": true
+  },
+  {
+    "id": "q36",
+    "text": "Se seleccionan e implementan rápidamente las propuestas de mayor potencial de manera metódica. Se cuenta con herramientas y técnicas claras para hacer este proceso.",
+    "type": "radio",
+    "options": ["1", "2", "3", "4", "5"],
+    "required": true
+  },
+  {
+    "id": "q37",
+    "text": "Existe un sistema de incentivos y recompensas (tangibles y no tangibles) para reconocer el trabajo y los logros obtenidos al explorar y desarrollar proyectos de innovación. Este sistema motiva a las personas a participar en las iniciativas.",
+    "type": "radio",
+    "options": ["1", "2", "3", "4", "5"],
+    "required": true
+  },
+  {
+    "id": "q38",
+    "text": "Estoy satisfecho con mi participación y resultados en las iniciativas de innovación de la organización. Soy reconocido por mis aportes a la innovación.",
+    "type": "radio",
+    "options": ["1", "2", "3", "4", "5"],
+    "required": true
+  },
+  {
+    "id": "q39",
+    "text": "La organización brinda una visión clara del futuro y de cómo la innovación aporta al posicionamiento de la organización en el tiempo.",
+    "type": "radio",
+    "options": ["1", "2", "3", "4", "5"],
+    "required": true
+  },
+  {
+    "id": "q40",
+    "text": "La organización cuenta con un sistema de gestión o panel de control con todos los indicadores y métricas de innovación. Las personas tienen acceso a ver el estado y resultado de la innovación desde una perspectiva cuantitativa y visual.",
+    "type": "radio",
+    "options": ["1", "2", "3", "4", "5"],
+    "required": true
+  },
+  {
+    "id": "q41",
+    "text": "La organización hace parte de un ecosistema más amplio de actores de innovación. Se cuenta con un sistema de aliados y colaboradores externos, con los cuales se pueden desarrollar o facilitar las iniciativas de innovación. Los proveedores y distribuidores son una fuente constante de proyectos e iniciativas.",
+    "type": "radio",
+    "options": ["1", "2", "3", "4", "5"],
+    "required": true
+  },
+  {
+    "id": "q42",
+    "text": "La organización fomenta que persigamos libremente nuestra curiosidad y que tomemos riesgos para explorar nuevas oportunidades e ideas con un alto potencial de generar valor.",
+    "type": "radio",
+    "options": ["1", "2", "3", "4", "5"],
+    "required": true
+  },
+  {
+    "id": "q43",
+    "text": "La organización tiene procesos definidos de atracción, reclutamiento y retención de empleados que aportan con un gran talento creativo e innovador.",
+    "type": "radio",
+    "options": ["1", "2", "3", "4", "5"],
+    "required": true
+  },
+  {
+    "id": "q44",
+    "text": "Los líderes nos retan a pensar de manera diferente y a encontrar soluciones novedosas. Nos invitan a romper con el “status quo” o lo establecido.",
+    "type": "radio",
+    "options": ["1", "2", "3", "4", "5"],
+    "required": true
+  },
+  {
+    "id": "q45",
+    "text": "Hay una estrategia definida de protección intelectual e industrial de nuestras soluciones de innovación. Las ideas se protegen de competidores.",
+    "type": "radio",
+    "options": ["1", "2", "3", "4", "5"],
+    "required": true
+  }
+]
