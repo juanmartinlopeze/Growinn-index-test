@@ -245,7 +245,7 @@ export function Table() {
 							<th />
 							{jerarquias.map((j) => (
 								<th key={j} className='jerarquia'>
-									<div>
+									<div className='tooltip-jerarquia'>
 										<p>{j}</p>
 										<Tooltip triggerText={<img src={jerarquiaIcons[j]} alt={j} width={40} />} popupText={nivelesJerarquia[j]} />
 									</div>
