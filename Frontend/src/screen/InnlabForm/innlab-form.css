@@ -1,46 +1,74 @@
 .container {
-  width: 100%;
-  height: auto;
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  justify-content: center;
-  gap: 20px;
+	width: 100%;
+	height: auto;
+	display: flex;
+	flex-direction: column;
+	align-items: stretch;
+	justify-content: center;
+	gap: 20px;
 }
 
 .innlab-form-header {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
 }
 
 .buttons-container {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  width: 100%;
-  gap: 16px;
+	display: flex;
+	justify-content: flex-end;
+	align-items: center;
+	width: 100%;
+	gap: 16px;
 }
 
 .forms-container {
-  display: flex;
-  width: 100%;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 20px;
+	display: flex;
+	width: 100%;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 30px;
 }
 
 .linea-curva {
-  position: absolute;
-  height: 24rem;
-  top: 9rem;
-  left: -3rem;
-  z-index: 0;
+	position: absolute;
+	height: 24rem;
+	top: 9rem;
+	left: -3rem;
+	z-index: 0;
 }
 
 .puntos {
-  position: absolute;
-  top: 32rem;
-  left: clamp(94vw, 70%, 1200px);
-  z-index: 0;
+	position: absolute;
+	top: 32rem;
+	left: clamp(94vw, 70%, 1200px);
+	z-index: 0;
+}
+
+.form-section {
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+}
+
+.form-section-divider h3 {
+	text-align: left;
+	font-size: 1.313rem;
+	font-weight: 500;
+	white-space: nowrap;
+	width: fit-content;
+}
+
+.form-section-divider {
+	display: flex;
+	align-items: center;
+	width: 580px;
+	gap: 28px;
+}
+
+.form-section-divider hr {
+	width: 100%;
+	height: 1px;
+	background-color: #C0C0C0;
+	border: none;
 }

@@ -114,7 +114,8 @@ export function ValidationPage() {
 					</div>
 
 					<div className='validation-buttons'>
-						<Button variant='next' text='Corregir archivo' onClick={() => navigate('/upload_page')} />
+						<Button text='Corregir archivo' onClick={() => navigate('/upload_page')} />
+						<Button variant='next' text='Enviar correos' onClick={() => navigate('/upload_page')} /> {/* Logica de correos */}
 					</div>
 				</div>
 			</div>

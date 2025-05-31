@@ -40,7 +40,11 @@ export function AreasForm() {
   const questions = Array.from({ length: totalAreas }, (_, i) => ({
     id: i + 1,
     field: `area${i + 1}`,
-    title: `¿Cuál es el nombre del área ${i + 1}?`,
+    title: (
+				<>
+					¿Cuál es el nombre del <span style={{ fontWeight: 500 }}>área {i + 1}?</span>
+				</>
+			),
     placeholder: "Digite aquí",
   }));
 
