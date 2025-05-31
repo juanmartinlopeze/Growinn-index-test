@@ -31,7 +31,7 @@ export function DatosPrueba() {
 	return (
 		<>
 			<section className='container'>
-				<TitleSection title='Tabla de Jerarquías y cargos' />
+				<TitleSection title='Tabla de Jerarquías, áreas y cargos' />
 				<Table />
 
 				<section className='navigation-buttons'>
