@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Button } from "../../components/index";
 import { useLocation, useNavigate } from "react-router-dom";
 import { FormAreas } from "../../components/FormAreas/form_areas";
@@ -8,7 +8,6 @@ import "./areas_form.css";
 export function AreasForm() {
   const location = useLocation();
   const navigate = useNavigate();
-  const storageKey = "areasFormData";
 
   // estados para mostrar el tipo de alerta
   const [showAlert, setShowAlert] = useState(false);
@@ -25,33 +24,20 @@ export function AreasForm() {
     jerarquia4,
   } = location.state || {};
 
-  // **1. Inicializar formData a partir de localStorage**
-  const [formData, setFormData] = useState(() => {
-    try {
-      const saved = localStorage.getItem(storageKey);
-      return saved ? JSON.parse(saved) : {};
-    } catch (e) {
-      console.error("Error parsing stored formData:", e);
-      return {};
-    }
-  });
+  // Inicializar formData sin localStorage
+  const [formData, setFormData] = useState({});
 
   // preguntas dinámicas
   const questions = Array.from({ length: totalAreas }, (_, i) => ({
     id: i + 1,
     field: `area${i + 1}`,
     title: (
-				<>
-					¿Cuál es el nombre del <span style={{ fontWeight: 500 }}>área {i + 1}?</span>
-				</>
-			),
+      <>
+        ¿Cuál es el nombre del <span style={{ fontWeight: 500 }}>área {i + 1}?</span>
+      </>
+    ),
     placeholder: "Digite aquí",
   }));
-
-  // **2. Guardar en localStorage cada vez que formData cambie**
-  useEffect(() => {
-    localStorage.setItem(storageKey, JSON.stringify(formData));
-  }, [formData]);
 
   const handleInputChange = (field, value) => {
     setFormData((prev) => ({
@@ -61,7 +47,7 @@ export function AreasForm() {
   };
 
   const handleSubmit = async () => {
-    const nombresAreas = questions.map(q => (formData[q.field] || "").trim());
+    const nombresAreas = questions.map((q) => (formData[q.field] || "").trim());
 
     if (nombresAreas.some((nombre) => nombre === "")) {
       setAlertType("complete");
@@ -102,12 +88,8 @@ export function AreasForm() {
       const data = await res.json();
       console.log("✅ Empresa creada con áreas:", data);
 
-      // **3. Limpiar localStorage al finalizar**
-      localStorage.removeItem(storageKey);
-
       // Redirigir a la siguiente vista
       navigate("/datos_prueba", { state: { areas: nombresAreas } });
-
     } catch (err) {
       console.error("❌ Error en la petición:", err);
       setAlertType("generalError");
@@ -134,11 +116,7 @@ export function AreasForm() {
       </div>
 
       <div className="forms-container">
-        <FormAreas
-          questions={questions}
-          onInputChange={handleInputChange}
-          formData={formData}
-        />
+        <FormAreas questions={questions} onInputChange={handleInputChange} formData={formData} />
       </div>
 
       <div className="buttons-container">
