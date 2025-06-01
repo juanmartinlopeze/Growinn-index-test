@@ -1,12 +1,14 @@
 require('dotenv').config();
 const fs      = require('fs');
+const cors = require('cors');
 const path    = require('path');
 const express = require('express');
 const { v4: uuid } = require('uuid');
 const { supabaseAdmin } = require('../supabase/supabase');
 const { MailerSend, EmailParams, Sender, Recipient } = require('mailersend');
 
-const app        = express();  
+const app        = express(); 
+app.use(cors({origin: 'http://localhost:5173' })); // Permite solicitudes CORS
 const PORT       = process.env.PORT || 3001;
 const mailerSend = new MailerSend({ apiKey: process.env.MAILERSEND_API_KEY });
 

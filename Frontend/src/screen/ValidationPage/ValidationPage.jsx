@@ -1,4 +1,4 @@
-import React from 'react'
+import {useState} from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { Button, Description, TitleSection } from '../../components/index'
 import './ValidationPage.css'
@@ -60,6 +60,28 @@ export function ValidationPage() {
 	const excelWarnings = location.state?.excelWarnings || []
 	const file = location.state?.file || null
 
+	const [loading, setLoading]   = useState(false)
+	const [error, setError]       = useState(null)
+	const [success, setSuccess]   = useState(false)
+
+	// Función que invoca el microservicio de correos
+	const handleSendEmails = async () => {
+		setLoading(true)
+		setError(null)
+		setSuccess(false)
+
+		try {
+		const res = await fetch('http://localhost:3001/enviar-correos')
+		if (!res.ok) throw new Error(`Status ${res.status}`)
+		setSuccess(true)
+		} catch (err) {
+		console.error('Error enviando correos:', err)
+		setError('No se pudieron enviar los correos.')
+		} finally {
+		setLoading(false)
+		}
+	}
+
 	return (
 		<section className='validation-page-section'>
 			<TitleSection title='Resultado de la validación' />
@@ -114,8 +136,21 @@ export function ValidationPage() {
 					</div>
 
 					<div className='validation-buttons'>
-						<Button text='Corregir archivo' onClick={() => navigate('/upload_page')} />
-						<Button variant='next' text='Enviar correos' onClick={() => navigate('/upload_page')} /> {/* Logica de correos */}
+						<Button text="Corregir archivo" onClick={() => navigate('/upload_page')} />
+			            <Button
+			              variant="next"
+			              text={loading ? 'Enviando...' : 'Enviar correos'}
+			              onClick={handleSendEmails}
+			              disabled={loading}
+			            />
+			            {error && (
+			              <p style={{ color: 'red', marginTop: '0.5rem' }}>{error}</p>
+			            )}
+			            {success && (
+			              <p style={{ color: 'green', marginTop: '0.5rem' }}>
+			                Correos enviados correctamente.
+			              </p>
+			            )}
 					</div>
 				</div>
 			</div>
