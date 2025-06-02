@@ -73,6 +73,7 @@
 .next {
     border-radius: 50px;
     background-color: transparent;
+    font-style: italic;
 }
 
 .next:hover {

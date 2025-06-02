@@ -1,12 +1,14 @@
-
-import { Survey } from "../../components/index";
+import { Survey, TitleSection } from '../../components/index'
+import { SurveyTest } from '../../components/Survey/SurveyTest'
+import './SurveyScreen.css'
 
 export default function SurveyScreen() {
-  return (
-    <div className="encuesta-screen" style={{ padding: '2rem', maxWidth: '800px', margin: '0 auto' }}>
-      {/* Puedes agregar aquí un título o instrucciones previas */}
-      <h1 style={{ textAlign: 'center', color: '#5646F0' }}>Encuesta de Innovación</h1>
-      <Survey/>
-    </div>
-  );
+	return (
+		<section className='survey-screen-container'>
+			<TitleSection title='Encuesta de Innovación' />
+			<SurveyTest />
+			<img className='line-bckg-img' src='/BgLine-decoration.png' alt='' />
+			<img className='dots-bckg-img' src='/BgPoints-decoration.png' alt='' />
+		</section>
+	)
 }
