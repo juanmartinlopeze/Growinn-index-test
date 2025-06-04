@@ -18,7 +18,15 @@
 }
 
 .video-content{
+    width: 100%;
     display: flex;
     flex-direction: column;
     gap: 12px;
+}
+
+.video-content iframe {
+  display: block;   /* elimina cualquier espacio en línea */
+  width: 100%;
+  height: 424px;    /* mantén la altura que quieras o hazla responsive también */
+  border: none;     /* opcional: quita el borde si aparece */
 }
