@@ -1,11 +1,18 @@
-import { useState } from 'react'
+import { useState,useEffect } from 'react'
 import { Button } from '../../components/index'
 import questions from '../../data/question.json'
 import './Survey.css'
 
 export function SurveyTest() {
+	const [token, setToken] = useState('');
 	const [currentIndex, setCurrentIndex] = useState(0)
 	const [answers, setAnswers] = useState({})
+
+
+	useEffect(() => {
+		const t = new URLSearchParams(window.location.search).get('token');
+		if (t) setToken(t);
+	  }, []);
 
 	if (!Array.isArray(questions) || questions.length === 0) {
 		return <p>Cargando preguntas…</p>
@@ -15,7 +22,6 @@ export function SurveyTest() {
 		return (
 			<div className='survey-container'>
 				<h2 className='survey-header'>¡Gracias por completar la encuesta!</h2>
-				<p>(Esto es un entorno de prueba, tus respuestas no serán enviadas.)</p>
 			</div>
 		)
 	}
@@ -30,10 +36,20 @@ export function SurveyTest() {
 	const goNext = () => setCurrentIndex((i) => Math.min(i + 2, questions.length))
 	const goBack = () => setCurrentIndex((i) => Math.max(i - 2, 0))
 
-	const handleSubmit = () => {
-		console.log('Respuestas (prueba):', answers)
-		setCurrentIndex(questions.length)
-	}
+	const handleSubmit = async () => {
+    const payload = { token, ...answers };
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/encuesta`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) throw new Error('Error en el envío');
+      setCurrentIndex(questions.length);
+    } catch {
+      alert('Error al enviar la encuesta.');
+    }
+  };
 
 	const allAnswered = currentQuestions.every((q) => answers[q.id])
 
