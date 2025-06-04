@@ -34,24 +34,22 @@
 }
 
 .img-link {
-	width: 100%;
-	height: auto;
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	align-items: start;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 2rem 0;
+  aspect-ratio: 16 / 9;
+  max-width: 720px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
-.img-link img {
-	width: 100%;
-	height: auto;
-	border-radius: 10px;
-}
-
-.img-link a {
-	text-decoration: underline;
-	color: #f56f10;
-	margin: 4% 0 0 2%;
+.img-link iframe {
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  border: none;
 }
 
 .dots-bckg-img {
