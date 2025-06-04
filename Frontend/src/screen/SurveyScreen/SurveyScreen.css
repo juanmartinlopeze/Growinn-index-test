@@ -1,0 +1,30 @@
+.survey-screen-container {
+	margin: 0px;
+	display: flex;
+	flex-direction: column;
+	align-items: start;
+	justify-content: start;
+	width: 100%;
+	height: 100vh;
+	gap: 1rem;
+	padding: 5% 10% 0 10%;
+	position: relative;
+}
+
+.dots-bckg-img {
+	position: absolute;
+	right: -2%;
+	bottom: 36%;
+	width: auto;
+	height: 30%;
+}
+
+.line-bckg-img {
+	position: absolute;
+	left: -5%;
+	rotate: -20deg;
+	transform: translateX(-10%);
+	top: 3%;
+	width: auto;
+	height: 30%;
+}

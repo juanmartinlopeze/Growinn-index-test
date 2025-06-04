@@ -3,7 +3,7 @@ import { Button } from '../../components/index'
 import questions from '../../data/question.json'
 import './Survey.css'
 
-export function Survey() {
+export function SurveyTest() {
 	const [token, setToken] = useState('');
 	const [currentIndex, setCurrentIndex] = useState(0)
 	const [answers, setAnswers] = useState({})
@@ -22,7 +22,6 @@ export function Survey() {
 		return (
 			<div className='survey-container'>
 				<h2 className='survey-header'>¡Gracias por completar la encuesta!</h2>
-				<p>(Esto es un entorno de prueba, tus respuestas no serán enviadas.)</p>
 			</div>
 		)
 	}
