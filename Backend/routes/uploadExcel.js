@@ -40,51 +40,65 @@ router.post('/upload-excel', upload.single('file'), async (req, res) => {
     if (errCargos) throw errCargos;
     const cargoMap = Object.fromEntries(cargos.map(c => [c.nombre, c]));
 
+    // Expresión regular simple para validar correo
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
     // 3️⃣ Leer filas y validar
     const warnings = [];
     const rowsToInsert = [];
 
     sheet.eachRow((row, rowNumber) => {
-  if (rowNumber === 1) return;
+      if (rowNumber === 1) return; // salto la fila de encabezados
 
-  // Extrae el rawValue de la celda 3 (la de correo)
-  const rawCorreo = row.getCell(3).value;
+      // Extrae el rawValue de la celda 3 (la de correo)
+      const rawCorreo = row.getCell(3).value;
+      const correo = (rawCorreo && typeof rawCorreo === 'object' && rawCorreo.text)
+        ? rawCorreo.text
+        : rawCorreo;
 
-  // Si viene como objeto con 'text', úsalo; si no, toma el valor tal cual
-  const correo = (rawCorreo && typeof rawCorreo === 'object' && rawCorreo.text)
-    ? rawCorreo.text
-    : rawCorreo;
+      const vals = row.values.slice(1);
+      const [
+        nombre,
+        cedula,
+        ,          // <-- salto rawCorreo
+        cargoName,
+        areaName,
+        ,
+        jerarquiaText
+      ] = vals;
 
-    const vals = row.values.slice(1);
-  const [
-    nombre,
-    cedula,
-    ,          // <-- aquí salto el rawCorreo
-    cargoName,
-    areaName,
-    ,
-    jerarquiaText
-  ] = vals;
       const issues = [];
 
+      // Validaciones básicas
       if (!nombre)   issues.push('nombre vacío');
       if (!cedula)   issues.push('cédula vacía');
-      if (!correo)   issues.push('correo vacío');
+      if (!correo) {
+        issues.push('correo vacío');
+      } else if (!emailRegex.test(correo.toString().trim())) {
+        // Si el correo no cumple el patrón, se marca como inválido
+        issues.push(`correo “${correo}” inválido`);
+      }
 
+      // Validar área y cargo
       const areaId = areaMap[areaName];
-      if (!areaId) issues.push(`área “${areaName}” no existe`);
+      if (!areaId) {
+        issues.push(`área “${areaName}” no existe`);
+      }
 
       const cargo = cargoMap[cargoName];
       if (!cargo) {
         issues.push(`cargo “${cargoName}” no existe`);
-      } else if (cargo.area_id !== areaId) {
+      } else if (areaId && cargo.area_id !== areaId) {
         issues.push(`cargo “${cargoName}” no pertenece al área “${areaName}”`);
       }
 
+      // Validar jerarquía
       const m = jerarquiaText?.match(/Jerarqu[ií]a\s+(\d+)/i);
       const jerarquiaId = m ? `J${m[1]}` : null;
-      if (!jerarquiaId || (cargo && cargo.jerarquia_id !== jerarquiaId)) {
-        issues.push(`jerarquía “${jerarquiaText}” no coincide`);
+      if (!jerarquiaId) {
+        issues.push(`jerarquía “${jerarquiaText}” mal formateada`);
+      } else if (cargo && cargo.jerarquia_id !== jerarquiaId) {
+        issues.push(`jerarquía “${jerarquiaText}” no coincide para el cargo “${cargoName}”`);
       }
 
       if (issues.length) {
@@ -97,7 +111,7 @@ router.post('/upload-excel', upload.single('file'), async (req, res) => {
           jerarquia_id:    jerarquiaId,
           nombre_completo: nombre,
           cedula,
-          correo
+          correo:          correo.toString().trim()
         });
       }
     });
@@ -106,31 +120,30 @@ router.post('/upload-excel', upload.single('file'), async (req, res) => {
     if (warnings.length) {
       return res.status(400).json({ warnings });
     }
-   if (rowsToInsert.length === 0) {
-  return res.status(400).json({ error: 'No se encontraron filas válidas en el Excel.' });
-}
+    if (rowsToInsert.length === 0) {
+      return res.status(400).json({ error: 'No se encontraron filas válidas en el Excel.' });
+    }
 
-// 5️⃣ Insertar en la tabla (sin hacer select ni leer data)
-const { error: errInsert } = await supabaseAdmin
-    .from('usuarios')
-    .insert(rowsToInsert);
+    // 5️⃣ Insertar en la tabla
+    const { error: errInsert } = await supabaseAdmin
+      .from('usuarios')
+      .insert(rowsToInsert);
 
-   if (errInsert) {
-    console.error('❌ Supabase insert error:', errInsert);
-    return res.status(500).json({
-      error: errInsert.message,
-      details: errInsert.details,
-    });
-  }
+    if (errInsert) {
+      console.error('❌ Supabase insert error:', errInsert);
+      return res.status(500).json({
+        error: errInsert.message,
+        details: errInsert.details,
+      });
+    }
 
-  // 6️⃣ Sólo devolvemos mensaje de éxito
-  return res.json({ message: 'Todos los registros fueron validados e insertados correctamente.' });
-  
+    // 6️⃣ Sólo devolvemos mensaje de éxito
+    return res.json({ message: 'Todos los registros fueron validados e insertados correctamente.' });
+
   } catch (error) {
     console.error('❌ Error procesando Excel:', error);
     return res.status(500).json({ error: error.message });
   }
 });  // <-- CIERRE del router.post (callback + paréntesis)
 
-// Ahora sí exportas tu router
 module.exports = router;

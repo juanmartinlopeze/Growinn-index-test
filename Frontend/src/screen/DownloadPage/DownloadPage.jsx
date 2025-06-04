@@ -29,7 +29,7 @@ const { empresaId } = useEmpresaData();
         <iframe
           width="100%"
           height="424"
-          src="https://www.youtube.com/embed/yKxF9swBwUk"
+          src="https://www.youtube.com/embed/yKxF9swBwUk?vq=hd1080"
           title="Video Frame"
           frameBorder="0"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"

@@ -137,12 +137,15 @@ export function ValidationPage() {
 
 					<div className='validation-buttons'>
 						<Button text="Corregir archivo" onClick={() => navigate('/upload_page')} />
-			            <Button
-			              variant="next"
-			              text={loading ? 'Enviando...' : 'Enviar correos'}
-			              onClick={handleSendEmails}
-			              disabled={loading}
-			            />
+
+							 {excelWarnings.length === 0 && (
+								<Button
+								variant="next"
+								text={loading ? 'Enviando...' : 'Enviar correos'}
+								onClick={handleSendEmails}
+								disabled={loading}
+								/>
+							)}
 			            {error && (
 			              <p style={{ color: 'red', marginTop: '0.5rem' }}>{error}</p>
 			            )}
