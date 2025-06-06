@@ -71,8 +71,12 @@ export function UploadPage() {
       }
 
       // 3) Éxito (res.ok === true):
-      setSuccessMsg(`✔️ ${body.inserted || body.message} filas procesadas correctamente.`)
-      setFile(null)
+      navigate('/validation_page', {
+        state: {
+          excelWarnings: [], // No hay errores
+          file,              // Pasamos el archivo subido
+        },
+      })
 
     } catch (err) {
       // 4) Capturar cualquier error imprevisto
