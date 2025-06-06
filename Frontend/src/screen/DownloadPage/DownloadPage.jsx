@@ -1,17 +1,17 @@
 import './DownloadPage.css';
-import { TitleSection, Description,Button } from '../../components/index';
+import { TitleSection, Description, Button } from '../../components/index';
 import { generarExcelDesdeBD } from './generarExcel/generarExcel';
 import { useEmpresaData } from '../../components/Table/useEmpresaData';
 
 
 
 export function DownloadPage() {
-const { empresaId } = useEmpresaData();
-  
+  const { empresaId } = useEmpresaData();
+
   const handleDownload = () => {
-  if (!empresaId) return alert("❌ No se ha cargado la empresa correctamente.");
-  generarExcelDesdeBD(empresaId);
-};
+    if (!empresaId) return alert("❌ No se ha cargado la empresa correctamente.");
+    generarExcelDesdeBD(empresaId);
+  };
 
   return (
     <section className='download-page-section'>

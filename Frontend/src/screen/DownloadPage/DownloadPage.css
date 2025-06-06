@@ -1,4 +1,4 @@
-.download-page-section{
+.download-page-section {
     width: 100%;
     height: 100%;
     display: flex;
@@ -8,7 +8,8 @@
     align-items: start;
     gap: 20px;
 }
-.description-content{
+
+.description-content {
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -17,7 +18,7 @@
     margin-bottom: 24px;
 }
 
-.video-content{
+.video-content {
     width: 100%;
     display: flex;
     flex-direction: column;
@@ -25,8 +26,11 @@
 }
 
 .video-content iframe {
-  display: block;   /* elimina cualquier espacio en línea */
-  width: 100%;
-  height: 424px;    /* mantén la altura que quieras o hazla responsive también */
-  border: none;     /* opcional: quita el borde si aparece */
+    display: block;
+    /* elimina cualquier espacio en línea */
+    width: 100%;
+    height: 50rem;
+    /* mantén la altura que quieras o hazla responsive también */
+    border: none;
+    /* opcional: quita el borde si aparece */
 }
