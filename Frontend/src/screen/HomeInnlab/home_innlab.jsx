@@ -30,9 +30,20 @@ export function HomeInnlab() {
 					</div>
 				</div>
 
+				<div className='title-video'>
+					<h3 className="video-title">¿Cómo funciona GrowInn Index?</h3>
+				</div>
+
 				<div className='img-link'>
-					<img src='/table-preview.jpg' alt='Matriz de asignación de cargos por área y jornada laboral, con algunos roles asignados y otros disponibles.' />
-					<a href='#'>Video tutorial →</a>
+<iframe
+  src="https://www.youtube.com/embed/l-NrrvFaTXk?rel=0&modestbranding=1&showinfo=0"
+  title="Video tutorial"
+  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+  allowFullScreen
+  style={{ display: 'block' }}
+></iframe>
+
+
 				</div>
 
 				<section className='navigation-buttons'>
