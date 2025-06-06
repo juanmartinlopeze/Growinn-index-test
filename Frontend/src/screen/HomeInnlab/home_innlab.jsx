@@ -1,4 +1,4 @@
-import { Button, Description, HomeTitle, List, Subtitle, TitleJerarquias } from '../../components/index'
+import { Button, Description, HomeTitle, List, Subtitle, TitleJerarquias, TitleSection } from '../../components/index'
 import './home_innlab.css'
 
 const jerarquiasIntro = 'En la mayoría de las organizaciones, existen cuatro niveles jerárquicos:'
@@ -31,19 +31,17 @@ export function HomeInnlab() {
 				</div>
 
 				<div className='title-video'>
-					<h3 className="video-title">¿Cómo funciona GrowInn Index?</h3>
+					<TitleSection title="Video tutorial" />
 				</div>
 
 				<div className='img-link'>
-<iframe
-  src="https://www.youtube.com/embed/l-NrrvFaTXk?rel=0&modestbranding=1&showinfo=0"
-  title="Video tutorial"
-  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-  allowFullScreen
-  style={{ display: 'block' }}
-></iframe>
-
-
+					<iframe
+						src="https://www.youtube.com/embed/l-NrrvFaTXk?rel=0&modestbranding=1&showinfo=0"
+						title="Video tutorial"
+						allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+						allowFullScreen
+						style={{ display: 'block', border: 'none' }}
+					></iframe>
 				</div>
 
 				<section className='navigation-buttons'>
