@@ -102,85 +102,115 @@ export function Table() {
 	}
 
 	const handleSaveEverything = async () => {
-		// Validación 2: Campos obligatorios
-		if (!position || !employees) {
-			showAlert('error', 'Campos incompletos', 'El nombre del cargo y el total de empleados son obligatorios.')
-			return
-		}
+    // 1. Validación de campos principales (Cargo y Total Empleados)
+    // El nombre del cargo es obligatorio
+    if (!position.trim()) {
+        showAlert('error', 'Error de Validación', 'El nombre del cargo es obligatorio.');
+        return; // Detiene la ejecución si falla
+    }
 
-		// Validación 2: Mínimo 1 subcargo
-		if (subcargoList.length === 0) {
-			showAlert('error', 'Subcargos requeridos', 'Debes agregar al menos un subcargo para crear el cargo.')
-			return
-		}
+    // El total de empleados es obligatorio y debe ser un número no negativo
+    const totalEmp = parseInt(employees, 10);
+    if (isNaN(totalEmp) || totalEmp < 0) {
+        showAlert('error', 'Error de Validación', 'La cantidad de empleados es obligatoria y debe ser un número no negativo.');
+        return; // Detiene la ejecución si falla
+    }
 
-		// **Validación: la suma de subcargos debe ser EXACTAMENTE igual a employees**
-		const totalSub = subcargoList.reduce((sum, s) => sum + (s.personas || 0), 0)
-		const totalEmp = parseInt(employees, 10)
-		if (subcargoList.length > 0 && totalSub !== totalEmp) {
-			showAlert('error', 'Error de validación', `La suma de empleados en subcargos (${totalSub}) no coincide con el total del cargo (${totalEmp}).\n\nPor favor ajusta las cantidades.`)
-			return
-		}
+    // 2. Validación de Subcargos (CONDICIONAL)
+    // Este bloque SOLO se ejecuta si existen subcargos en la lista (`subcargoList`).
+    if (subcargoList.length > 0) {
+        // Itera sobre cada subcargo para validar sus campos
+        for (const sub of subcargoList) {
+            // El nombre del subcargo es obligatorio si hay subcargos
+            if (!sub.nombre.trim()) {
+                showAlert('error', 'Error de Validación', 'El nombre de todos los subcargos es obligatorio si hay subcargos.');
+                return; // Detiene la ejecución si falla
+            }
+            // La cantidad de personas en el subcargo es obligatoria y debe ser un número no negativo si hay subcargos
+            const subPersonas = parseInt(sub.personas, 10);
+            if (isNaN(subPersonas) || subPersonas < 0) {
+                showAlert('error', 'Error de Validación', 'La cantidad de personas en todos los subcargos es obligatoria y debe ser un número no negativo si hay subcargos.');
+                return; // Detiene la ejecución si falla
+            }
+        }
 
-		try {
-			let cargoId
+        // Si hay subcargos, valida que la suma de sus empleados coincida con el total del cargo.
+        const totalSub = subcargoList.reduce((sum, s) => sum + (s.personas || 0), 0);
+        if (totalSub !== totalEmp) {
+            showAlert('error', 'Error de validación', `La suma de empleados en subcargos (${totalSub}) no coincide con el total del cargo (${totalEmp}).\n\nPor favor, ajusta las cantidades.`);
+            return; // Detiene la ejecución si falla
+        }
+    }
+    // Si subcargoList.length es 0, todas las validaciones de subcargos se saltan,
+    // permitiendo guardar el cargo sin subcargos.
 
-			// 1) Crear o actualizar cargo
-			if (!selectedCargo?.id) {
-				const nuevo = await saveCargo({
-					nombre: position,
-					personas: totalEmp,
-					area_id: selectedArea.id,
-					jerarquia_id: String(selectedJerarquia),
-				})
-				cargoId = nuevo.id
-				setCargos((prev) => [...prev, nuevo])
-			} else {
-				cargoId = selectedCargo.id
-				await updateCargo(cargoId, { nombre: position, personas: totalEmp })
-				setCargos((prev) => prev.map((c) => (c.id === cargoId ? { ...c, nombre: position, personas: totalEmp } : c)))
-			}
 
-			// 2) Guardar subcargos nuevos
-			for (const sub of subcargoList) {
-				if (sub.id) {
-					// existe: enviamos PUT
-					await updateSubcargo(sub.id, {
-					nombre: sub.nombre,
-					personas: sub.personas,
-					})
-				} else if (sub.nombre.trim()) {
-					// es nuevo: POST
-					await saveSubcargo({
-					nombre: sub.nombre,
-					personas: sub.personas,
-					cargo_id: cargoId,
-					})
-				}
-				}
+    // 3. Lógica de Guardado (si todas las validaciones pasan)
+    try {
+        let cargoId;
 
-			// 3) Recargar sólo los subcargos de este cargo
-			const subAct = await fetchSubcargosByCargo(cargoId)
-			setSubcargos((prev) => prev.filter((s) => s.cargo_id !== cargoId).concat(subAct))
-			setSubcargoList(subAct)
-		} catch (err) {
-			console.error('❌ Error al guardar cargo/subcargos:', err)
-			setAlert({
-				show: true,
-				message: 'Error al guardar cargo o subcargos',
-				type: 'generalError',
-			})
-			return
-		}
-		// 4) Refrescar métricas UNA sola vez
-		try {
-			await refetch()
-		} catch (e) {
-			console.warn('⚠️ Error refrescando métricas:', e)
-		}
+        // Crear o actualizar el cargo principal
+        if (!selectedCargo?.id) {
+            // Si no hay un cargo seleccionado, es un cargo nuevo (POST)
+            const nuevo = await saveCargo({
+                nombre: position.trim(), // Guarda el nombre sin espacios extra
+                personas: totalEmp,
+                area_id: selectedArea.id,
+                jerarquia_id: String(selectedJerarquia),
+            });
+            cargoId = nuevo.id;
+            setCargos((prev) => [...prev, nuevo]); // Agrega el nuevo cargo a la lista local
+        } else {
+            // Si ya hay un cargo seleccionado, se actualiza (PUT)
+            cargoId = selectedCargo.id;
+            await updateCargo(cargoId, { nombre: position.trim(), personas: totalEmp });
+            setCargos((prev) => prev.map((c) => (c.id === cargoId ? { ...c, nombre: position.trim(), personas: totalEmp } : c))); // Actualiza el cargo en la lista local
+        }
 
-		setModal(false)
-	}
+        // Guardar/actualizar subcargos (CONDICIONAL)
+        // Este bloque SOLO se ejecuta si existen subcargos en la lista.
+        if (subcargoList.length > 0) {
+            for (const sub of subcargoList) {
+                if (sub.id) {
+                    // Si el subcargo ya tiene un ID, se actualiza (PUT)
+                    await updateSubcargo(sub.id, {
+                        nombre: sub.nombre.trim(),
+                        personas: sub.personas,
+                    });
+                } else if (sub.nombre.trim()) { // Solo guarda si es nuevo y tiene nombre
+                    // Si es un subcargo nuevo (no tiene ID), se crea (POST)
+                    await saveSubcargo({
+                        nombre: sub.nombre.trim(),
+                        personas: sub.personas,
+                        cargo_id: cargoId, // Asocia al cargo que acabamos de crear/actualizar
+                    });
+                }
+            }
+        }
+
+        // Recargar sólo los subcargos de este cargo específico para reflejar los cambios (nuevos, actualizados)
+        const subAct = await fetchSubcargosByCargo(cargoId);
+        // Filtra los subcargos antiguos de este cargo y añade los recién obtenidos
+        setSubcargos((prev) => prev.filter((s) => s.cargo_id !== cargoId).concat(subAct));
+        setSubcargoList(subAct); // Actualiza también la lista local del modal para que refleje los IDs, etc.
+
+    } catch (err) {
+        console.error('❌ Error al guardar cargo/subcargos:', err);
+        showAlert('error', 'Error al guardar', '❌ Error al guardar cargo o subcargos.');
+        return; // Detiene la ejecución si hay un error en el guardado
+    }
+
+    // 4. Refrescar métricas (se hace una sola vez al final si todo fue bien)
+    try {
+        await refetch();
+    } catch (e) {
+        console.warn('⚠️ Error refrescando métricas después de guardar:', e);
+    }
+
+    // Mostrar mensaje de éxito y cerrar el modal
+    showAlert('complete', 'Guardado exitoso', '✅ El cargo y subcargos (si existen) se han guardado correctamente.');
+    setModal(false);
+};
 
 	const handleDeleteRole = async () => {
 		if (!selectedCargo) return

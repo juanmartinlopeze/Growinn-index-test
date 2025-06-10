@@ -1,12 +1,14 @@
 import { useState,useEffect } from 'react'
 import { Button } from '../../components/index'
 import questions from '../../data/question.json'
+import { ExplanationScreen } from './ExplanationScreen'
 import './Survey.css'
 
 export function SurveyTest() {
 	const [token, setToken] = useState('');
 	const [currentIndex, setCurrentIndex] = useState(0)
 	const [answers, setAnswers] = useState({})
+	  const [showExplanation, setShowExplanation] = useState(true);
 
 
 	useEffect(() => {
@@ -52,6 +54,15 @@ export function SurveyTest() {
   };
 
 	const allAnswered = currentQuestions.every((q) => answers[q.id])
+
+	 const handleStartSurvey = () => {
+		setShowExplanation(false);
+	  };
+	
+	  // Mostrar la pantalla de explicación antes de la encuesta
+	  if (showExplanation) {
+		return <ExplanationScreen onStart={handleStartSurvey} />;
+	  }
 
 	return (
 		<div className='survey-container'>

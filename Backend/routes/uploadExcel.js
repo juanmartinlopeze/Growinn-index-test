@@ -1,4 +1,3 @@
-// routes/uploadExcel.js
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
@@ -40,65 +39,74 @@ router.post('/upload-excel', upload.single('file'), async (req, res) => {
     if (errCargos) throw errCargos;
     const cargoMap = Object.fromEntries(cargos.map(c => [c.nombre, c]));
 
-    // Expresión regular simple para validar correo
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-    // 3️⃣ Leer filas y validar
     const warnings = [];
     const rowsToInsert = [];
 
+    // 3️⃣ Validar cada fila con nuevo mapeo de columnas (sin subcargo)
+    // Columnas:
+    // A(1): Nombre completo
+    // B(2): Número de cédula
+    // C(3): Correo
+    // D(4): Cargo (puede traer "Principal - Subcargo" solo visual)
+    // E(5): Área (nombre)
+    // F(6): Código de área (solo referencia, no se usa para validación)
+    // G(7): Jerarquía
     sheet.eachRow((row, rowNumber) => {
-      if (rowNumber === 1) return; // salto la fila de encabezados
+      if (rowNumber === 1) return;
 
-      // Extrae el rawValue de la celda 3 (la de correo)
+      const nombre = String(row.getCell(1).value || '').trim();
+      const cedula = String(row.getCell(2).value || '').trim();
       const rawCorreo = row.getCell(3).value;
-      const correo = (rawCorreo && typeof rawCorreo === 'object' && rawCorreo.text)
-        ? rawCorreo.text
-        : rawCorreo;
+      const correo = rawCorreo && typeof rawCorreo === 'object' && rawCorreo.text
+        ? rawCorreo.text.trim()
+        : String(rawCorreo || '').trim();
 
-      const vals = row.values.slice(1);
-      const [
-        nombre,
-        cedula,
-        ,          // <-- salto rawCorreo
-        cargoName,
-        areaName,
-        ,
-        jerarquiaText
-      ] = vals;
+      // Detectar cargo principal ignorando subcargo visual
+      const fullCargoValue = String(row.getCell(4).value || '').trim();
+      let cargoExcelName = fullCargoValue;
+      if (fullCargoValue.includes(' - ')) {
+        cargoExcelName = fullCargoValue.split(' - ')[0].trim();
+      }
+
+      const areaName = String(row.getCell(5).value || '').trim();
+      // const codigoArea = String(row.getCell(6).value || '').trim(); // opcional
+      const jerarquiaText = String(row.getCell(7).value || '').trim();
 
       const issues = [];
 
       // Validaciones básicas
-      if (!nombre)   issues.push('nombre vacío');
-      if (!cedula)   issues.push('cédula vacía');
-      if (!correo) {
-        issues.push('correo vacío');
-      } else if (!emailRegex.test(correo.toString().trim())) {
-        // Si el correo no cumple el patrón, se marca como inválido
-        issues.push(`correo “${correo}” inválido`);
-      }
+      if (!nombre) issues.push('nombre vacío');
+      if (!cedula) issues.push('cédula vacía');
+      if (!correo) issues.push('correo vacío');
+      else if (!emailRegex.test(correo)) issues.push(`correo “${correo}” inválido`);
 
-      // Validar área y cargo
-      const areaId = areaMap[areaName];
-      if (!areaId) {
-        issues.push(`área “${areaName}” no existe`);
-      }
+      // Validar área
+      const areaId = areaMap[areaName] || null;
+      if (!areaName) issues.push('área vacía');
+      else if (!areaId) issues.push(`área “${areaName}” no existe`);
 
-      const cargo = cargoMap[cargoName];
-      if (!cargo) {
-        issues.push(`cargo “${cargoName}” no existe`);
-      } else if (areaId && cargo.area_id !== areaId) {
-        issues.push(`cargo “${cargoName}” no pertenece al área “${areaName}”`);
+      // Validar cargo principal
+      let finalCargoId = null;
+      let finalJerarquiaId = null;
+      const associatedCargo = cargoMap[cargoExcelName];
+      if (associatedCargo) {
+        finalCargoId = associatedCargo.id;
+        finalJerarquiaId = associatedCargo.jerarquia_id;
+        if (areaId && associatedCargo.area_id !== areaId) {
+          issues.push(`cargo “${cargoExcelName}” no pertenece al área “${areaName}”`);
+        }
+      } else {
+        issues.push(`cargo “${cargoExcelName}” no existe`);
       }
 
       // Validar jerarquía
-      const m = jerarquiaText?.match(/Jerarqu[ií]a\s+(\d+)/i);
-      const jerarquiaId = m ? `J${m[1]}` : null;
-      if (!jerarquiaId) {
-        issues.push(`jerarquía “${jerarquiaText}” mal formateada`);
-      } else if (cargo && cargo.jerarquia_id !== jerarquiaId) {
-        issues.push(`jerarquía “${jerarquiaText}” no coincide para el cargo “${cargoName}”`);
+      const match = jerarquiaText.match(/(\d+)/);
+      const jerarquiaIdFromExcel = match ? `J${match[1]}` : null;
+      if (!jerarquiaText) issues.push('jerarquía vacía');
+      else if (!jerarquiaIdFromExcel) issues.push(`jerarquía “${jerarquiaText}” mal formateada`);
+      else if (associatedCargo && associatedCargo.jerarquia_id !== jerarquiaIdFromExcel) {
+        issues.push(`jerarquía “${jerarquiaText}” no coincide para el cargo “${cargoExcelName}” (esperado: ${associatedCargo.jerarquia_id})`);
       }
 
       if (issues.length) {
@@ -107,43 +115,31 @@ router.post('/upload-excel', upload.single('file'), async (req, res) => {
         rowsToInsert.push({
           empresa_id:      parseInt(empresaId, 10),
           area_id:         areaId,
-          cargo_id:        cargo.id,
-          jerarquia_id:    jerarquiaId,
+          cargo_id:        finalCargoId,
+          jerarquia_id:    finalJerarquiaId,
           nombre_completo: nombre,
           cedula,
-          correo:          correo.toString().trim()
+          correo
         });
       }
     });
 
-    // 4️⃣ Devolver warnings si los hay
-    if (warnings.length) {
-      return res.status(400).json({ warnings });
-    }
-    if (rowsToInsert.length === 0) {
-      return res.status(400).json({ error: 'No se encontraron filas válidas en el Excel.' });
-    }
+    // 4️⃣ Devolver warnings si existen
+    if (warnings.length) return res.status(400).json({ warnings });
+    if (!rowsToInsert.length) return res.status(400).json({ error: 'No se encontraron filas válidas en el Excel.' });
 
-    // 5️⃣ Insertar en la tabla
+    // 5️⃣ Insertar en usuarios
     const { error: errInsert } = await supabaseAdmin
       .from('usuarios')
       .insert(rowsToInsert);
+    if (errInsert) throw errInsert;
 
-    if (errInsert) {
-      console.error('❌ Supabase insert error:', errInsert);
-      return res.status(500).json({
-        error: errInsert.message,
-        details: errInsert.details,
-      });
-    }
-
-    // 6️⃣ Sólo devolvemos mensaje de éxito
     return res.json({ message: 'Todos los registros fueron validados e insertados correctamente.' });
 
   } catch (error) {
     console.error('❌ Error procesando Excel:', error);
-    return res.status(500).json({ error: error.message });
+    return res.status(500).json({ error: error.message, stack: error.stack });
   }
-});  // <-- CIERRE del router.post (callback + paréntesis)
+});
 
 module.exports = router;
