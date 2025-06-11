@@ -1,14 +1,20 @@
 .survey-screen-container {
-	margin: 0px;
+	width: auto;
+	height: auto;
 	display: flex;
 	flex-direction: column;
 	align-items: start;
-	justify-content: start;
-	width: 100%;
-	height: 100vh;
-	gap: 1rem;
-	padding: 5% 10% 0 10%;
-	position: relative;
+	justify-content: center;
+   text-align: left;
+	gap: 20px;
+   padding: 10% 10% 0 10%;
+}
+
+.survey-container{
+   display: flex;
+   flex-direction: column;
+   align-items: center;
+   justify-content: center;
 }
 
 .dots-bckg-img {

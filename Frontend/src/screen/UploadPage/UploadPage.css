@@ -5,7 +5,7 @@
 	flex-direction: column;
 	justify-content: center;
 	align-items: start;
-	padding: 5% 10% 0 10%;
+	padding: 10% 10% 0 10%;
 	gap: 20px;
 	font-family: 'General Sans', sans-serif;
 }
@@ -45,7 +45,7 @@
 .line-bckg-img2 {
 	position: absolute;
 	right: 0;
-   z-index: -1;
+	z-index: -1;
 	transform: translateX(5%);
 	bottom: 17%;
 	width: auto;
@@ -55,7 +55,7 @@
 .squares-bckg-img {
 	position: absolute;
 	right: 6%;
-   z-index: -1;
+	z-index: -1;
 	transform: translateX(-10%);
 	top: 12%;
 	width: auto;

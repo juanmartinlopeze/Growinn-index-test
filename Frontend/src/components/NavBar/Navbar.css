@@ -8,6 +8,8 @@
 	align-items: center;
 	z-index: 1;
 	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+	position: fixed;
+	top: 0;
 }
 
 /* Logo */
@@ -33,22 +35,14 @@
 	width: fit-content;
 }
 
-.nav-login a{
+.nav-login a {
 	transition: color 0.3s ease;
 }
 
-.nav-links svg {
-   width: 1em;
-   height: 1em;
-   stroke: #090011;
-   transition: stroke 0.3s ease;
-}
-
 .nav-links a:hover,
-.nav-links svg:hover,
 .nav-login a:hover {
 	color: #ff4081;
-   stroke: #ff4081;
+	stroke: #ff4081;
 }
 
 .nav-links li {
