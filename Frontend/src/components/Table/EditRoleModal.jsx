@@ -18,6 +18,8 @@ export default function EditRoleModal({
   onDeleteSubcargo,
   onDeleteRole,
 }) {
+  const [isSaving, setIsSaving] = React.useState(false);
+
   const { alertInfo, showAlert } = useAlert();
 
   // Botón “Eliminar subcargo” (servidor + local)
@@ -74,9 +76,14 @@ export default function EditRoleModal({
             />
           )}
           <form
-            onSubmit={(e) => {
+            onSubmit={async (e) => {
               e.preventDefault();
-              onSave();
+              setIsSaving(true);
+              try {
+                await onSave();
+              } finally {
+                setIsSaving(false);
+              }
             }}
           >
             <h3>{title}</h3>
@@ -169,8 +176,13 @@ export default function EditRoleModal({
             </div>
 
             <div className="action-buttons">
-              <Button type="submit" variant="submit" className="small-button">
-                Guardar
+              <Button
+                type="submit"
+                variant="submit"
+                className="small-button"
+                disabled={isSaving}
+              >
+                {isSaving ? "Guardando..." : "Guardar"}
               </Button>
               <Button
                 type="button"
