@@ -8,10 +8,18 @@ const excelRouter = require("./routes/excelroute");
 
 const app = express();
 app.use(express.json());
+
+app.use(cors({
+    origin: ["http://localhost:5173", "http://localhost:3000"],
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"]
+}));
+
 app.use("/", uploadRouter);
 app.use("/", excelRouter);
 app.use("/encuesta", surveyRouter);
-app.use(cors({ origin: "http://localhost:5173" }));
+
+app.use(cors())
 //esto debe subirse
 
 /* ───────── EMPRESAS ───────── */
