@@ -82,6 +82,26 @@ Crea un archivo `.env` en la raíz del Frontend con el siguiente contenido:
 
 ---
 
+
+## 🗂️ Estructura del Proyecto
+
+La estructura principal del repositorio es la siguiente:
+
+```
+/
+├── Backend/         # Código fuente y configuración del backend (API, lógica de negocio, conexión a BD)
+│   ├── mail/        # Servicios relacionados con el envío de correos
+│   ├── server.js    # Punto de entrada principal del backend
+│   └── ...          # Otros archivos y carpetas del backend
+├── Frontend/        # Aplicación frontend (React + Vite + TailwindCSS)
+│   ├── src/         # Código fuente del frontend
+│   ├── public/      # Archivos estáticos
+│   ├── package.json # Dependencias y scripts del frontend
+│   └── ...          # Otros archivos y carpetas del frontend
+├── README.md        # Documentación principal del proyecto
+└── ...              # Otros archivos de configuración y documentación
+```
+
 ## 📄 Notas
 
 
