@@ -15,14 +15,15 @@ dist-ssr
 # Ignorar node_modules y .env en Backend y Frontend
 Backend/node_modules/
 Frontend/node_modules/
-Backend/certs/
-Backend/.env
-
-Ignorar node_modules y .env en Backend y Frontend
-Backend/node_modules/
-Frontend/node_modules/
 Backend/.env
 Frontend/.env
+
+# Certificados SSL (no subir al repositorio por seguridad)
+Backend/certs/
+*.pem
+*.key
+*.crt
+*.cert
 
 Editor directories and files
 .vscode/
