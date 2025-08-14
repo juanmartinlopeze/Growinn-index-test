@@ -25,9 +25,6 @@ Backend/certs/
 *.crt
 *.cert
 
-Backend/certs/cert.pem
-Backend/certs/key.pem
-
 Editor directories and files
 .vscode/
 !.vscode/extensions.json
