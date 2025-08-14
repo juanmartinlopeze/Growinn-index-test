@@ -12,7 +12,7 @@ const excelRouter = require("./routes/excelroute");
 
 const app = express();
 
-// Middleware para forzar HTTPS en producción
+// Middleware para forzar HTTPS en producción Seguridad
 app.use((req, res, next) => {
   if (process.env.NODE_ENV === 'production' && !req.secure && req.get('x-forwarded-proto') !== 'https') {
     return res.redirect(301, `https://${req.get('host')}${req.url}`);
