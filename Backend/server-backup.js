@@ -24,7 +24,7 @@ app.use(express.json({ limit: '10mb' }));
 
 // Configuración de CORS (debe ir antes que Helmet)
 app.use(cors({
-    origin: ["https://localhost:5173", "https://localhost:3000", "https://localhost:3443", "http://localhost:5173", "http://localhost:3000"],
+    origin: ["https://localhost:5173", "https://localhost:3000", "http://localhost:5173", "http://localhost:3000"],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true
@@ -512,22 +512,33 @@ app.get("/usuarios", async (req, res) => {
 
 /* ───────── INICIO DEL SERVIDOR ───────── */
 
-const PORT_HTTP = 3000;
-const PORT_HTTPS = 3443;
+const PORT = process.env.PORT || 3000;
 const sslOptions = getSSLOptions();
 
-// Servidor HTTP en puerto 3000 (para compatibilidad con frontend actual)
-const httpServer = http.createServer(app);
-httpServer.listen(PORT_HTTP, () => {
-  console.log(`🌐 Servidor HTTP corriendo en http://localhost:${PORT_HTTP}`);
-});
-
 if (sslOptions) {
-  // Servidor HTTPS en puerto 3443
+  // Crear servidor HTTPS
   const httpsServer = https.createServer(sslOptions, app);
-  httpsServer.listen(PORT_HTTPS, () => {
-    console.log(`🔒 Servidor HTTPS corriendo en https://localhost:${PORT_HTTPS}`);
+  
+  httpsServer.listen(PORT, () => {
+    console.log(`🔒 Servidor HTTPS corriendo en https://localhost:${PORT}`);
+  });
+  
+  // Opcional: Crear servidor HTTP que redirija a HTTPS
+  const httpApp = express();
+  httpApp.use((req, res) => {
+    const httpsUrl = `https://${req.headers.host.replace(/:\d+/, `:${PORT}`)}${req.url}`;
+    console.log(`🔄 Redirigiendo HTTP a HTTPS: ${httpsUrl}`);
+    res.redirect(301, httpsUrl);
+  });
+  
+  const httpServer = http.createServer(httpApp);
+  httpServer.listen(8080, () => {
+    console.log(`� Servidor HTTP (redirige a HTTPS) corriendo en http://localhost:8080`);
   });
 } else {
-  console.log(`⚠️  Certificados SSL no encontrados. Solo HTTP disponible.`);
+  // Fallback a HTTP si no hay certificados
+  const httpServer = http.createServer(app);
+  httpServer.listen(PORT, () => {
+    console.log(`⚠️  Servidor HTTP corriendo en http://localhost:${PORT} (modo fallback sin SSL)`);
+  });
 }
