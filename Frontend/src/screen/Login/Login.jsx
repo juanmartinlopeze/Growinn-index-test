@@ -1,9 +1,9 @@
 import React, { useState } from 'react'
 import { InputDefault } from '../../components/index'
 import { supabase } from '../../lib/supabaseClient'
-import './Register.css'
+import './Login.css'
 
-export function Register() {
+export default function Login() {
 	const InnlabLogo = (
 		<svg xmlns='http://www.w3.org/2000/svg' width='473' height='72' fill='none' viewBox='0 0 473 72'>
 			<path fill='#fff' d='M55.979 6.132c.695.492 1.39.98 2.044 1.471l-5.683 7.85a24 24 0 0 0-2.044-1.471z' />
@@ -78,213 +78,154 @@ export function Register() {
 			<path stroke='#fff' stroke-width='3' d='M227.744 18.544v43.58' />
 		</svg>
 	)
-	const mailInboxIcon = (
-		<svg width='54' height='54' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'>
-			<path
-				d='M22 10.5V15.5C22 19 20 20.5 17 20.5H7C4 20.5 2 19 2 15.5V8.5C2 5 4 3.5 7 3.5H14'
-				stroke='#090011'
-				stroke-width='1.5'
-				stroke-miterlimit='10'
-				stroke-linecap='round'
-				stroke-linejoin='round'
-			/>
-			<path d='M7 9L10.13 11.5C11.16 12.32 12.85 12.32 13.88 11.5L15.06 10.56' stroke='#090011' stroke-width='1.5' stroke-miterlimit='10' stroke-linecap='round' stroke-linejoin='round' />
-			<path
-				d='M19.5 8C20.8807 8 22 6.88071 22 5.5C22 4.11929 20.8807 3 19.5 3C18.1193 3 17 4.11929 17 5.5C17 6.88071 18.1193 8 19.5 8Z'
-				stroke='#F56F10'
-				stroke-width='1.5'
-				stroke-miterlimit='10'
-				stroke-linecap='round'
-				stroke-linejoin='round'
-			/>
-		</svg>
-	)
+	const [email, setEmail] = useState('')
+	const [password, setPassword] = useState('')
+	const [remember, setRemember] = useState(true)
 	const [loading, setLoading] = useState(false)
-	const [msg, setMsg] = useState('')
-	const [status, setStatus] = useState('idle')
-	const [lastEmail, setLastEmail] = useState('')
-	const [resending, setResending] = useState(false)
+	const [msg, setMsg] = useState(null)
+	const [msgKind, setMsgKind] = useState(null)
+
+	function mapSupabaseError(err) {
+		const m = (err?.message || '').toLowerCase()
+		if (m.includes('invalid login')) return 'Credenciales inválidas.'
+		if (m.includes('email') && m.includes('not confirmed')) return 'Debes confirmar tu correo antes de iniciar sesión.'
+		if (m.includes('rate limit')) return 'Demasiados intentos. Intenta nuevamente en unos minutos.'
+		return err?.message || 'Ocurrió un error. Inténtalo de nuevo.'
+	}
 
 	async function onSubmit(e) {
 		e.preventDefault()
 		setMsg(null)
+		setMsgKind(null)
 		setLoading(true)
-		setStatus('submitting')
-
-		const fd = new FormData(e.currentTarget)
-		const name = fd.get('name')
-		const email = fd.get('email')
-
-		const [password, confirmPassword] = fd.getAll('password')
-
-		if (!email || !password) {
-			setMsg('Faltan datos.')
-			setLoading(false)
-         setStatus('idle')
-			return
-		}
-		if (password !== confirmPassword) {
-			setMsg('Las contraseñas no coinciden.')
-			setLoading(false)
-         setStatus('idle')
-			return
-		}
-
-		const { data, error } = await supabase.auth.signUp({
-			email,
-			password,
-			options: {
-				data: { full_name: name },
-				emailRedirectTo: `${location.origin}/auth/callback`,
-			},
-		})
-
+		const { error } = await supabase.auth.signInWithPassword({ email, password })
 		setLoading(false)
 
 		if (error) {
 			setMsg(mapSupabaseError(error))
-			setStatus('error')
+			setMsgKind('error')
 			return
 		}
 
-		setLastEmail(email)
-		if (data.session) {
-			setMsg('Cuenta creada. ¡Todo listo!')
-			setStatus('success')
-		} else {
-			setMsg('Te enviamos un correo para confirmar tu cuenta.')
-			setStatus('verify')
-		}
+		setMsg('Sesión iniciada.')
+		setMsgKind('success')
+		window.location.replace('/')
 	}
 
-	function mapSupabaseError(err) {
-		const m = (err?.message || '').toLowerCase()
-		if (m.includes('email') && m.includes('already')) return 'Ese correo ya está registrado.'
-		if (m.includes('password')) return 'La contraseña no cumple los requisitos.'
-		return err?.message || 'Ocurrió un error. Inténtalo de nuevo.'
-	}
-
-	async function onResendVerifyEmail(e) {
-		e?.preventDefault?.()
-		if (!lastEmail) {
-			setMsg('No tenemos un correo para reenviar.')
+	async function onForgotPassword(e) {
+		e.preventDefault()
+		if (!email) {
+			setMsg('Escribe tu correo para enviarte el enlace de restablecimiento.')
 			return
 		}
-		setResending(true)
 		setMsg(null)
+		setMsgKind(null)
+		setLoading(true)
 
-		const { error } = await supabase.auth.resend({
-			type: 'signup',
-			email: lastEmail,
-			options: { emailRedirectTo: `${location.origin}/auth/callback` },
+		setMsg(error ? mapSupabaseError(error) : 'Te enviamos un enlace para restablecer tu contraseña.')
+		setMsgKind(error ? 'error' : 'success')
+
+		const { error } = await supabase.auth.resetPasswordForEmail(email, {
+			redirectTo: `${location.origin}/auth/reset`,
 		})
-
-		setResending(false)
-		setMsg(error ? mapSupabaseError(error) : 'Correo de verificación reenviado.')
+		setLoading(false)
+		setMsg(error ? mapSupabaseError(error) : 'Te enviamos un enlace para restablecer tu contraseña.')
+		setMsgKind(error ? 'error' : 'success')
 	}
 
 	return (
-		<section className='register-container'>
+		<div className='login-container'>
 			{/* LEFT column */}
-			<div className='left-register-container'>
+			<div className='left-login-container'>
 				{InnlabLogo}
 				<h1>
-					Comienza tu <span>viaje hacia la IA</span> empresarial
+					Evalúa e impulsa la <span>cultura de innovación</span> en tu empresa
 				</h1>
-				<p>Únete a las empresas que ya están transformando sus negocios con inteligencia artificial de manera estratégica y medible.</p>
-				<ul>
-					<li>Evaluación gratuita completa</li>
-					<li>Reporte personalizado</li>
-					<li>Resultados rápidos</li>
-				</ul>
+				<p>Con nuestra plataforma avanzada de evaluación para medir y acelerar la adopción de inteligencia artificial en entornos empresariales.</p>
+				<div className='left-login-bottom-cards'>
+					<div>
+						<h1>Listo para la IA</h1>
+						<p>En 30 días</p>
+					</div>
+					<div>
+						<h1>50+</h1>
+						<p>Empresas confían en nosotros</p>
+					</div>
+				</div>
 			</div>
 
 			{/* RIGHT column */}
-			<div className='right-register-container'>
-				{status === 'verify' ? (
-					<div className='right-register-success'>
-						<div className='success-illustration' aria-hidden>
-							{InnlabLogo}
-						</div>
-						{mailInboxIcon}
-						<h2 className='right-register-title'>Confirma tu correo</h2>
-						<p className='right-register-sub'>
-							Te enviamos un enlace a <strong>{lastEmail}</strong>. Abre tu bandeja y confirma para continuar.
-						</p>
+			<div className='right-login-container'>
+				<div className='right-login-header'>
+					<h2 className='right-login-title'>
+						Bienvenido a <span>iNNDEX</span>
+					</h2>
+					<p>Inicia sesión para tener acceso a nuestra plataforma</p>
+				</div>
 
-						<a className='register-btn' href='/login' style={{ display: 'inline-flex', justifyContent: 'center', alignItems: 'center', textAlign: 'center', width: '100%' }}>
-							Iniciar sesión
-						</a>
-
-						<p className='right-register-footer' style={{ marginTop: 12 }}>
-							¿No recibiste el correo?{' '}
-							<span>
-								<a href='#' onClick={onResendVerifyEmail} aria-disabled={resending} style={resending ? { pointerEvents: 'none', opacity: 0.7 } : undefined}>
-									{resending ? 'Reenviando…' : 'Reenviar'}
-								</a>
-							</span>
-						</p>
+				<form className='login-form' onSubmit={onSubmit}>
+					<div className='inputs'>
+						<InputDefault
+							icon={true}
+							label='Correo electrónico'
+							placeholder='Ingresa tu correo'
+							name='email'
+							type='email'
+							value={email}
+							onChange={(e) => setEmail(e.target.value)}
+							required
+						/>
+						<InputDefault
+							icon={true}
+							label='Contraseña'
+							placeholder='Ingresa tu contraseña'
+							name='password'
+							type='password'
+							value={password}
+							onChange={(e) => setPassword(e.target.value)}
+							required
+						/>
 					</div>
-				) : status === 'success' ? (
-					<div className='right-register-success'>
-						<div className='success-illustration' aria-hidden>
-							{InnlabLogo}
+
+					<div className='login-cta'>
+						{msg && (
+							<div
+								role='alert'
+								aria-live='polite'
+								style={{
+									padding: 12,
+									borderRadius: 8,
+									margin: '0',
+									border: msgKind === 'error' ? '1px solid #FCA5A5' : '1px solid #6EE7B7',
+									background: msgKind === 'error' ? '#FEF2F2' : '#ECFDF5',
+									color: msgKind === 'error' ? '#991B1B' : '#065F46',
+									fontSize: 14,
+								}}
+							>
+								{msg}
+							</div>
+						)}
+						<div className='remember-forgot'>
+							<label style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontSize: 14 }}>
+								<input type='checkbox' checked={remember} onChange={(e) => setRemember(e.target.checked)} />
+								Recordarme
+							</label>
+							<a href='#' onClick={onForgotPassword} style={{ fontSize: 14, color: '#F36A12' }}>
+								¿Olvidaste tu contraseña?
+							</a>
 						</div>
-
-						<h2 className='right-register-title'>¡Cuenta creada!</h2>
-						<p className='right-register-sub'>{msg || 'Sesión iniciada correctamente.'}</p>
-
-						<a className='register-btn' href='/login' style={{ display: 'inline-flex', justifyContent: 'center', alignItems: 'center', textAlign: 'center', width: '100%' }}>
-							Iniciar sesión
-						</a>
-
-						<p className='right-register-footer' style={{ marginTop: 12 }}>
-							¿Listo para entrar?{' '}
-							<span>
-								<a href='/login'>Inicia sesión</a>
-							</span>
-						</p>
+						<button className='login-btn' type='submit' disabled={loading}>
+							{loading ? 'Entrando…' : 'Iniciar sesión'}
+						</button>
 					</div>
-				) : (
-					<>
-						<div className='right-register-header'>
-							<h2 className='right-register-title'>
-								Crea tu <span>cuenta</span>
-							</h2>
-							<p>Solo te tomará un momento. Comienza tu evaluación de IA.</p>
-						</div>
-
-						<form className='register-form' onSubmit={onSubmit}>
-							<div className='inputs'>
-								<InputDefault icon={true} label='Nombre completo' placeholder='Ingresa tu nombre completo' name='name' required />
-								<InputDefault icon={true} label='Correo electrónico' placeholder='Ingresa tu correo electrónico' name='email' type='email' required />
-								<InputDefault icon={true} label='Contraseña' placeholder='Crea una contraseña segura' name='password' type='password' required />
-								<InputDefault icon={true} label='Confirma tu contraseña' placeholder='Confirma tu contraseña' name='password' type='password' required />
-							</div>
-
-							<div className='btn-toa'>
-								<p className='right-register-footer'>
-									Al crear una cuenta, aceptas nuestros{' '}
-									<span>
-										<a href='#'>Términos y condiciones</a>
-									</span>
-								</p>
-
-								<button className='register-btn' type='submit' disabled={loading || status === 'submitting'}>
-									{status === 'submitting' ? 'Creando…' : 'Crear mi cuenta gratuita'}
-								</button>
-							</div>
-						</form>
-						<p className='right-register-footer' style={{ marginTop: 12 }}>
-							¿Ya tienes una cuenta?{' '}
-							<span>
-								<a href='/login'>Inicia sesión</a>
-							</span>
-						</p>
-						{msg && <p style={{ marginTop: 8 }}>{msg}</p>}
-					</>
-				)}
+				</form>
+				<p className='right-login-footer' style={{ marginTop: 12 }}>
+					¿No tienes una cuenta aun?{' '}
+					<span>
+						<a href='/register'>Regístrate</a>
+					</span>
+				</p>
 			</div>
-		</section>
+		</div>
 	)
 }
