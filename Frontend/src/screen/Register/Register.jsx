@@ -1,5 +1,6 @@
-import { React, UseState } from 'react'
-import { Button, InputDefault } from '../../components/index'
+import React, { useState } from 'react'
+import { InputDefault } from '../../components/index'
+import { supabase } from '../../lib/supabaseClient'
 import './Register.css'
 
 export function Register() {
@@ -77,9 +78,114 @@ export function Register() {
 			<path stroke='#fff' stroke-width='3' d='M227.744 18.544v43.58' />
 		</svg>
 	)
+	const mailInboxIcon = (
+		<svg width='54' height='54' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'>
+			<path
+				d='M22 10.5V15.5C22 19 20 20.5 17 20.5H7C4 20.5 2 19 2 15.5V8.5C2 5 4 3.5 7 3.5H14'
+				stroke='#090011'
+				stroke-width='1.5'
+				stroke-miterlimit='10'
+				stroke-linecap='round'
+				stroke-linejoin='round'
+			/>
+			<path d='M7 9L10.13 11.5C11.16 12.32 12.85 12.32 13.88 11.5L15.06 10.56' stroke='#090011' stroke-width='1.5' stroke-miterlimit='10' stroke-linecap='round' stroke-linejoin='round' />
+			<path
+				d='M19.5 8C20.8807 8 22 6.88071 22 5.5C22 4.11929 20.8807 3 19.5 3C18.1193 3 17 4.11929 17 5.5C17 6.88071 18.1193 8 19.5 8Z'
+				stroke='#F56F10'
+				stroke-width='1.5'
+				stroke-miterlimit='10'
+				stroke-linecap='round'
+				stroke-linejoin='round'
+			/>
+		</svg>
+	)
+	const [loading, setLoading] = useState(false)
+	const [msg, setMsg] = useState('')
+	const [status, setStatus] = useState('idle')
+	const [lastEmail, setLastEmail] = useState('')
+	const [resending, setResending] = useState(false)
+
+	async function onSubmit(e) {
+		e.preventDefault()
+		setMsg(null)
+		setLoading(true)
+		setStatus('submitting')
+
+		const fd = new FormData(e.currentTarget)
+		const name = fd.get('name')
+		const email = fd.get('email')
+
+		const [password, confirmPassword] = fd.getAll('password')
+
+		if (!email || !password) {
+			setMsg('Faltan datos.')
+			setLoading(false)
+         setStatus('idle')
+			return
+		}
+		if (password !== confirmPassword) {
+			setMsg('Las contraseñas no coinciden.')
+			setLoading(false)
+         setStatus('idle')
+			return
+		}
+
+		const { data, error } = await supabase.auth.signUp({
+			email,
+			password,
+			options: {
+				data: { full_name: name },
+				emailRedirectTo: `${location.origin}/auth/callback`,
+			},
+		})
+
+		setLoading(false)
+
+		if (error) {
+			setMsg(mapSupabaseError(error))
+			setStatus('error')
+			return
+		}
+
+		setLastEmail(email)
+		if (data.session) {
+			setMsg('Cuenta creada. ¡Todo listo!')
+			setStatus('success')
+		} else {
+			setMsg('Te enviamos un correo para confirmar tu cuenta.')
+			setStatus('verify')
+		}
+	}
+
+	function mapSupabaseError(err) {
+		const m = (err?.message || '').toLowerCase()
+		if (m.includes('email') && m.includes('already')) return 'Ese correo ya está registrado.'
+		if (m.includes('password')) return 'La contraseña no cumple los requisitos.'
+		return err?.message || 'Ocurrió un error. Inténtalo de nuevo.'
+	}
+
+	async function onResendVerifyEmail(e) {
+		e?.preventDefault?.()
+		if (!lastEmail) {
+			setMsg('No tenemos un correo para reenviar.')
+			return
+		}
+		setResending(true)
+		setMsg(null)
+
+		const { error } = await supabase.auth.resend({
+			type: 'signup',
+			email: lastEmail,
+			options: { emailRedirectTo: `${location.origin}/auth/callback` },
+		})
+
+		setResending(false)
+		setMsg(error ? mapSupabaseError(error) : 'Correo de verificación reenviado.')
+	}
 
 	return (
 		<section className='register-container'>
+			{/* LEFT column */}
 			<div className='left-register-container'>
 				{InnlabLogo}
 				<h1>
@@ -92,38 +198,92 @@ export function Register() {
 					<li>Resultados rápidos</li>
 				</ul>
 			</div>
+
+			{/* RIGHT column */}
 			<div className='right-register-container'>
-				<div className='right-register-header'>
-					<h2 className='right-register-title'>
-						Crea tu <span>cuenta</span>
-					</h2>
-					<p>Solo te tomará un momento. Comienza tu evaluación de IA.</p>
-				</div>
-				<form>
-					<div className='inputs'>
-						<InputDefault icon={true} label='Nombre completo' placeholder='Ingresa tu nombre completo' name='name' required />
-						<InputDefault icon={true} label='Correo electrónico' placeholder='Ingresa tu correo electrónico' name='email' type='email' required />
-						<InputDefault icon={true} label='Contraseña' placeholder='Crea una contraseña segura' name='password' type='password' required />
-						<InputDefault icon={true} label='Confirma tu contraseña' placeholder='Confirma tu contraseña' name='password' type='password' required />
-					</div>
-					<div className='btn-toa'>
-						<p className='right-register-footer'>
-							Al crear una cuenta, aceptas nuestros
+				{status === 'verify' ? (
+					<div className='right-register-success'>
+						<div className='success-illustration' aria-hidden>
+							{InnlabLogo}
+						</div>
+						{mailInboxIcon}
+						<h2 className='right-register-title'>Confirma tu correo</h2>
+						<p className='right-register-sub'>
+							Te enviamos un enlace a <strong>{lastEmail}</strong>. Abre tu bandeja y confirma para continuar.
+						</p>
+
+						<a className='register-btn' href='/login' style={{ display: 'inline-flex', justifyContent: 'center', alignItems: 'center', textAlign: 'center', width: '100%' }}>
+							Iniciar sesión
+						</a>
+
+						<p className='right-register-footer' style={{ marginTop: 12 }}>
+							¿No recibiste el correo?{' '}
 							<span>
-								<a href='#'>Términos y condiciones</a>
+								<a href='#' onClick={onResendVerifyEmail} aria-disabled={resending} style={resending ? { pointerEvents: 'none', opacity: 0.7 } : undefined}>
+									{resending ? 'Reenviando…' : 'Reenviar'}
+								</a>
 							</span>
 						</p>
-						<button className='register-btn' type='submit'>
-							Crear mi cuenta gratuita
-						</button>
 					</div>
-				</form>
-				<p className='right-register-footer'>
-					¿Ya tienes una cuenta?{' '}
-					<span>
-						<a href='#'>Inicia sesión</a>
-					</span>
-				</p>
+				) : status === 'success' ? (
+					<div className='right-register-success'>
+						<div className='success-illustration' aria-hidden>
+							{InnlabLogo}
+						</div>
+
+						<h2 className='right-register-title'>¡Cuenta creada!</h2>
+						<p className='right-register-sub'>{msg || 'Sesión iniciada correctamente.'}</p>
+
+						<a className='register-btn' href='/login' style={{ display: 'inline-flex', justifyContent: 'center', alignItems: 'center', textAlign: 'center', width: '100%' }}>
+							Iniciar sesión
+						</a>
+
+						<p className='right-register-footer' style={{ marginTop: 12 }}>
+							¿Listo para entrar?{' '}
+							<span>
+								<a href='/login'>Inicia sesión</a>
+							</span>
+						</p>
+					</div>
+				) : (
+					<>
+						<div className='right-register-header'>
+							<h2 className='right-register-title'>
+								Crea tu <span>cuenta</span>
+							</h2>
+							<p>Solo te tomará un momento. Comienza tu evaluación de IA.</p>
+						</div>
+
+						<form onSubmit={onSubmit}>
+							<div className='inputs'>
+								<InputDefault icon={true} label='Nombre completo' placeholder='Ingresa tu nombre completo' name='name' required />
+								<InputDefault icon={true} label='Correo electrónico' placeholder='Ingresa tu correo electrónico' name='email' type='email' required />
+								<InputDefault icon={true} label='Contraseña' placeholder='Crea una contraseña segura' name='password' type='password' required />
+								<InputDefault icon={true} label='Confirma tu contraseña' placeholder='Confirma tu contraseña' name='password' type='password' required />
+							</div>
+
+							<div className='btn-toa'>
+								<p className='right-register-footer'>
+									Al crear una cuenta, aceptas nuestros{' '}
+									<span>
+										<a href='#'>Términos y condiciones</a>
+									</span>
+								</p>
+
+								<button className='register-btn' type='submit' disabled={loading || status === 'submitting'}>
+									{status === 'submitting' ? 'Creando…' : 'Crear mi cuenta gratuita'}
+								</button>
+							</div>
+						</form>
+						<p className='right-register-footer' style={{ marginTop: 12 }}>
+							¿Ya tienes una cuenta?{' '}
+							<span>
+								<a href='/login'>Inicia sesión</a>
+							</span>
+						</p>
+						{msg && <p style={{ marginTop: 8 }}>{msg}</p>}
+					</>
+				)}
 			</div>
 		</section>
 	)
