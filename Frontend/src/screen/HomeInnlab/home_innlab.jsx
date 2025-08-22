@@ -31,14 +31,14 @@ export function HomeInnlab() {
 				</div>
 
 				<div className='title-video'>
-					<TitleSection title="Video tutorial" />
+					<TitleSection title='Video tutorial' />
 				</div>
 
 				<div className='img-link'>
 					<iframe
-						src="https://www.youtube.com/embed/l-NrrvFaTXk?rel=0&modestbranding=1&showinfo=0"
-						title="Video tutorial"
-						allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+						src='https://www.youtube.com/embed/l-NrrvFaTXk?rel=0&modestbranding=1&showinfo=0'
+						title='Video tutorial'
+						allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture'
 						allowFullScreen
 						style={{ display: 'block', border: 'none' }}
 					></iframe>

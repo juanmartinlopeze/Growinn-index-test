@@ -232,7 +232,7 @@ export function NavBar() {
 			<div className='nav-login'>
 				<ul>
 					<li>
-						<a href='#Ingresar'>Ingresar</a>
+						<a href='../Login'>Ingresar</a>
 					</li>
 				</ul>
 			</div>
