@@ -45,6 +45,7 @@ async function requireAuth(req, res, next) {
 	next()
 }
 
+
 // Simple probe to confirm auth works
 app.get('/auth/me', requireAuth, (req, res) => {
 	res.json({ user: req.user })
