@@ -1,8 +1,19 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import {
+  saveStepData,
+  loadStepData,
+} from "../../components/Utils/breadcrumbUtils";
+
+import { StepBreadcrumb } from "../../components/StepBreadcrumb/breadcrumb";
 import { Button } from "../../components/index";
 import { useLocation, useNavigate } from "react-router-dom";
 import { FormAreas } from "../../components/FormAreas/form_areas";
-import { TitleSection, Subtitle, Description, Alert } from "../../components/index";
+import {
+  TitleSection,
+  Subtitle,
+  Description,
+  Alert,
+} from "../../components/index";
 import "./areas_form.css";
 
 export function AreasForm() {
@@ -25,7 +36,14 @@ export function AreasForm() {
   } = location.state || {};
 
   // Inicializar formData sin localStorage
-  const [formData, setFormData] = useState({});
+  const [formData, setFormData] = useState(() => {
+    const saved = loadStepData("step2");
+    return saved || {};
+  });
+
+  useEffect(() => {
+    saveStepData("step2", formData);
+  }, [formData]);
 
   // preguntas dinámicas
   const questions = Array.from({ length: totalAreas }, (_, i) => ({
@@ -33,7 +51,8 @@ export function AreasForm() {
     field: `area${i + 1}`,
     title: (
       <>
-        ¿Cuál es el nombre del <span style={{ fontWeight: 500 }}>área {i + 1}?</span>
+        ¿Cuál es el nombre del{" "}
+        <span style={{ fontWeight: 500 }}>área {i + 1}?</span>
       </>
     ),
     placeholder: "Digite aquí",
@@ -51,7 +70,9 @@ export function AreasForm() {
 
     if (nombresAreas.some((nombre) => nombre === "")) {
       setAlertType("complete");
-      setAlertMessage("Por favor, completa todos los nombres de las áreas para continuar.");
+      setAlertMessage(
+        "Por favor, completa todos los nombres de las áreas para continuar."
+      );
       setShowAlert(true);
       return;
     }
@@ -99,47 +120,70 @@ export function AreasForm() {
   };
 
   return (
-    <section className="container">
-      <div className="innlab-form-header">
-        <div className="jerarquia-header">
-          <TitleSection title="Áreas" />
+    <div>
+      <StepBreadcrumb
+        steps={["1", "2", "3", "4"]}
+        currentStep={1} // Segundo paso
+        clickableSteps={[0]}
+        onStepClick={(idx) => {
+          if (idx === 0) navigate("/innlab_form");
+        }}
+      />
+
+      <section className="container">
+        <div className="innlab-form-header">
+          <div className="jerarquia-header">
+            <TitleSection title="Áreas" />
+          </div>
+          <Subtitle text="¿Por qué pedimos nombre de cada área?" />
+          <Description
+            text="Solicitamos los nombres de las áreas para facilitar la interacción en el siguiente paso, donde podrás registrar los cargos de cada área. Esta información también nos ayuda a comprender mejor cómo se organiza tu empresa y cómo se distribuyen las funciones."
+            variant="forms"
+          />
+          <Description
+            text="Por favor, usa nombres claros que reflejen el propósito o función principal de cada área."
+            variant="forms2"
+          />
         </div>
-        <Subtitle text="¿Por qué pedimos nombre de cada área?" />
-        <Description
-          text="Solicitamos los nombres de las áreas para facilitar la interacción en el siguiente paso, donde podrás registrar los cargos de cada área. Esta información también nos ayuda a comprender mejor cómo se organiza tu empresa y cómo se distribuyen las funciones."
-          variant="forms"
-        />
-        <Description
-          text="Por favor, usa nombres claros que reflejen el propósito o función principal de cada área."
-          variant="forms2"
-        />
-      </div>
 
-      <div className="forms-container">
-        <FormAreas questions={questions} onInputChange={handleInputChange} formData={formData} />
-      </div>
+        <div className="forms-container">
+          <FormAreas
+            questions={questions}
+            onInputChange={handleInputChange}
+            formData={formData}
+          />
+        </div>
 
-      <div className="buttons-container">
-        <Button
-          variant="back"
-          text="Atrás"
-          onClick={() => {
-            navigate("/innlab_form");
-          }}
+        <div className="buttons-container">
+          <Button
+            variant="back"
+            text="Atrás"
+            onClick={() => {
+              navigate("/innlab_form");
+            }}
+          />
+          <Button variant="next" text="Siguiente" onClick={handleSubmit} />
+        </div>
+
+        <img
+          className="linea-curva"
+          src="/BgLine-decoration.png"
+          alt="Decoración"
         />
-        <Button variant="next" text="Siguiente" onClick={handleSubmit} />
-      </div>
-
-      <img className="linea-curva" src="/BgLine-decoration.png" alt="Decoración" />
-      <img className="puntos" src="/BgPoints-decoration.png" alt="Decoración" />
-
-      {showAlert && (
-        <Alert
-          type={alertType}
-          message={alertMessage}
-          onClose={() => setShowAlert(false)}
+        <img
+          className="puntos"
+          src="/BgPoints-decoration.png"
+          alt="Decoración"
         />
-      )}
-    </section>
+
+        {showAlert && (
+          <Alert
+            type={alertType}
+            message={alertMessage}
+            onClose={() => setShowAlert(false)}
+          />
+        )}
+      </section>
+    </div>
   );
 }
