@@ -15,52 +15,54 @@ const questionMap = {
   Q31: { categoria: "Gobernanza", subdimension: "Indicadores" },
   Q40: { categoria: "Gobernanza", subdimension: "Paneles de control" },
 
-  // Cultura Organizacional
-  Q5:  { categoria: "Cultura Organizacional", subdimension: "Valores" },
-  Q14: { categoria: "Cultura Organizacional", subdimension: "Comunicación interna" },
-  Q23: { categoria: "Cultura Organizacional", subdimension: "Apertura al cambio" },
-  Q32: { categoria: "Cultura Organizacional", subdimension: "Colaboración" },
-  Q41: { categoria: "Cultura Organizacional", subdimension: "Reconocimiento" },
+  // Colaboración (antes Cultura Organizacional)
+  Q5:  { categoria: "Colaboración", subdimension: "Fluidez" },
+  Q14: { categoria: "Colaboración", subdimension: "Resultados" },
+  Q23: { categoria: "Colaboración", subdimension: "Transparencia" },
+  Q32: { categoria: "Colaboración", subdimension: "Interconexión" },
+  Q41: { categoria: "Colaboración", subdimension: "Socios externos" },
+
+  // Clima (nueva categoría)
+  Q6:  { categoria: "Clima", subdimension: "Creatividad" },
+  Q15: { categoria: "Clima", subdimension: "Fallo y Error" },
+  Q24: { categoria: "Clima", subdimension: "Franqueza" },
+  Q33: { categoria: "Clima", subdimension: "Mentalidad de cambio" },
+  Q42: { categoria: "Clima", subdimension: "Toma de riesgos" },
 
   // Personas
-  Q6:  { categoria: "Personas", subdimension: "Capacitación" },
-  Q15: { categoria: "Personas", subdimension: "Liderazgo" },
-  Q24: { categoria: "Personas", subdimension: "Roles y responsabilidades" },
-  Q33: { categoria: "Personas", subdimension: "Diversidad e inclusión" },
-  Q42: { categoria: "Personas", subdimension: "Retención de talento" },
+  Q7:  { categoria: "Personas", subdimension: "Conocimiento" },
+  Q16: { categoria: "Personas", subdimension: "Diversidad" },
+  Q25: { categoria: "Personas", subdimension: "Eventos" },
+  Q34: { categoria: "Personas", subdimension: "Formación" },
+  Q43: { categoria: "Personas", subdimension: "Reclutamiento" },
+
+  // Liderazgo (nueva categoría)
+  Q8:  { categoria: "Liderazgo", subdimension: "Acción" },
+  Q17: { categoria: "Liderazgo", subdimension: "Modelo a seguir" },
+  Q26: { categoria: "Liderazgo", subdimension: "Narrativas" },
+  Q35: { categoria: "Liderazgo", subdimension: "Patrocinio y apoyo" },
+  Q44: { categoria: "Liderazgo", subdimension: "Retar" },
 
   // Procesos
-  Q7:  { categoria: "Procesos", subdimension: "Eficiencia" },
-  Q16: { categoria: "Procesos", subdimension: "Documentación" },
-  Q25: { categoria: "Procesos", subdimension: "Mejora continua" },
-  Q34: { categoria: "Procesos", subdimension: "Automatización" },
-  Q43: { categoria: "Procesos", subdimension: "Gestión de riesgos" },
+  Q9:  { categoria: "Procesos", subdimension: "Descubrimiento y empatía" },
+  Q18: { categoria: "Procesos", subdimension: "Ideación" },
+  Q27: { categoria: "Procesos", subdimension: "Evaluación y aprobación" },
+  Q36: { categoria: "Procesos", subdimension: "Validaciones y pruebas" },
+  Q45: { categoria: "Procesos", subdimension: "Protección i+d" },
 
-  // Tecnología
-  Q8:  { categoria: "Tecnología", subdimension: "Infraestructura" },
-  Q17: { categoria: "Tecnología", subdimension: "Herramientas digitales" },
-  Q26: { categoria: "Tecnología", subdimension: "Integración de sistemas" },
-  Q35: { categoria: "Tecnología", subdimension: "Seguridad de la información" },
-  Q44: { categoria: "Tecnología", subdimension: "Adopción tecnológica" },
-
-  // Innovación
-  Q9:  { categoria: "Innovación", subdimension: "Fomento de ideas" },
-  Q18: { categoria: "Innovación", subdimension: "Experimentación" },
-  Q27: { categoria: "Innovación", subdimension: "Alianzas estratégicas" },
-  Q36: { categoria: "Innovación", subdimension: "Medición de impacto" },
-  Q45: { categoria: "Innovación", subdimension: "Escalabilidad" },
-
-  // Clientes
-  Q10: { categoria: "Clientes", subdimension: "Conocimiento del cliente" },
-  Q19: { categoria: "Clientes", subdimension: "Experiencia de usuario" },
-  Q28: { categoria: "Clientes", subdimension: "Segmentación" },
-  Q37: { categoria: "Clientes", subdimension: "Fidelización" },
+  // Recursos (nueva categoría)
+  Q10: { categoria: "Recursos", subdimension: "Dinero" },
+  Q19: { categoria: "Recursos", subdimension: "Espacios" },
+  Q28: { categoria: "Recursos", subdimension: "Expertos" },
+  Q37: { categoria: "Recursos", subdimension: "Recompensas" },
+  Q46: { categoria: "Recursos", subdimension: "Tecnología" },
 
   // Resultados
-  Q11: { categoria: "Resultados", subdimension: "Impacto económico" },
-  Q20: { categoria: "Resultados", subdimension: "Impacto social" },
-  Q29: { categoria: "Resultados", subdimension: "Impacto ambiental" },
-  Q38: { categoria: "Resultados", subdimension: "Satisfacción de partes interesadas" }
+  Q11: { categoria: "Resultados", subdimension: "Exito externo" },
+  Q20: { categoria: "Resultados", subdimension: "Éxito financiero" },
+  Q29: { categoria: "Resultados", subdimension: "Éxito General" },
+  Q38: { categoria: "Resultados", subdimension: "Éxito Personal" },
+  Q47: { categoria: "Resultados", subdimension: "Fracasos y cierres" }
 };
 
 module.exports = questionMap;
