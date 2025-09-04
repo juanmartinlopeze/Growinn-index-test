@@ -189,7 +189,7 @@ export function Register() {
 			<div className='left-register-container'>
 				{InnlabLogo}
 				<h1>
-					Comienza tu <span>viaje hacia la IA</span> empresarial
+					Comienza tu <span>viaje hacia la innovación</span> empresarial
 				</h1>
 				<p>Únete a las empresas que ya están transformando sus negocios con inteligencia artificial de manera estratégica y medible.</p>
 				<ul>

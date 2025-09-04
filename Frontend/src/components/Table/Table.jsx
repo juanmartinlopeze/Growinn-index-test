@@ -23,12 +23,23 @@ import EditRoleModal from "./EditRoleModal";
 import RoleCell from "./RoleCell";
 import "./Table.css";
 import { useEmpresaData } from "./useEmpresaData";
+import {
+  saveStepData,
+  loadStepData,
+} from "../../components/Utils/breadcrumbUtils";
 
 export function Table() {
   const [empresaId, setEmpresaId] = useState(null);
-  const [areas, setAreas] = useState([]);
-  const [cargos, setCargos] = useState([]);
-  const [subcargos, setSubcargos] = useState([]);
+
+  const saved = loadStepData("step3") || {};
+  const [areas, setAreas] = useState(saved.areas || []);
+  const [cargos, setCargos] = useState(saved.cargos || []);
+  const [subcargos, setSubcargos] = useState(saved.subcargos || []);
+
+  useEffect(() => {
+    saveStepData("step3", { areas, cargos, subcargos });
+  }, [areas, cargos, subcargos]);
+
   const [usuarios, setUsuarios] = useState([]);
 
   const [modal, setModal] = useState(false);

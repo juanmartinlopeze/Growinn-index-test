@@ -144,7 +144,7 @@ export default function Login() {
 				<p>Con nuestra plataforma avanzada de evaluación para medir y acelerar la adopción de inteligencia artificial en entornos empresariales.</p>
 				<div className='left-login-bottom-cards'>
 					<div>
-						<h1>Listo para la IA</h1>
+						<h1>Innovación</h1>
 						<p>En 30 días</p>
 					</div>
 					<div>
