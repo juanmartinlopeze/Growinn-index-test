@@ -30,18 +30,19 @@ export function HomeInnlab() {
 					</div>
 				</div>
 
-				<div className='title-video'>
+				{/* <div className='title-video'>
 					<TitleSection title='Video tutorial' />
-				</div>
+				</div> */}
 
 				<div className='img-link'>
-					<iframe
+					{/* <iframe
 						src='https://www.youtube.com/embed/l-NrrvFaTXk?rel=0&modestbranding=1&showinfo=0'
 						title='Video tutorial'
 						allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture'
 						allowFullScreen
 						style={{ display: 'block', border: 'none' }}
-					></iframe>
+					></iframe> */}
+					<img src='/table-preview.png' alt='A table with four columns showing user data, progress bars, and color-coded status indicators (green, yellow, red).' />
 				</div>
 
 				<section className='navigation-buttons'>
