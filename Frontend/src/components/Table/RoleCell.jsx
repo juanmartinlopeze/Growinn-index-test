@@ -20,7 +20,9 @@ export default function RoleCell({ areaId, jerarquia, cargos, onClick }) {
 
 	return (
 		<button type='button' className='empty-role' onClick={handleClick}>
-			<p>Añade un cargo</p> <p>+</p>
+			<svg xmlns='http://www.w3.org/2000/svg' width='15' height='15' fill='none' viewBox='0 0 15 15'>
+				<path fill='#E9683B' d='M6.8 8.5h-6v-2h6v-6h2v6h6v2h-6v6h-2z' />
+			</svg>
 		</button>
 	)
 }
