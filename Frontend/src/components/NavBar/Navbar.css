@@ -28,11 +28,12 @@
 
 .nav-links a {
 	width: 100%;
-	color: #090011;
+	color: #333333;
 	text-decoration: none;
 	font-weight: 400;
 	transition: color 0.3s ease;
 	width: fit-content;
+   opacity: 60%;
 }
 
 .nav-login a {
@@ -43,6 +44,7 @@
 .nav-login a:hover {
 	color: #ff4081;
 	stroke: #ff4081;
+   opacity: 100%;
 }
 
 .nav-links li {
@@ -57,8 +59,16 @@
 	display: flex;
 	gap: 1.25rem;
 	font-size: 1rem;
-	color: #090011;
+	color: #333333;
 	/* Puedes ajustar este color según el diseño */
+}
+
+.nav-login button{
+   background-color: #E9683B;
+   color: white;
+   padding: 8px 12px;
+   border-radius: 4px;
+   margin-left: 12px;
 }
 
 /* Responsive para móviles */
