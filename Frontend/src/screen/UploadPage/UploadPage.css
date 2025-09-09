@@ -1,63 +1,87 @@
 .upload-page-section {
-	width: 100%;
-	height: 100%;
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	align-items: start;
-	padding: 10% 10% 0 10%;
-	gap: 20px;
-	font-family: 'General Sans', sans-serif;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: start;
+  padding: 10% 10% 0 10%;
+  gap: 20px;
+  font-family: "General Sans", sans-serif;
+}
+.upload-caption {
+  color: var(--Colors-Text-text-secondary, #666);
+  font-family: "Plus Jakarta Sans";
+  font-size: var(--Versin-web-Contenido-Caption, 12px);
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+  align-self: stretch;
+  text-align: left;
 }
 
+.header-upload {
+  display: flex;
+  width: 628px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 9px;
+}
+
+.header-description {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 26px;
+  align-self: stretch;
+}
 .description-content {
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	align-items: start;
-	gap: 24px;
-	margin-bottom: 24px;
+  display: flex;
+  width: 1125px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 26px;
 }
 
 .video-content {
-	display: flex;
-	flex-direction: column;
-	gap: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .squares-bckg-img {
-	position: absolute;
-	right: 0;
-	bottom: 16%;
-	width: auto;
-	height: 30%;
+  position: absolute;
+  right: 0;
+  bottom: 16%;
+  width: auto;
+  height: 30%;
 }
 
 .line-bckg-img {
-	position: absolute;
-	left: 0;
-	transform: translateX(-10%);
-	top: 16%;
-	width: auto;
-	height: 30%;
+  position: absolute;
+  left: 0;
+  transform: translateX(-10%);
+  top: 16%;
+  width: auto;
+  height: 30%;
 }
 
 .line-bckg-img2 {
-	position: absolute;
-	right: 0;
-	z-index: -1;
-	transform: translateX(5%);
-	bottom: 17%;
-	width: auto;
-	height: 20%;
+  position: absolute;
+  right: 0;
+  z-index: -1;
+  transform: translateX(5%);
+  bottom: 17%;
+  width: auto;
+  height: 20%;
 }
 
 .squares-bckg-img {
-	position: absolute;
-	right: 6%;
-	z-index: -1;
-	transform: translateX(-10%);
-	top: 12%;
-	width: auto;
-	height: 10%;
+  position: absolute;
+  right: 6%;
+  z-index: -1;
+  transform: translateX(-10%);
+  top: 12%;
+  width: auto;
+  height: 10%;
 }

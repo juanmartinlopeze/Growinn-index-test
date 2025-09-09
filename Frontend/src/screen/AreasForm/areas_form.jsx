@@ -120,70 +120,72 @@ export function AreasForm() {
   };
 
   return (
-    <div>
+    <section className="container">
       <StepBreadcrumb
-        steps={["1", "2", "3", "4"]}
+        steps={[
+          "Jerarquías y cargos",
+          "Áreas",
+          "Tabla de jerarquías",
+          "Resultados",
+        ]}
         currentStep={1} // Segundo paso
         clickableSteps={[0]}
         onStepClick={(idx) => {
           if (idx === 0) navigate("/innlab_form");
         }}
       />
-
-      <section className="container">
-        <div className="innlab-form-header">
-          <div className="jerarquia-header">
-            <TitleSection title="Áreas" />
+      <div className="innlab-form-header">
+        <div className="jerarquia-header">
+          <TitleSection title="Áreas" />
+        </div>
+        <div className="areas-header">
+          <div className="areas-subtitle">
+            <Subtitle text="¿Por qué pedimos nombre de cada área?" />
+            <Description
+              text="Solicitamos los nombres de las áreas para facilitar la interacción en el siguiente paso, donde podrás registrar los cargos de cada área. Esta información también nos ayuda a comprender mejor cómo se organiza tu empresa y cómo se distribuyen las funciones."
+              variant="forms"
+            />
           </div>
-          <Subtitle text="¿Por qué pedimos nombre de cada área?" />
-          <Description
-            text="Solicitamos los nombres de las áreas para facilitar la interacción en el siguiente paso, donde podrás registrar los cargos de cada área. Esta información también nos ayuda a comprender mejor cómo se organiza tu empresa y cómo se distribuyen las funciones."
-            variant="forms"
-          />
           <Description
             text="Por favor, usa nombres claros que reflejen el propósito o función principal de cada área."
-            variant="forms2"
+            variant="forms"
           />
         </div>
+      </div>
 
-        <div className="forms-container">
-          <FormAreas
-            questions={questions}
-            onInputChange={handleInputChange}
-            formData={formData}
-          />
-        </div>
-
-        <div className="buttons-container">
-          <Button
-            variant="back"
-            text="Atrás"
-            onClick={() => {
-              navigate("/innlab_form");
-            }}
-          />
-          <Button variant="next" text="Siguiente" onClick={handleSubmit} />
-        </div>
-
-        <img
-          className="linea-curva"
-          src="/BgLine-decoration.png"
-          alt="Decoración"
+      <div className="forms-container">
+        <FormAreas
+          questions={questions}
+          onInputChange={handleInputChange}
+          formData={formData}
         />
-        <img
-          className="puntos"
-          src="/BgPoints-decoration.png"
-          alt="Decoración"
-        />
+      </div>
 
-        {showAlert && (
-          <Alert
-            type={alertType}
-            message={alertMessage}
-            onClose={() => setShowAlert(false)}
-          />
-        )}
-      </section>
-    </div>
+      <div className="buttons-container">
+        <Button
+          variant="back"
+          text="Atrás"
+          onClick={() => {
+            navigate("/innlab_form");
+          }}
+        />
+        <Button variant="next" text="Siguiente" onClick={handleSubmit} />
+      </div>
+
+      <img
+        className="linea-curva"
+        src="/BgLine-decoration.png"
+        alt="Decoración"
+      />
+      <img className="puntos" src="/BgPoints-decoration.png" alt="Decoración" />
+
+      {showAlert && (
+        <Alert
+          type={alertType}
+          message={alertMessage}
+          onClose={() => setShowAlert(false)}
+        />
+      )}
+    </section>
   );
 }

@@ -1,9 +1,9 @@
 .subtitle {
-    color: var(--neutral-black, #090011);
-    font-size: 1.313rem;
-    font-style: normal;
-    font-weight: 500;
-    line-height: 120%; /* 25.2px */
-    text-align: left;
+  color: var(--Colors-Text-text-primary, #333);
+  font-family: "Plus Jakarta Sans";
+  font-size: var(--Versin-web-Subtitulos-Subtitle, 18px);
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+  text-align: left;
 }
-

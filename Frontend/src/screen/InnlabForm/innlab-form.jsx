@@ -48,8 +48,8 @@ export function InnlabForm() {
       id: 1,
       title: (
         <>
-          ¿Cuántos <span style={{ fontWeight: 500 }}>empleados</span> tiene tu
-          empresa?
+          ¿Cuántos <span className="text-questions-medium">empleados</span>{" "}
+          tiene tu empresa?
         </>
       ),
       placeholder: "Digite aquí",
@@ -60,7 +60,7 @@ export function InnlabForm() {
       id: 2,
       title: (
         <>
-          ¿Cuántas <span style={{ fontWeight: 500 }}>áreas</span> tiene tu
+          ¿Cuántas <span className="text-questions-medium">áreas</span> tiene tu
           empresa?
         </>
       ),
@@ -79,7 +79,7 @@ export function InnlabForm() {
       placeholder: "Digite aquí",
       icon: (
         <Tooltip
-          triggerText={<img src="/info-circle.png" alt="Jerarquía 1" />}
+          triggerText={<img src="/info-fill.png" alt="Jerarquía 1" />}
           popupText={
             <>
               <strong>La Jerarquía 1 (Ejecución)</strong>: es el nivel operativo
@@ -106,7 +106,7 @@ export function InnlabForm() {
       placeholder: "Digite aquí",
       icon: (
         <Tooltip
-          triggerText={<img src="/info-circle.png" alt="Jerarquía 2" />}
+          triggerText={<img src="/info-fill.png" alt="Jerarquía 2" />}
           popupText={
             <>
               <strong>La Jerarquía 2 (Supervisión)</strong>: coordina al
@@ -133,7 +133,7 @@ export function InnlabForm() {
       placeholder: "Digite aquí",
       icon: (
         <Tooltip
-          triggerText={<img src="/info-circle.png" alt="Jerarquía 3" />}
+          triggerText={<img src="/info-fill.png" alt="Jerarquía 3" />}
           popupText={
             <>
               <strong>La Jerarquía 3 (Gerencial)</strong>: lidera equipos y
@@ -159,7 +159,7 @@ export function InnlabForm() {
       placeholder: "Digite aquí",
       icon: (
         <Tooltip
-          triggerText={<img src="/info-circle.png" alt="Jerarquía 4" />}
+          triggerText={<img src="/info-fill.png" alt="Jerarquía 4" />}
           popupText={
             <>
               <strong>La Jerarquía 4 (Directivo)</strong>: establece la visión
@@ -230,74 +230,81 @@ export function InnlabForm() {
   };
 
   return (
-    <div>
-      <StepBreadcrumb steps={["1", "2", "3", "4"]} currentStep={0} />
-
-      <section className="container">
-        <div className="innlab-form-header">
-          <TitleSection title="Jerarquías y áreas" />
-          <Subtitle text="¿Por qué pedimos esta información?" />
-          <Description
-            text="Los datos que solicitamos sobre jerarquías y áreas de la empresa nos permiten comprender cómo se distribuyen las funciones y la toma de decisiones. Esta información es clave para evaluar el nivel de innovación y detectar oportunidades de mejora dentro de la organización."
-            variant="forms"
-          />
-        </div>
-
-        <div className="forms-container">
+    <section className="container">
+      <StepBreadcrumb
+        steps={[
+          "Jerarquías y cargos",
+          "Áreas",
+          "Tabla de jerarquías",
+          "Resultados",
+        ]}
+        currentStep={0}
+      />
+      <div className="innlab-form-header">
+        <TitleSection title="Jerarquías y áreas" />
+        <div className="description-header">
+          <div className="description-subtitle">
+            <Subtitle text="¿Por qué pedimos esta información?" />
+            <Description
+              text="Los datos que solicitamos sobre jerarquías y áreas de la empresa nos permiten comprender cómo se distribuyen las funciones y la toma de decisiones. Esta información es clave para evaluar el nivel de innovación y detectar oportunidades de mejora dentro de la organización."
+              variant="forms"
+            />
+          </div>
           <Description
             text="Por favor, ingrese únicamente números sin puntos, comas u otros caracteres especiales."
-            variant="forms2"
+            variant="forms"
+            className="description-bottom-space"
           />
-
-          <div className="form-section">
-            <div className="form-section-divider">
-              <h3>Información general</h3>
-              <hr />
-            </div>
-            <Form
-              questions={questions.slice(0, 2)}
-              onInputChange={handleInputChange}
-              formData={formData}
-            />
-          </div>
-
-          <div className="form-section">
-            <div className="form-section-divider">
-              <h3>Jerarquías</h3>
-              <hr />
-            </div>
-            <Form
-              questions={questions.slice(2)}
-              onInputChange={handleInputChange}
-              formData={formData}
-            />
-          </div>
         </div>
+      </div>
 
-        <div className="buttons-container">
-          <Button variant="back" onClick={() => navigate(-1)} />
-          <Button variant="next" text="Siguiente" onClick={handleSubmit} />
+      <div className="form-section">
+        <div className="form-section-divider">
+          <Subtitle text="Información general" />
+          <hr />
         </div>
-
-        <img
-          className="linea-curva"
-          src="/BgLine-decoration.png"
-          alt="Imagen decorativa"
+        <Form
+          questions={questions.slice(0, 2)}
+          onInputChange={handleInputChange}
+          formData={formData}
         />
-        <img
-          className="puntos"
-          src="/BgPoints-decoration.png"
-          alt="imagen decorativa"
-        />
+      </div>
 
-        {showAlert && (
-          <Alert
-            type={alertType}
-            message={alertMessage}
-            onClose={() => setShowAlert(false)}
-          />
-        )}
-      </section>
-    </div>
+      <div className="form-section">
+        <div className="form-section-divider">
+          <Subtitle text="Jerarquías" />
+          <hr />
+        </div>
+        <Form
+          questions={questions.slice(2)}
+          onInputChange={handleInputChange}
+          formData={formData}
+        />
+      </div>
+
+      <div className="buttons-container">
+        <Button variant="back" onClick={() => navigate(-1)} />
+        <Button variant="next" text="Siguiente" onClick={handleSubmit} />
+      </div>
+
+      <img
+        className="linea-curva"
+        src="/BgLine-decoration.png"
+        alt="Imagen decorativa"
+      />
+      <img
+        className="puntos"
+        src="/BgPoints-decoration.png"
+        alt="imagen decorativa"
+      />
+
+      {showAlert && (
+        <Alert
+          type={alertType}
+          message={alertMessage}
+          onClose={() => setShowAlert(false)}
+        />
+      )}
+    </section>
   );
 }

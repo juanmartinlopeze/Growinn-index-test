@@ -1,122 +1,150 @@
+.custom-button.download {
+  border: none !important;
+  background: none !important;
+  padding: 0 !important;
+}
+.download-text {
+  color: var(--Colors-Text-text-inverse, #fff);
+  font-family: Inter, sans-serif;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+}
+/* Estilos para el contenedor principal del botón de descarga */
+.button-download {
+  display: flex;
+  padding: var(--padding-md, 12px) var(--padding-xxl, 24px);
+  justify-content: center;
+  align-items: center;
+  gap: var(--spacing-sm, 8px);
+  border-radius: var(--radius-lg, 24px);
+  background: var(--Colors-Primary-color-n500, #e9683b);
+}
+
+/* Estilos para el icono de descarga */
+.download-icon {
+  display: flex;
+  padding: var(--padding-xs, 4px);
+  align-items: center;
+  gap: var(--spacing-none, 0);
+  border-radius: var(--radius-lg, 24px);
+  background: var(--Colors-Neutral-neutral-white, #fff);
+}
+
+.download-icon img {
+  width: 16px !important;
+  height: 16px !important;
+  flex-shrink: 0;
+}
+
 .button-section {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-bottom: 3rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 3rem;
+}
+
+.custom-button.download,
+.button-download {
+  border: none;
 }
 
 .custom-button {
-    border-radius: 50px;
-    border: 0.5px solid;
-    border-color: #D9D9D9;
-    font-family: inherit;
-    font-size: 16px;
-    font-weight: 400;
-    line-height: 130%;
-    cursor: pointer;
-    transition: background-color 0.3s ease, border-color 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 10px 20px;
-    gap: 8px;
-    background-color: transparent;
+  border-radius: 50px;
+  border: 0.5px solid;
+  border-color: #d9d9d9;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 130%;
+  cursor: pointer;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 20px;
+  gap: 8px;
+  background-color: transparent;
 }
 
 .button-content {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
 }
 
 .button-icon img {
-    width: 26px;
-    height: 26px;
-    background-color: white;
-    border-radius: 50%;
+  width: 26px;
+  height: 26px;
+  background-color: white;
+  border-radius: 50%;
 }
 
 /* Variantes específicas */
 .back {
-    width: 50px;
-    height: 50px;
-    padding: 8px;
+  width: 50px;
+  height: 50px;
+  padding: 8px;
 }
 
 .back .button-icon img {
-    width: 26px;
-    height: 26px;
-    background-color: transparent;
+  width: 26px;
+  height: 26px;
+  background-color: transparent;
 }
 
 .back:hover {
-    background-color: rgba(0, 0, 0, 0.1);
-}
-
-.download {
-    width: 185px;
-    height: 62px;
-    background-color: #F56F10;
-    color: #ffffff;
-    font-weight: 500;
-    border-radius: 50px;
-}
-
-.download span {
-    color: #ffffff;
-}
-
-.download:hover {
-    background-color: #ff8616;
+  background-color: rgba(0, 0, 0, 0.1);
 }
 
 .next {
-    border-radius: 50px;
-    background-color: transparent;
-    font-style: italic;
+  border-radius: 50px;
+  background-color: transparent;
+  font-style: italic;
 }
 
 .next:hover {
-    background-color: rgba(0, 0, 0, 0.1);
+  background-color: rgba(0, 0, 0, 0.1);
 }
 
 .delete-button {
-    background: #ffe5e5;
-    color: #d60000;
-    padding: 10px 15px;
-    font-weight: bold;
-    cursor: pointer;
-    border-radius: 5px;
-    border: none;
+  background: #ffe5e5;
+  color: #d60000;
+  padding: 10px 15px;
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: 5px;
+  border: none;
 }
 
 .delete-button:hover {
-    background: #f8cfcf;
+  background: #f8cfcf;
 }
 
 .cancel-button {
-    background: #e0e0e0;
-    color: #333333;
-    padding: 10px 15px;
-    font-weight: bold;
-    cursor: pointer;
-    border-radius: 5px;
-    border: none;
+  background: #e0e0e0;
+  color: #333333;
+  padding: 10px 15px;
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: 5px;
+  border: none;
 }
 
 .cancel-button:hover {
-    background: #d0d0d0;
+  background: #d0d0d0;
 }
 
 .ok-button {
-    border-radius: var(--radius-xs, 4px);
-    border: 1px solid #E56C33;
-    background: #E56C33;
-    box-shadow: 0px 1px 2px 0px rgba(16, 24, 40, 0.05);
-    color: white;
+  border-radius: var(--radius-xs, 4px);
+  border: 1px solid #e56c33;
+  background: #e56c33;
+  box-shadow: 0px 1px 2px 0px rgba(16, 24, 40, 0.05);
+  color: white;
 }
 
 .ok-button:hover {
-    background: #ff8045;
+  background: #ff8045;
 }

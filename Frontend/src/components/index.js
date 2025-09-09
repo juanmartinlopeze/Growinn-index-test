@@ -17,3 +17,4 @@ export * from "./Table/Table";
 export * from "./TitleSection/TitleSection";
 export * from "./ToolTip/Tooltip";
 export * from "./StepBreadcrumb/breadcrumb";
+export * from "./TextQuestions/TextQuestions";

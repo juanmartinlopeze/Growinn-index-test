@@ -48,15 +48,11 @@ export const Button = ({
 
     if (variant === "download") {
       return (
-        <div className="button-content">
-          <span className="button-icon">
-            <img
-              src={icon || "/arrow-left.png"}
-              alt="Download Icon"
-              style={{ transform: "rotate(-90deg)" }}
-            />
+        <div className="button-download">
+          <span className="download-icon">
+            <img src={icon || "/download-icon.png"} alt="Download Icon" />
           </span>
-          <span className="button-text">{text}</span>
+          <span className="button-text download-text">{text}</span>
         </div>
       );
     }

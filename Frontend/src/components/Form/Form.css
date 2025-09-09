@@ -1,40 +1,45 @@
-.hierachy-form{
-display: flex;
-width: 866px;
-flex-direction: column;
-align-items: flex-start;
-gap: 28px;
+.hierachy-form {
+  display: flex;
+  width: 666px;
+  align-items: flex-start;
+  align-content: flex-start;
+  gap: 28px 157px;
+  flex-wrap: wrap;
 }
-.form-header {
-    display: flex;
-    align-items: center;
-    gap: 12px; /* Espacio entre el título y el ícono */
-  }
 
-  .form-group {
-    display: flex;
-    align-items: center; /* Alinea verticalmente los elementos */
-    justify-content: space-between; /* Asegura que el texto y el input estén separados */
-    width: 580px;
+.form-header {
+  display: flex;
+  align-items: center;
+  gap: 23px; /* Espacio entre el título y el ícono */
+}
+
+.form-icon {
+  display: flex;
+  align-items: center;
+}
+
+.form-group {
+  display: flex;
+  width: 666px;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
 }
 
 .form-icon img {
-    width: 25px;
-    height: 25px;
+  width: 25px;
+  height: 25px;
 }
 
 .questionnaire-forms {
-    display: flex;
-    padding: 12px 26px;
-    gap: 29px;
-    border-radius: 10px;
-    border: 1px solid #050505;
-    background: rgba(206, 206, 206, 0.10);
-    box-shadow: 0px 0px 10px 0px rgba(255, 255, 255, 0.15);
-    backdrop-filter: blur(40px);
-    width: 130px;
-    height: 40px;
-    font-size: 16px;
-    font-weight: 400;
-    line-height: 170%; /* 27.2px */
-  }
+  padding: 12px 16px;
+  padding: var(--padding-md, 12px) var(--padding-xxl, 24px);
+  border-radius: var(--radius-sm, 8px);
+  border: 1px solid var(--Colors-Neutral-neutral-black, #000);
+  color: var(--Colors-Text-text-disabled, #999);
+  font-family: Arial;
+  font-size: var(--Versin-web-Contenido-Body, 16px);
+  font-style: normal;
+  font-weight: 400;
+  line-height: 22px; /* 137.5% */
+}

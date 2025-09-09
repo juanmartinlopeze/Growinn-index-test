@@ -4,7 +4,6 @@ import { Button, Table, TitleSection } from "../../components/index";
 import { useNavigate } from "react-router-dom";
 import "./datos_prueba.css";
 
-
 export function DatosPrueba() {
   const [empleados, setEmpleados] = useState(0); // Número total de empleados
   const navigate = useNavigate();
@@ -38,15 +37,20 @@ export function DatosPrueba() {
 
   return (
     <>
-      <StepBreadcrumb
-        steps={["1", "2", "3", "4"]}
-        currentStep={2} // Tercer paso
-        clickableSteps={[0, 1]} // Permite volver al paso 1 y 2
-        onStepClick={(idx) => {
-          if (idx === 0) navigate("/innlab_form");
-        }}
-      />
       <section className="container">
+        <StepBreadcrumb
+          steps={[
+            "Jerarquías y cargos",
+            "Áreas",
+            "Tabla de jerarquías",
+            "Resultados",
+          ]}
+          currentStep={2} // Tercer paso
+          clickableSteps={[0, 1]} // Permite volver al paso 1 y 2
+          onStepClick={(idx) => {
+            if (idx === 0) navigate("/innlab_form");
+          }}
+        />
         <TitleSection title="Tabla de Jerarquías y áreas" />
         <Table />
 
