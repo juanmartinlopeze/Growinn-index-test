@@ -39,12 +39,7 @@ export function DatosPrueba() {
     <>
       <section className="container">
         <StepBreadcrumb
-          steps={[
-            "Jerarquías y cargos",
-            "Áreas",
-            "Tabla de jerarquías",
-            "Resultados",
-          ]}
+          steps={["Jerarquías y cargos", "Áreas", "Tabla de jerarquías"]}
           currentStep={2} // Tercer paso
           clickableSteps={[0, 1]} // Permite volver al paso 1 y 2
           onStepClick={(idx) => {

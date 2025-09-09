@@ -122,12 +122,7 @@ export function AreasForm() {
   return (
     <section className="container">
       <StepBreadcrumb
-        steps={[
-          "Jerarquías y cargos",
-          "Áreas",
-          "Tabla de jerarquías",
-          "Resultados",
-        ]}
+        steps={["Jerarquías y cargos", "Áreas"]}
         currentStep={1} // Segundo paso
         clickableSteps={[0]}
         onStepClick={(idx) => {

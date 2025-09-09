@@ -231,15 +231,7 @@ export function InnlabForm() {
 
   return (
     <section className="container">
-      <StepBreadcrumb
-        steps={[
-          "Jerarquías y cargos",
-          "Áreas",
-          "Tabla de jerarquías",
-          "Resultados",
-        ]}
-        currentStep={0}
-      />
+      <StepBreadcrumb steps={["Jerarquías y cargos"]} currentStep={0} />
       <div className="innlab-form-header">
         <TitleSection title="Jerarquías y áreas" />
         <div className="description-header">
