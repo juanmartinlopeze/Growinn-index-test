@@ -148,3 +148,14 @@
 .ok-button:hover {
   background: #ff8045;
 }
+
+.button-flex {
+  display: flex;
+  align-items: center;
+  gap: 0.5em; /* Espacio entre icono y texto */
+}
+
+.button-label {
+  font-weight: 500;
+  font-size: 1em;
+}

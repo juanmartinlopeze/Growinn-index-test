@@ -2,9 +2,9 @@ import { useNavigate } from "react-router-dom";
 import "./Button.css";
 
 export const Button = ({
-  variant = "default", // Variantes: back | next | download
+  variant = "default",
   text,
-  to, //Invoca la función navigate
+  to,
   onClick,
   className = "",
   icon,
@@ -24,63 +24,87 @@ export const Button = ({
     }
   };
 
-  const renderContent = () => {
-    if (variant === "back") {
-      return (
-        <div className="button-content">
-          <span className="button-icon">
-            <img src={icon || "/arrow-left.png"} alt="Back Icon" />
-          </span>
-        </div>
-      );
-    }
-
-    if (variant === "next") {
-      return (
-        <div className="button-content">
-          <span className="button-text">{text}</span>
-          <span className="button-icon">
-            <img src={icon || "/next-icon.png"} alt="Next Icon" />
-          </span>
-        </div>
-      );
-    }
-
-    if (variant === "download") {
-      return (
-        <div className="button-download">
-          <span className="download-icon">
-            <img src={icon || "/download-icon.png"} alt="Download Icon" />
-          </span>
-          <span className="button-text download-text">{text}</span>
-        </div>
-      );
-    }
-
-    if (variant === "submit") {
-      return <span className="button-text">{text || "Guardar"}</span>;
-    }
-
-    if (variant === "delete") {
-      return <span className="button-text">{text || "Eliminar"}</span>;
-    }
-
-    if (variant === "cancel") {
-      return <span className="button-text">{text || "Cancelar"}</span>;
-    }
-
-    if (variant === "ok") {
-      return <span className="button-text">{text || "Ok"}</span>;
-    }
-
-    // Variante por defecto
-    return <span className="button-text">{text}</span>;
+  // Puedes usar SVG directamente o pasar un componente como icon prop
+  const DefaultIcons = {
+    back: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+        <path
+          d="M15 18l-6-6 6-6"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    ),
+    next: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+        <path
+          d="M9 6l6 6-6 6"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    ),
+    download: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+        <path
+          d="M12 5v14m0 0l-6-6m6 6l6-6"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    ),
   };
 
-  // Definir el atributo type dependiendo de la variante: 'submit' para guardar, o 'button' por defecto.
+  const renderContent = () => {
+    switch (variant) {
+      case "back":
+        return (
+          <div className="button-flex">
+            {icon || DefaultIcons.back}
+            {text && <div className="button-label">{text}</div>}
+          </div>
+        );
+      case "next":
+        return (
+          <div className="button-flex">
+            {text && <div className="button-label">{text}</div>}
+            {icon || DefaultIcons.next}
+          </div>
+        );
+      case "download":
+        return (
+          <div className="button-flex">
+            {icon || DefaultIcons.download}
+            {text && <div className="button-label">{text}</div>}
+          </div>
+        );
+      case "submit":
+      case "delete":
+      case "cancel":
+      case "ok":
+        return (
+          <div className="button-label">
+            {text || {
+              submit: "Guardar",
+              delete: "Eliminar",
+              cancel: "Cancelar",
+              ok: "Ok",
+            }[variant]}
+          </div>
+        );
+      default:
+        return <div className="button-label">{text}</div>;
+    }
+  };
+
   const defaultType = variant === "submit" ? "submit" : "button";
 
-  // Mapear variantes a clases CSS específicas para los nuevos estilos.
   const variantClass = (() => {
     switch (variant) {
       case "submit":
@@ -92,19 +116,20 @@ export const Button = ({
       case "ok":
         return "ok-button";
       default:
-        return variant; // Usa el mismo nombre de la variante para back, next, download, etc.
+        return variant;
     }
   })();
 
   return (
-    <section className={joinClasses("button-section", className)}>
+    <div className={joinClasses("button-section", className)}>
       <button
+        type={defaultType}
         className={joinClasses("custom-button", variantClass)}
         onClick={handleClick}
         {...props}
       >
         {renderContent()}
       </button>
-    </section>
+    </div>
   );
 };
