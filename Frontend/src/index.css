@@ -11,5 +11,174 @@
 		--secondary-font-family: 'AdventuresUnlimited', sans-serif;
 		--bg-light: #ffffff;
 		--bg-dark: #111111;
+
+		/* Colors */
+		--color-primary-n100: #fbe1d8;
+		--color-primary-n200: #f6c3b1;
+		--color-primary-300: #f2a489;
+		--color-primary-n400: #ed8662;
+		--color-primary-n500: #e9683b;
+		--color-primary-600: #ba532f;
+		--color-primary-n700: #8c3e23;
+		--color-primary-n800: #5d2a18;
+		--color-primary-n900: #2f150c;
+
+		--color-neutral-neutral-white: #ffffff;
+		--color-neutral-neutral-100: #ededed;
+		--color-neutral-neutral-400: #999999;
+		--color-neutral-neutral-600: #666666;
+		--color-neutral-neutral-800: #333333;
+		--color-neutral-neutral-black: #000000;
+
+		--color-text-text-inverse: var(--color-neutral-neutral-white);
+		--color-text-text-primary: var(--color-neutral-neutral-800);
+		--color-text-text-secondary: var(--color-neutral-neutral-600);
+		--color-text-text-disabled: var(--color-neutral-neutral-400);
+		--color-text-text-link: var(--color-semantic-info);
+
+		--color-semantic-success: #22c55e;
+		--color-semantic-warning: #f59e0b;
+		--color-semantic-error: #ef4444;
+		--color-semantic-info: #3b82f6;
+
+		--color-secondary-z100: #fafbdf;
+		--color-secondary-z200: #f4f7bf;
+		--color-secondary-z300: #eff3a0;
+		--color-secondary-z400: #e9ef80;
+		--color-secondary-z500: #e4eb60;
+		--color-secondary-z600: #b6bc4d;
+		--color-secondary-z700: #898d3a;
+		--color-secondary-z800: #5b5e26;
+		--color-secondary-z900: #2e2f13;
+
+		--color-terciary-a100: #ddddfb;
+		--color-terciary-a200: #bbbbf6;
+		--color-terciary-a300: #9898f2;
+		--color-terciary-a400: #7676ed;
+		--color-terciary-a500: #5454e9;
+		--color-terciary-a600: #4343ba;
+		--color-terciary-a700: #32328c;
+		--color-terciary-a800: #22225d;
+		--color-terciary-a900: #11112f;
+
+		--color-complementaries-complementary-purple-purple-pigy-p100: #e7defc;
+		--color-complementaries-complementary-purple-purple-pigy-p200: #cfbef9;
+		--color-complementaries-complementary-purple-purple-pigy-p300: #b69df6;
+		--color-complementaries-complementary-purple-purple-pigy-p400: #9e7df3;
+		--color-complementaries-complementary-purple-purple-pigy-p500: #865cf0;
+		--color-complementaries-complementary-purple-purple-pigy-p600: #6b4ac0;
+		--color-complementaries-complementary-purple-purple-pigy-p700: #503790;
+		--color-complementaries-complementary-purple-purple-pigy-p800: #362560;
+		--color-complementaries-complementary-purple-purple-pigy-p900: #1b1230;
+		--color-complementaries-complementary-green-green-izzy-i100: #dbf1e4;
+		--color-complementaries-complementary-green-green-izzy-i200: #b7e3c9;
+		--color-complementaries-complementary-green-green-izzy-i300: #94d5af;
+		--color-complementaries-complementary-green-green-izzy-i400: #70c794;
+		--color-complementaries-complementary-green-green-izzy-i500: #4cb979;
+		--color-complementaries-complementary-green-green-izzy-i600: #3d9461;
+		--color-complementaries-complementary-green-green-izzy-i700: #2e6f49;
+		--color-complementaries-complementary-green-green-izzy-i800: #1e4a30;
+		--color-complementaries-complementary-green-green-izzy-i900: #0f2518;
+
+		--color-extended-extended-blue: #1f57c3;
+		--color-extended-extended-green: #14a800;
+		--color-extended-extended-orange: #f97316;
+		--color-extended-extended-red: #dc2626;
+		--color-extended-extended-purple: #8b5cf6;
+		--color-extended-extended-cyan: #06b6d4;
+		--color-extended-extended-teal: #0d9488;
+		--color-extended-extended-yellow: #facc15;
+		--color-extended-extended-pink: #f66dbc;
+
+		--color-text-text-orange: var(--color-primary-n500);
+		--color-text-text-purple: var(--color-complementaries-complementary-purple-purple-pigy-p500);
+		--color-text-text-red: var(--color-semantic-error);
+		--color-glass-glass-fill: #ffffff36;
+		--color-glass-glass-stroke: #ffffff33;
+
+		--color-neutral-neutral-200: #cccccc;
+		--color-neutral-neutral-300: #b3b3b3;
+		--color-neutral-neutral-500: #808080;
+		--color-neutral-neutral-700: #4d4d4d;
+		--color-neutral-neutral-900: #1a1a1a;
+
+		/* Font sizes */
+		--font-size-titles-display: 4rem;
+		--font-size-titles-section: 2.5rem;
+
+		--font-size-titles-h1: 3rem;
+		--font-size-titles-h2: 2.25rem;
+		--font-size-titles-h3: 1.75rem;
+		--font-size-titles-h4: 1.5rem;
+
+		--font-size-subtitles-subtitle: 1.125rem;
+
+		--font-size-content-body: 1rem;
+		--font-size-content-body-sm: 0.875rem;
+		--font-size-content-caption: 0.75rem;
+		--font-size-content-btn-lg: 1.25rem;
+		--font-size-content-btn: 0.875rem;
+		--font-size-content-overline: 0.875rem;
+
+		/* Elevations */
+		--elevation-1-x-offset: 0;
+		--elevation-1-y-offset: 1px;
+		--elevation-1-blur: 0.125rem;
+		--elevation-1-spread: 0;
+		--elevation-1-color: rgba(0, 0, 0, 0.08);
+
+		--elevation-2-x-offset: 0;
+		--elevation-2-y-offset: 2px;
+		--elevation-2-blur: 0.25rem;
+		--elevation-2-spread: 0;
+		--elevation-2-color: rgba(0, 0, 0, 0.1);
+
+		--elevation-3-x-offset: 0;
+		--elevation-3-y-offset: 4px;
+		--elevation-3-blur: 0.5rem;
+		--elevation-3-spread: 0;
+		--elevation-3-color: rgba(0, 0, 0, 0.12);
+
+		--elevation-4-x-offset: 0;
+		--elevation-4-y-offset: 6px;
+		--elevation-4-blur: 1rem;
+		--elevation-4-spread: 0;
+		--elevation-4-color: rgba(0, 0, 0, 0.14);
+
+		--elevation-5-x-offset: 0;
+		--elevation-5-y-offset: 12px;
+		--elevation-5-blur: 1.5rem;
+		--elevation-5-spread: 0;
+		--elevation-5-color: rgba(0, 0, 0, 0.16);
+
+		/* Paddings */
+		--padding-none: 0;
+		--padding-xs: 0.25rem;
+		--padding-sm: 0.5rem;
+		--padding-md: 0.75rem;
+		--padding-lg: 1rem;
+		--padding-xl: 1.25rem;
+		--padding-xxl: 1.5rem;
+		--padding-xxxl: 2rem;
+		--padding-xxxxl: 2.5rem;
+		--padding-xxxxxl: 4rem;
+
+		/* Spacing */
+		--spacing-none: 0;
+		--spacing-xs: 0.25rem;
+		--spacing-sm: 0.5rem;
+		--spacing-md: 1rem;
+		--spacing-lg: 1.5rem;
+		--spacing-xl: 1.75rem;
+		--spacing-xxl: 2rem;
+		--spacing-xxxl: 2.5rem;
+
+		/* Stroke weights */
+		--stroke-thin: 1px;
+		--stroke-regular: 2px;
+		--stroke-bold: 4px;
+
+		/* Blur */
+		--glass-bg-blur: 0.5rem;
 	}
 }
