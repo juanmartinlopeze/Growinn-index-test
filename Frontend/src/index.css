@@ -16,49 +16,27 @@
 
 @theme {
 	/* Text */
-	--text-display-regular: 4rem;
-	--text-display-medium: 4rem;
-	--text-display-bold: 4rem;
+	--font-weight-extralight: 200;
+	--font-weight-light: 300;
+	--font-weight-regular: 400;
+	--font-weight-medium: 500;
+	--font-weight-semibold: 600;
+	--font-weight-bold: 700;
+	--font-weight-extrabold: 800;
 
-	--text-h1-regular: 3rem;
-	--text-h1-medium: 3rem;
-	--text-h1-bold: 3rem;
-
-	--text-h2-regular: 2.25rem;
-	--text-h2-medium: 2.25rem;
-	--text-h2-bold: 2.25rem;
-
-	--text-h3-regular: 1.75rem;
-	--text-h3-medium: 1.75rem;
-	--text-h3-bold: 1.75rem;
-
-	--text-h4-regular: 1.5rem;
-	--text-h4-medium: 1.5rem;
-	--text-h4-bold: 1.5rem;
-
-	--text-section-regular: 2.5rem;
-	--text-section-medium: 2.5rem;
-	--text-section-bold: 2.5rem;
-
-	--text-subtitle-regular: 1.12rem;
-	--text-subtitle-medium: 1.12rem;
-	--text-subtitle-bold: 1.12rem;
-
-	--text-body-regular: 1rem;
-	--text-body-medium: 1rem;
-	--text-body-bold: 1rem;
-
-	--text-body-small-regular: 0.88rem;
-	--text-body-small-medium: 0.88rem;
-	--text-body-small-bold: 0.88rem;
-
+	--text-display: 4rem;
+	--text-h1: 3rem;
+	--text-h2: 2.25rem;
+	--text-h3: 1.75rem;
+	--text-h4: 1.5rem;
+	--text-section: 2.5rem;
+	--text-subtitle: 1.12rem;
+	--text-body: 1rem;
+	--text-body-small: 0.88rem;
 	--text-button-large: 1.25rem;
 	--text-button: 0.88rem;
 	--text-overline: 0.88rem;
-
-	--text-caption-regular: 0.75rem;
-	--text-caption-medium: 0.75rem;
-	--text-caption-bold: 0.75rem;
+	--text-caption: 0.75rem;
 
 	/* Effect styles */
 	--elevation-1: 0px 1px 2px rgba(0, 0, 0, 0.08);

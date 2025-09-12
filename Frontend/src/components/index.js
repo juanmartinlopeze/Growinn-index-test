@@ -6,7 +6,7 @@ export * from "./FileUploadPreview/FileUploadPreview";
 export * from "./Form/Form";
 export * from "./FormAreas/form_areas";
 export * from "./HomeTitle/home_title";
-export * from "./Input/InputDefault/InputDefault";
+export * from "./Input/Input-form/Input-form";
 export * from "./JerarquiasTitle/TitleJerarquias";
 export * from "./List/list";
 export * from "./NavBar/Navbar";

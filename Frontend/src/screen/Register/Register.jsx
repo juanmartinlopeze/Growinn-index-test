@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { InputDefault } from '../../components/index'
+import { InputForm } from '../../components/index'
 import { supabase } from '../../lib/supabaseClient'
 import './Register.css'
 
@@ -120,13 +120,13 @@ export function Register() {
 		if (!email || !password) {
 			setMsg('Faltan datos.')
 			setLoading(false)
-         setStatus('idle')
+			setStatus('idle')
 			return
 		}
 		if (password !== confirmPassword) {
 			setMsg('Las contraseñas no coinciden.')
 			setLoading(false)
-         setStatus('idle')
+			setStatus('idle')
 			return
 		}
 
@@ -256,10 +256,10 @@ export function Register() {
 
 						<form className='register-form' onSubmit={onSubmit}>
 							<div className='inputs'>
-								<InputDefault icon={true} label='Nombre completo' placeholder='Ingresa tu nombre completo' name='name' required />
-								<InputDefault icon={true} label='Correo electrónico' placeholder='Ingresa tu correo electrónico' name='email' type='email' required />
-								<InputDefault icon={true} label='Contraseña' placeholder='Crea una contraseña segura' name='password' type='password' required />
-								<InputDefault icon={true} label='Confirma tu contraseña' placeholder='Confirma tu contraseña' name='password' type='password' required />
+								<InputForm icon={true} label='Nombre completo' placeholder='Ingresa tu nombre completo' name='name' required />
+								<InputForm icon={true} label='Correo electrónico' placeholder='Ingresa tu correo electrónico' name='email' type='email' required />
+								<InputForm icon={true} label='Contraseña' placeholder='Crea una contraseña segura' name='password' type='password' required />
+								<InputForm icon={true} label='Confirma tu contraseña' placeholder='Confirma tu contraseña' name='password' type='password' required />
 							</div>
 
 							<div className='btn-toa'>

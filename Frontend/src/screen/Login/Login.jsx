@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { InputDefault } from '../../components/index'
+import { InputForm } from '../../components/index'
 import { supabase } from '../../lib/supabaseClient'
 import './Login.css'
 
@@ -165,17 +165,8 @@ export default function Login() {
 
 				<form className='login-form' onSubmit={onSubmit}>
 					<div className='inputs'>
-						<InputDefault
-							icon={true}
-							label='Correo electrónico'
-							placeholder='Ingresa tu correo'
-							name='email'
-							type='email'
-							value={email}
-							onChange={(e) => setEmail(e.target.value)}
-							required
-						/>
-						<InputDefault
+						<InputForm icon={true} label='Correo electrónico' placeholder='Ingresa tu correo' name='email' type='email' value={email} onChange={(e) => setEmail(e.target.value)} required />
+						<InputForm
 							icon={true}
 							label='Contraseña'
 							placeholder='Ingresa tu contraseña'
