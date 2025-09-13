@@ -30,16 +30,3 @@
   width: 25px;
   height: 25px;
 }
-
-.questionnaire-forms {
-  padding: 12px 16px;
-  padding: var(--padding-md, 12px) var(--padding-xxl, 24px);
-  border-radius: var(--radius-sm, 8px);
-  border: 1px solid var(--Colors-Neutral-neutral-black, #000);
-  color: var(--Colors-Text-text-disabled, #999);
-  font-family: Arial;
-  font-size: var(--Versin-web-Contenido-Body, 16px);
-  font-style: normal;
-  font-weight: 400;
-  line-height: 22px; /* 137.5% */
-}

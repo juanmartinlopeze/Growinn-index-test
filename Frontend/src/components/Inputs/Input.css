@@ -1,0 +1,30 @@
+.input-field-container.error {
+	border-color: #ff4d4f;
+}
+
+.eye-icon svg path {
+	transition: stroke 0.2s ease;
+}
+
+.eye-icon:hover svg path {
+	stroke: #666;
+}
+
+.eye-icon:hover {
+	color: #666;
+}
+
+
+.input-field::placeholder {
+	color: #8e8e8e;
+}
+
+.input-error {
+	color: #ff4d4f;
+	font-size: 14px;
+	margin-top: 4px;
+}
+
+.input-icon + .input-field {
+	padding-left: 0;
+}

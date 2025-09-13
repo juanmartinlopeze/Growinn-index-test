@@ -1,5 +1,5 @@
-import React, { useState } from 'react'
-import './Input-form.css'
+import { useState } from 'react'
+import './Input.css'
 
 export function InputForm({ icon = false, label, placeholder, type = 'text', name, value, onChange, required = false }) {
 	const emailIcon = (
@@ -85,18 +85,26 @@ export function InputForm({ icon = false, label, placeholder, type = 'text', nam
 	const inputId = `input-${name}`
 
 	return (
-		<div className='flex flex-col w-full'>
+		<div className='flex flex-col w-full gap-sm text-left'>
 			{label && (
-				<label className='text-body-small-medium text-text-text-primary' htmlFor={inputId}>
+				<label className='text-body-small text-text-primary font-medium' htmlFor={inputId}>
 					{label}
-					{required && <span className='required'>*</span>}
 				</label>
 			)}
-			<div className='input-field-container'>
-				{icon && <div className='input-icon'>{setIcon()}</div>}
-				<input id={inputId} className='input-field' name={name} type={name === 'password' ? inputType : type} placeholder={placeholder} value={value} onChange={onChange} required={required} />
+			<div className='input-field-container flex items-center bg-neutral-white border-1 border-neutral-400 rounded-sm overflow-hidden transition-all duration-200 ease-in-out focus-within:shadow-[0_0_0_2px_rgba(245,111,16,0.1)] focus-within:border-[var(--color-primary-n400)]'>
+				{icon && <div className='input-icon flex items-center justify-center px-md'>{setIcon()}</div>}
+				<input
+					id={inputId}
+					className='input-field flex-1 border-none py-3.5 px-4 text-text-caption outline-none bg-transparent text-text-secondary w-full'
+					name={name}
+					type={name === 'password' ? inputType : type}
+					placeholder={placeholder}
+					value={value}
+					onChange={onChange}
+					required={required}
+				/>
 				{name === 'password' && (
-					<span className='eye-icon' onClick={handleToggle}>
+					<span className='eye-icon flex items-center justify-center px-lg cursor-pointer ' onClick={handleToggle}>
 						{eye}
 					</span>
 				)}
