@@ -93,11 +93,12 @@ td button {
 
 td button:hover {
 	background: #f56f10;
-	color: #ffffff;
+	stroke: #ffffff;
+	fill: white;
 }
 
 td span {
-	width: 180px;
+	width: 100%;
 	display: flex;
 	justify-content: center;
 	align-items: center;
@@ -105,15 +106,13 @@ td span {
 	background-color: #f56f10;
 	color: #ffffff;
 	padding: 10px 20px;
-	border-radius: 50px;
+	border-radius: var(--radius-sm);
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
 }
 
 td span .role-name {
-	flex-shrink: 1;
-	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
 	font-weight: bold;

@@ -14,7 +14,6 @@
 	}
 }
 
-
 @theme {
 	/* Text */
 	--font-weight-extralight: 200;
@@ -57,18 +56,18 @@
 	--color-primary-n800: #5d2a18;
 	--color-primary-n900: #2f150c;
 
-	--color-neutral-neutral-white: #ffffff;
-	--color-neutral-neutral-100: #ededed;
-	--color-neutral-neutral-400: #999999;
-	--color-neutral-neutral-600: #666666;
-	--color-neutral-neutral-800: #333333;
-	--color-neutral-neutral-black: #000000;
+	--color-neutral-white: #ffffff;
+	--color-neutral-100: #ededed;
+	--color-neutral-400: #999999;
+	--color-neutral-600: #666666;
+	--color-neutral-800: #333333;
+	--color-neutral-black: #000000;
 
-	--color-text-text-inverse: var(--color-neutral-neutral-white);
-	--color-text-text-primary: var(--color-neutral-neutral-800);
-	--color-text-text-secondary: var(--color-neutral-neutral-600);
-	--color-text-text-disabled: var(--color-neutral-neutral-400);
-	--color-text-text-link: var(--color-semantic-info);
+	--color-text-inverse: var(--color-neutral-white);
+	--color-text-primary: var(--color-neutral-800);
+	--color-text-secondary: var(--color-neutral-600);
+	--color-text-disabled: var(--color-neutral-400);
+	--color-text-link: var(--color-semantic-info);
 
 	--color-semantic-success: #22c55e;
 	--color-semantic-warning: #f59e0b;
@@ -95,46 +94,46 @@
 	--color-terciary-a800: #22225d;
 	--color-terciary-a900: #11112f;
 
-	--color-complementaries-complementary-purple-purple-pigy-p100: #e7defc;
-	--color-complementaries-complementary-purple-purple-pigy-p200: #cfbef9;
-	--color-complementaries-complementary-purple-purple-pigy-p300: #b69df6;
-	--color-complementaries-complementary-purple-purple-pigy-p400: #9e7df3;
-	--color-complementaries-complementary-purple-purple-pigy-p500: #865cf0;
-	--color-complementaries-complementary-purple-purple-pigy-p600: #6b4ac0;
-	--color-complementaries-complementary-purple-purple-pigy-p700: #503790;
-	--color-complementaries-complementary-purple-purple-pigy-p800: #362560;
-	--color-complementaries-complementary-purple-purple-pigy-p900: #1b1230;
-	--color-complementaries-complementary-green-green-izzy-i100: #dbf1e4;
-	--color-complementaries-complementary-green-green-izzy-i200: #b7e3c9;
-	--color-complementaries-complementary-green-green-izzy-i300: #94d5af;
-	--color-complementaries-complementary-green-green-izzy-i400: #70c794;
-	--color-complementaries-complementary-green-green-izzy-i500: #4cb979;
-	--color-complementaries-complementary-green-green-izzy-i600: #3d9461;
-	--color-complementaries-complementary-green-green-izzy-i700: #2e6f49;
-	--color-complementaries-complementary-green-green-izzy-i800: #1e4a30;
-	--color-complementaries-complementary-green-green-izzy-i900: #0f2518;
+	--color--complementary-purple-pigy-p100: #e7defc;
+	--color--complementary-purple-pigy-p200: #cfbef9;
+	--color--complementary-purple-pigy-p300: #b69df6;
+	--color--complementary-purple-pigy-p400: #9e7df3;
+	--color--complementary-purple-pigy-p500: #865cf0;
+	--color--complementary-purple-pigy-p600: #6b4ac0;
+	--color--complementary-purple-pigy-p700: #503790;
+	--color--complementary-purple-pigy-p800: #362560;
+	--color--complementary-purple-pigy-p900: #1b1230;
+	--color--complementary-green-izzy-i100: #dbf1e4;
+	--color--complementary-green-izzy-i200: #b7e3c9;
+	--color--complementary-green-izzy-i300: #94d5af;
+	--color--complementary-green-izzy-i400: #70c794;
+	--color--complementary-green-izzy-i500: #4cb979;
+	--color--complementary-green-izzy-i600: #3d9461;
+	--color--complementary-green-izzy-i700: #2e6f49;
+	--color--complementary-green-izzy-i800: #1e4a30;
+	--color--complementary-green-izzy-i900: #0f2518;
 
-	--color-extended-extended-blue: #1f57c3;
-	--color-extended-extended-green: #14a800;
-	--color-extended-extended-orange: #f97316;
-	--color-extended-extended-red: #dc2626;
-	--color-extended-extended-purple: #8b5cf6;
-	--color-extended-extended-cyan: #06b6d4;
-	--color-extended-extended-teal: #0d9488;
-	--color-extended-extended-yellow: #facc15;
-	--color-extended-extended-pink: #f66dbc;
+	--color-extended-blue: #1f57c3;
+	--color-extended-green: #14a800;
+	--color-extended-orange: #f97316;
+	--color-extended-red: #dc2626;
+	--color-extended-purple: #8b5cf6;
+	--color-extended-cyan: #06b6d4;
+	--color-extended-teal: #0d9488;
+	--color-extended-yellow: #facc15;
+	--color-extended-pink: #f66dbc;
 
-	--color-text-text-orange: var(--color-primary-n500);
-	--color-text-text-purple: var(--color-complementaries-complementary-purple-purple-pigy-p500);
-	--color-text-text-red: var(--color-semantic-error);
-	--color-glass-glass-fill: #ffffff36;
-	--color-glass-glass-stroke: #ffffff33;
+	--color-text-orange: var(--color-primary-n500);
+	--color-text-purple: var(--color-complementary-purple-pigy-p500);
+	--color-text-red: var(--color-semantic-error);
+	--color-glass-fill: #ffffff36;
+	--color-glass-stroke: #ffffff33;
 
-	--color-neutral-neutral-200: #cccccc;
-	--color-neutral-neutral-300: #b3b3b3;
-	--color-neutral-neutral-500: #808080;
-	--color-neutral-neutral-700: #4d4d4d;
-	--color-neutral-neutral-900: #1a1a1a;
+	--color-neutral-200: #cccccc;
+	--color-neutral-300: #b3b3b3;
+	--color-neutral-500: #808080;
+	--color-neutral-700: #4d4d4d;
+	--color-neutral-900: #1a1a1a;
 
 	/* Font sizes */
 	--font-size-titles-display: 4rem;
@@ -153,6 +152,14 @@
 	--font-size-content-btn-lg: 1.25rem;
 	--font-size-content-btn: 0.875rem;
 	--font-size-content-overline: 0.875rem;
+
+	/* Border radius */
+	--radius-none: 0;
+	--radius-xs: 0.25rem;
+	--radius-sm: 0.5rem;
+	--radius-md: 1rem;
+	--radius-lg: 1.5rem;
+	--radius-xl: 2.5rem;
 
 	/* Elevations */
 	--elevation-1-x-offset: 0;

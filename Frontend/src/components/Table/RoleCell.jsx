@@ -19,9 +19,9 @@ export default function RoleCell({ areaId, jerarquia, cargos, onClick }) {
 	}
 
 	return (
-		<button type='button' className='empty-role' onClick={handleClick}>
-			<svg xmlns='http://www.w3.org/2000/svg' width='15' height='15' fill='none' viewBox='0 0 15 15'>
-				<path fill='#E9683B' d='M6.8 8.5h-6v-2h6v-6h2v6h6v2h-6v6h-2z' />
+		<button type='button' className='empty-role group' onClick={handleClick}>
+			<svg className='fill-primary-n500 group-hover:fill-neutral-50 transition-colors duration-0' width='24' height='25' viewBox='0 0 24 25' fill='none' xmlns='http://www.w3.org/2000/svg'>
+				<path d='M11 13.5H5V11.5H11V5.5H13V11.5H19V13.5H13V19.5H11V13.5Z' />
 			</svg>
 		</button>
 	)
