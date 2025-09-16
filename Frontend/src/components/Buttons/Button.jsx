@@ -1,134 +1,182 @@
+// src/components/buttons/Button.jsx
 import { useNavigate } from "react-router-dom";
-import "./Button.css";
+import PrincipalButton from "../UiButtons/PrincipalButton";
+import ActionButton from "../UiButtons/ActionButton";
+import RoleTagButton from "../UiButtons/RoleTagButton";
 
 export const Button = ({
-  variant = "default",
+  variant = "default", // 'cancel' | 'delete' | 'submit' | 'next' | 'download' | 'back' | 'ok' | ...
   text,
   to,
   onClick,
   className = "",
-  icon,
+  disabled = false,
+
+  // Overrides opcionales
+  color, // ej: 'white' | 'orange' | 'n100'
+  uiVariant, // 'fill' | 'outline'
+
+  // Control de iconos para ActionButton
+  leftIcon, // boolean
+  rightIcon, // boolean
+  iconLeftType, // 'arrow' | 'download'
+  iconRightType, // 'arrow' | 'download'
+  arrowDirection = "right", // 'left' | 'right' | 'up' | 'down'
+
   ...props
 }) => {
   const navigate = useNavigate();
+  const join = (...xs) => xs.filter(Boolean).join(" ");
 
-  const joinClasses = (...classes) => classes.filter(Boolean).join(" ");
-
-  const handleClick = () => {
-    if (onClick) {
-      onClick();
-    } else if (to) {
-      navigate(to);
-    } else if (variant === "back") {
-      navigate(-1);
+  const handleClick = (e) => {
+    if (disabled) {
+      e.preventDefault();
+      return;
     }
+    if (onClick) onClick(e);
+    else if (to) navigate(to);
+    else if (variant === "back") navigate(-1);
   };
 
-  // Puedes usar SVG directamente o pasar un componente como icon prop
-  const DefaultIcons = {
-    back: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-        <path
-          d="M15 18l-6-6 6-6"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-    ),
-    next: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-        <path
-          d="M9 6l6 6-6 6"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-    ),
-    download: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-        <path
-          d="M12 5v14m0 0l-6-6m6 6l6-6"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-    ),
-  };
+  // ─────────────────────────────────────────────────────────────
+  // 1) Variantes principales → PrincipalButton
+  // ─────────────────────────────────────────────────────────────
+  if (variant === "cancel" || variant === "delete" || variant === "submit") {
+    const map = {
+      cancel: { color: "white", uiVariant: "fill", label: "Cancelar" },
+      delete: { color: "n100", uiVariant: "fill", label: "Eliminar" },
+      submit: { color: "orange", uiVariant: "fill", label: "Guardar" },
+    };
+    const cfg = map[variant];
 
-  const renderContent = () => {
-    switch (variant) {
-      case "back":
-        return (
-          <div className="button-flex">
-            {icon || DefaultIcons.back}
-            {text && <div className="button-label">{text}</div>}
-          </div>
-        );
-      case "next":
-        return (
-          <div className="button-flex">
-            {text && <div className="button-label">{text}</div>}
-            {icon || DefaultIcons.next}
-          </div>
-        );
-      case "download":
-        return (
-          <div className="button-flex">
-            {icon || DefaultIcons.download}
-            {text && <div className="button-label">{text}</div>}
-          </div>
-        );
-      case "submit":
-      case "delete":
-      case "cancel":
-      case "ok":
-        return (
-          <div className="button-label">
-            {text || {
-              submit: "Guardar",
-              delete: "Eliminar",
-              cancel: "Cancelar",
-              ok: "Ok",
-            }[variant]}
-          </div>
-        );
-      default:
-        return <div className="button-label">{text}</div>;
-    }
-  };
+    return (
+      <div className={join("button-section", className)}>
+        <PrincipalButton
+          as="button"
+          color={color ?? cfg.color}
+          variant={uiVariant ?? cfg.uiVariant}
+          disabled={disabled}
+          onClick={handleClick}
+          {...props}
+        >
+          {text ?? cfg.label}
+        </PrincipalButton>
+      </div>
+    );
+  }
 
-  const defaultType = variant === "submit" ? "submit" : "button";
+  // ─────────────────────────────────────────────────────────────
+  // 2) Variantes de acción → ActionButton
+  // ─────────────────────────────────────────────────────────────
+  if (variant === "next") {
+    // Valores por defecto “de diseño” + posibilidad de override
+    const cfg = {
+      color: color ?? "white",
+      uiVariant: uiVariant ?? "fill",
+      leftIcon: leftIcon ?? false,
+      rightIcon: rightIcon ?? true,
+      iconLeftType: iconLeftType ?? "arrow",
+      iconRightType: iconRightType ?? "arrow",
+      arrowDirection,
+      label: text ?? "Siguiente",
+    };
 
-  const variantClass = (() => {
-    switch (variant) {
-      case "submit":
-        return "submit-button";
-      case "delete":
-        return "delete-button";
-      case "cancel":
-        return "cancel-button";
-      case "ok":
-        return "ok-button";
-      default:
-        return variant;
-    }
-  })();
+    return (
+      <div className={join("button-section", className)}>
+        <ActionButton
+          color={cfg.color}
+          variant={cfg.uiVariant}
+          leftIcon={cfg.leftIcon}
+          rightIcon={cfg.rightIcon}
+          iconLeftType={cfg.iconLeftType}
+          iconRightType={cfg.iconRightType}
+          arrowDirection={cfg.arrowDirection}
+          disabled={disabled}
+          onClick={handleClick}
+          // burbuja derecha negra sólida por defecto (como definimos)
+          iconRightScheme={{ color: "black", variant: "fill" }}
+          {...props}
+        >
+          {cfg.label}
+        </ActionButton>
+      </div>
+    );
+  }
 
+  if (variant === "download") {
+    const cfg = {
+      color: color ?? "orange",
+      uiVariant: uiVariant ?? "fill",
+      leftIcon: leftIcon ?? true,
+      rightIcon: rightIcon ?? false,
+      iconLeftType: iconLeftType ?? "download",
+      iconRightType: iconRightType ?? "arrow",
+      arrowDirection,
+      label: text ?? "Descargar documento",
+    };
+
+    return (
+      <div className={join("button-section", className)}>
+        <ActionButton
+          color={cfg.color}
+          variant={cfg.uiVariant}
+          leftIcon={cfg.leftIcon}
+          rightIcon={cfg.rightIcon}
+          iconLeftType={cfg.iconLeftType}
+          iconRightType={cfg.iconRightType}
+          arrowDirection={cfg.arrowDirection}
+          disabled={disabled}
+          onClick={handleClick}
+          {...props}
+        >
+          {cfg.label}
+        </ActionButton>
+      </div>
+    );
+  }
+
+  // ─────────────────────────────────────────────────────────────
+  // 3) Back → RoleTagButton
+  // ─────────────────────────────────────────────────────────────
+  if (variant === "back") {
+    return (
+      <div className={join("button-section", className)}>
+        <RoleTagButton onClick={handleClick} disabled={disabled} {...props} />
+      </div>
+    );
+  }
+
+  // ─────────────────────────────────────────────────────────────
+  // 4) Fallbacks simples (si los necesitas)
+  // ─────────────────────────────────────────────────────────────
+  if (variant === "ok") {
+    return (
+      <div className={join("button-section", className)}>
+        <PrincipalButton
+          as="button"
+          color="white"
+          variant="outline"
+          disabled={disabled}
+          onClick={handleClick}
+          {...props}
+        >
+          {text ?? "Ok"}
+        </PrincipalButton>
+      </div>
+    );
+  }
+
+  // default plano
   return (
-    <div className={joinClasses("button-section", className)}>
+    <div className={join("button-section", className)}>
       <button
-        type={defaultType}
-        className={joinClasses("custom-button", variantClass)}
+        type="button"
+        className="custom-button"
+        disabled={disabled}
         onClick={handleClick}
         {...props}
       >
-        {renderContent()}
+        {text ?? "Button"}
       </button>
     </div>
   );

@@ -1,224 +1,482 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 
 @font-face {
-	font-family: 'AdventuresUnlimited';
-	src: url('/fonts/AdventuresUnlimited.woff2') format('woff2');
+  font-family: "AdventuresUnlimited";
+  src: url("/fonts/AdventuresUnlimited.woff2") format("woff2");
 }
 
 @layer base {
-	:root {
-		--default-font-family: 'Plus Jakarta Sans', sans-serif;
-		--secondary-font-family: 'AdventuresUnlimited', sans-serif;
-		--bg-light: #ffffff;
-		--bg-dark: #111111;
-	}
+  :root {
+    --default-font-family: "Plus Jakarta Sans", sans-serif;
+    --secondary-font-family: "AdventuresUnlimited", sans-serif;
+    --bg-light: #ffffff;
+    --bg-dark: #111111;
+  }
 }
 
 @theme {
-	/* Text */
-	--font-weight-extralight: 200;
-	--font-weight-light: 300;
-	--font-weight-regular: 400;
-	--font-weight-medium: 500;
-	--font-weight-semibold: 600;
-	--font-weight-bold: 700;
-	--font-weight-extrabold: 800;
+  /* Text */
+  --font-weight-extralight: 200;
+  --font-weight-light: 300;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-extrabold: 800;
 
-	--text-display: 4rem;
-	--text-h1: 3rem;
-	--text-h2: 2.25rem;
-	--text-h3: 1.75rem;
-	--text-h4: 1.5rem;
-	--text-section: 2.5rem;
-	--text-subtitle: 1.12rem;
-	--text-body: 1rem;
-	--text-body-small: 0.88rem;
-	--text-button-large: 1.25rem;
-	--text-button: 0.88rem;
-	--text-overline: 0.88rem;
-	--text-caption: 0.75rem;
+  --text-display: 4rem;
+  --text-h1: 3rem;
+  --text-h2: 2.25rem;
+  --text-h3: 1.75rem;
+  --text-h4: 1.5rem;
+  --text-section: 2.5rem;
+  --text-subtitle: 1.12rem;
+  --text-body: 1rem;
+  --text-body-small: 0.88rem;
+  --text-button-large: 1.25rem;
+  --text-button: 0.88rem;
+  --text-overline: 0.88rem;
+  --text-caption: 0.75rem;
 
-	/* Effect styles */
-	--elevation-1: 0px 1px 2px rgba(0, 0, 0, 0.08);
-	--elevation-2: 0px 2px 4px rgba(0, 0, 0, 0.1);
-	--elevation-3: 0px 4px 8px rgba(0, 0, 0, 0.12);
-	--elevation-4: 0px 6px 16px rgba(0, 0, 0, 0.14);
-	--elevation-5: 0px 12px 24px rgba(0, 0, 0, 0.16);
+  /* Effect styles */
+  --elevation-1: 0px 1px 2px rgba(0, 0, 0, 0.08);
+  --elevation-2: 0px 2px 4px rgba(0, 0, 0, 0.1);
+  --elevation-3: 0px 4px 8px rgba(0, 0, 0, 0.12);
+  --elevation-4: 0px 6px 16px rgba(0, 0, 0, 0.14);
+  --elevation-5: 0px 12px 24px rgba(0, 0, 0, 0.16);
 
-	/* Colors */
-	--color-primary-n100: #fbe1d8;
-	--color-primary-n200: #f6c3b1;
-	--color-primary-300: #f2a489;
-	--color-primary-n400: #ed8662;
-	--color-primary-n500: #e9683b;
-	--color-primary-600: #ba532f;
-	--color-primary-n700: #8c3e23;
-	--color-primary-n800: #5d2a18;
-	--color-primary-n900: #2f150c;
+  /* Colors */
+  --color-primary-n100: #fbe1d8;
+  --color-primary-n200: #f6c3b1;
+  --color-primary-300: #f2a489;
+  --color-primary-n400: #ed8662;
+  --color-primary-n500: #e9683b;
+  --color-primary-600: #ba532f;
+  --color-primary-n700: #8c3e23;
+  --color-primary-n800: #5d2a18;
+  --color-primary-n900: #2f150c;
 
-	--color-neutral-white: #ffffff;
-	--color-neutral-100: #ededed;
-	--color-neutral-400: #999999;
-	--color-neutral-600: #666666;
-	--color-neutral-800: #333333;
-	--color-neutral-black: #000000;
+  --color-neutral-white: #ffffff;
+  --color-neutral-100: #ededed;
+  --color-neutral-400: #999999;
+  --color-neutral-600: #666666;
+  --color-neutral-800: #333333;
+  --color-neutral-black: #000000;
 
-	--color-text-inverse: var(--color-neutral-white);
-	--color-text-primary: var(--color-neutral-800);
-	--color-text-secondary: var(--color-neutral-600);
-	--color-text-disabled: var(--color-neutral-400);
-	--color-text-link: var(--color-semantic-info);
+  --color-text-inverse: var(--color-neutral-white);
+  --color-text-primary: var(--color-neutral-800);
+  --color-text-secondary: var(--color-neutral-600);
+  --color-text-disabled: var(--color-neutral-400);
+  --color-text-link: var(--color-semantic-info);
 
-	--color-semantic-success: #22c55e;
-	--color-semantic-warning: #f59e0b;
-	--color-semantic-error: #ef4444;
-	--color-semantic-info: #3b82f6;
+  --color-semantic-success: #22c55e;
+  --color-semantic-warning: #f59e0b;
+  --color-semantic-error: #ef4444;
+  --color-semantic-info: #3b82f6;
 
-	--color-secondary-z100: #fafbdf;
-	--color-secondary-z200: #f4f7bf;
-	--color-secondary-z300: #eff3a0;
-	--color-secondary-z400: #e9ef80;
-	--color-secondary-z500: #e4eb60;
-	--color-secondary-z600: #b6bc4d;
-	--color-secondary-z700: #898d3a;
-	--color-secondary-z800: #5b5e26;
-	--color-secondary-z900: #2e2f13;
+  --color-secondary-z100: #fafbdf;
+  --color-secondary-z200: #f4f7bf;
+  --color-secondary-z300: #eff3a0;
+  --color-secondary-z400: #e9ef80;
+  --color-secondary-z500: #e4eb60;
+  --color-secondary-z600: #b6bc4d;
+  --color-secondary-z700: #898d3a;
+  --color-secondary-z800: #5b5e26;
+  --color-secondary-z900: #2e2f13;
 
-	--color-terciary-a100: #ddddfb;
-	--color-terciary-a200: #bbbbf6;
-	--color-terciary-a300: #9898f2;
-	--color-terciary-a400: #7676ed;
-	--color-terciary-a500: #5454e9;
-	--color-terciary-a600: #4343ba;
-	--color-terciary-a700: #32328c;
-	--color-terciary-a800: #22225d;
-	--color-terciary-a900: #11112f;
+  --color-terciary-a100: #ddddfb;
+  --color-terciary-a200: #bbbbf6;
+  --color-terciary-a300: #9898f2;
+  --color-terciary-a400: #7676ed;
+  --color-terciary-a500: #5454e9;
+  --color-terciary-a600: #4343ba;
+  --color-terciary-a700: #32328c;
+  --color-terciary-a800: #22225d;
+  --color-terciary-a900: #11112f;
 
-	--color--complementary-purple-pigy-p100: #e7defc;
-	--color--complementary-purple-pigy-p200: #cfbef9;
-	--color--complementary-purple-pigy-p300: #b69df6;
-	--color--complementary-purple-pigy-p400: #9e7df3;
-	--color--complementary-purple-pigy-p500: #865cf0;
-	--color--complementary-purple-pigy-p600: #6b4ac0;
-	--color--complementary-purple-pigy-p700: #503790;
-	--color--complementary-purple-pigy-p800: #362560;
-	--color--complementary-purple-pigy-p900: #1b1230;
-	--color--complementary-green-izzy-i100: #dbf1e4;
-	--color--complementary-green-izzy-i200: #b7e3c9;
-	--color--complementary-green-izzy-i300: #94d5af;
-	--color--complementary-green-izzy-i400: #70c794;
-	--color--complementary-green-izzy-i500: #4cb979;
-	--color--complementary-green-izzy-i600: #3d9461;
-	--color--complementary-green-izzy-i700: #2e6f49;
-	--color--complementary-green-izzy-i800: #1e4a30;
-	--color--complementary-green-izzy-i900: #0f2518;
+  --color--complementary-purple-pigy-p100: #e7defc;
+  --color--complementary-purple-pigy-p200: #cfbef9;
+  --color--complementary-purple-pigy-p300: #b69df6;
+  --color--complementary-purple-pigy-p400: #9e7df3;
+  --color--complementary-purple-pigy-p500: #865cf0;
+  --color--complementary-purple-pigy-p600: #6b4ac0;
+  --color--complementary-purple-pigy-p700: #503790;
+  --color--complementary-purple-pigy-p800: #362560;
+  --color--complementary-purple-pigy-p900: #1b1230;
+  --color--complementary-green-izzy-i100: #dbf1e4;
+  --color--complementary-green-izzy-i200: #b7e3c9;
+  --color--complementary-green-izzy-i300: #94d5af;
+  --color--complementary-green-izzy-i400: #70c794;
+  --color--complementary-green-izzy-i500: #4cb979;
+  --color--complementary-green-izzy-i600: #3d9461;
+  --color--complementary-green-izzy-i700: #2e6f49;
+  --color--complementary-green-izzy-i800: #1e4a30;
+  --color--complementary-green-izzy-i900: #0f2518;
 
-	--color-extended-blue: #1f57c3;
-	--color-extended-green: #14a800;
-	--color-extended-orange: #f97316;
-	--color-extended-red: #dc2626;
-	--color-extended-purple: #8b5cf6;
-	--color-extended-cyan: #06b6d4;
-	--color-extended-teal: #0d9488;
-	--color-extended-yellow: #facc15;
-	--color-extended-pink: #f66dbc;
+  --color-extended-blue: #1f57c3;
+  --color-extended-green: #14a800;
+  --color-extended-orange: #f97316;
+  --color-extended-red: #dc2626;
+  --color-extended-purple: #8b5cf6;
+  --color-extended-cyan: #06b6d4;
+  --color-extended-teal: #0d9488;
+  --color-extended-yellow: #facc15;
+  --color-extended-pink: #f66dbc;
 
-	--color-text-orange: var(--color-primary-n500);
-	--color-text-purple: var(--color-complementary-purple-pigy-p500);
-	--color-text-red: var(--color-semantic-error);
-	--color-glass-fill: #ffffff36;
-	--color-glass-stroke: #ffffff33;
+  --color-text-orange: var(--color-primary-n500);
+  --color-text-purple: var(--color-complementary-purple-pigy-p500);
+  --color-text-red: var(--color-semantic-error);
+  --color-glass-fill: #ffffff36;
+  --color-glass-stroke: #ffffff33;
 
-	--color-neutral-200: #cccccc;
-	--color-neutral-300: #b3b3b3;
-	--color-neutral-500: #808080;
-	--color-neutral-700: #4d4d4d;
-	--color-neutral-900: #1a1a1a;
+  --color-neutral-200: #cccccc;
+  --color-neutral-300: #b3b3b3;
+  --color-neutral-500: #808080;
+  --color-neutral-700: #4d4d4d;
+  --color-neutral-900: #1a1a1a;
 
-	/* Font sizes */
-	--font-size-titles-display: 4rem;
-	--font-size-titles-section: 2.5rem;
+  /* Font sizes */
+  --font-size-titles-display: 4rem;
+  --font-size-titles-section: 2.5rem;
 
-	--font-size-titles-h1: 3rem;
-	--font-size-titles-h2: 2.25rem;
-	--font-size-titles-h3: 1.75rem;
-	--font-size-titles-h4: 1.5rem;
+  --font-size-titles-h1: 3rem;
+  --font-size-titles-h2: 2.25rem;
+  --font-size-titles-h3: 1.75rem;
+  --font-size-titles-h4: 1.5rem;
 
-	--font-size-subtitles-subtitle: 1.125rem;
+  --font-size-subtitles-subtitle: 1.125rem;
 
-	--font-size-content-body: 1rem;
-	--font-size-content-body-sm: 0.875rem;
-	--font-size-content-caption: 0.75rem;
-	--font-size-content-btn-lg: 1.25rem;
-	--font-size-content-btn: 0.875rem;
-	--font-size-content-overline: 0.875rem;
+  --font-size-content-body: 1rem;
+  --font-size-content-body-sm: 0.875rem;
+  --font-size-content-caption: 0.75rem;
+  --font-size-content-btn-lg: 1.25rem;
+  --font-size-content-btn: 0.875rem;
+  --font-size-content-overline: 0.875rem;
 
-	/* Border radius */
-	--radius-none: 0;
-	--radius-xs: 0.25rem;
-	--radius-sm: 0.5rem;
-	--radius-md: 1rem;
-	--radius-lg: 1.5rem;
-	--radius-xl: 2.5rem;
+  /* Border radius */
+  --radius-none: 0;
+  --radius-xs: 0.25rem;
+  --radius-sm: 0.5rem;
+  --radius-md: 1rem;
+  --radius-lg: 1.5rem;
+  --radius-xl: 2.5rem;
 
-	/* Elevations */
-	--elevation-1-x-offset: 0;
-	--elevation-1-y-offset: 1px;
-	--elevation-1-blur: 0.125rem;
-	--elevation-1-spread: 0;
-	--elevation-1-color: rgba(0, 0, 0, 0.08);
+  /* Elevations */
+  --elevation-1-x-offset: 0;
+  --elevation-1-y-offset: 1px;
+  --elevation-1-blur: 0.125rem;
+  --elevation-1-spread: 0;
+  --elevation-1-color: rgba(0, 0, 0, 0.08);
 
-	--elevation-2-x-offset: 0;
-	--elevation-2-y-offset: 2px;
-	--elevation-2-blur: 0.25rem;
-	--elevation-2-spread: 0;
-	--elevation-2-color: rgba(0, 0, 0, 0.1);
+  --elevation-2-x-offset: 0;
+  --elevation-2-y-offset: 2px;
+  --elevation-2-blur: 0.25rem;
+  --elevation-2-spread: 0;
+  --elevation-2-color: rgba(0, 0, 0, 0.1);
 
-	--elevation-3-x-offset: 0;
-	--elevation-3-y-offset: 4px;
-	--elevation-3-blur: 0.5rem;
-	--elevation-3-spread: 0;
-	--elevation-3-color: rgba(0, 0, 0, 0.12);
+  --elevation-3-x-offset: 0;
+  --elevation-3-y-offset: 4px;
+  --elevation-3-blur: 0.5rem;
+  --elevation-3-spread: 0;
+  --elevation-3-color: rgba(0, 0, 0, 0.12);
 
-	--elevation-4-x-offset: 0;
-	--elevation-4-y-offset: 6px;
-	--elevation-4-blur: 1rem;
-	--elevation-4-spread: 0;
-	--elevation-4-color: rgba(0, 0, 0, 0.14);
+  --elevation-4-x-offset: 0;
+  --elevation-4-y-offset: 6px;
+  --elevation-4-blur: 1rem;
+  --elevation-4-spread: 0;
+  --elevation-4-color: rgba(0, 0, 0, 0.14);
 
-	--elevation-5-x-offset: 0;
-	--elevation-5-y-offset: 12px;
-	--elevation-5-blur: 1.5rem;
-	--elevation-5-spread: 0;
-	--elevation-5-color: rgba(0, 0, 0, 0.16);
+  --elevation-5-x-offset: 0;
+  --elevation-5-y-offset: 12px;
+  --elevation-5-blur: 1.5rem;
+  --elevation-5-spread: 0;
+  --elevation-5-color: rgba(0, 0, 0, 0.16);
 
-	/* Paddings */
-	--padding-none: 0;
-	--padding-xs: 0.25rem;
-	--padding-sm: 0.5rem;
-	--padding-md: 0.75rem;
-	--padding-lg: 1rem;
-	--padding-xl: 1.25rem;
-	--padding-xxl: 1.5rem;
-	--padding-xxxl: 2rem;
-	--padding-xxxxl: 2.5rem;
-	--padding-xxxxxl: 4rem;
+  /* Paddings */
+  --padding-none: 0;
+  --padding-xs: 0.25rem;
+  --padding-sm: 0.5rem;
+  --padding-md: 0.75rem;
+  --padding-lg: 1rem;
+  --padding-xl: 1.25rem;
+  --padding-xxl: 1.5rem;
+  --padding-xxxl: 2rem;
+  --padding-xxxxl: 2.5rem;
+  --padding-xxxxxl: 4rem;
 
-	/* Spacing */
-	--spacing-none: 0;
-	--spacing-xs: 0.25rem;
-	--spacing-sm: 0.5rem;
-	--spacing-md: 1rem;
-	--spacing-lg: 1.5rem;
-	--spacing-xl: 1.75rem;
-	--spacing-xxl: 2rem;
-	--spacing-xxxl: 2.5rem;
+  /* Spacing */
+  --spacing-none: 0;
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 1.75rem;
+  --spacing-xxl: 2rem;
+  --spacing-xxxl: 2.5rem;
 
-	/* Stroke weights */
-	--stroke-thin: 1px;
-	--stroke-regular: 2px;
-	--stroke-bold: 4px;
+  /* Stroke weights */
+  --stroke-thin: 1px;
+  --stroke-regular: 2px;
+  --stroke-bold: 4px;
 
-	/* Blur */
-	--glass-bg-blur: 0.5rem;
+  /* Blur */
+  --glass-bg-blur: 0.5rem;
+}
+
+@layer base {
+  :root {
+    /* ───────────────────────────Buttons ─────────────────────────── */
+    /* ───────── WHITE ───────── */
+    /* Fill */
+    --btn-white-fill-bg-default: var(--color-neutral-white, #ffffff);
+    --btn-white-fill-border-default: var(--color-neutral-100, #ededed);
+    --btn-white-fill-text-default: var(--color-text-primary, #333333);
+
+    --btn-white-fill-bg-hover: var(--color-neutral-white, #ffffff);
+    --btn-white-fill-border-hover: var(--color-neutral-800, #333333);
+    --btn-white-fill-text-hover: var(--color-text-primary, #333333);
+
+    --btn-white-fill-bg-pressed: var(--color-neutral-100, #ededed);
+    --btn-white-fill-border-pressed: transparent; /* “sin borde” → ver nota abajo */
+    --btn-white-fill-text-pressed: var(--color-text-primary, #333333);
+
+    --btn-white-fill-bg-disabled: var(--color-neutral-100, #ededed);
+    --btn-white-fill-border-disabled: transparent;
+    --btn-white-fill-text-disabled: var(--color-text-disabled, #999999);
+
+    /* Outline */
+    --btn-white-outline-bg-default: transparent;
+    --btn-white-outline-border-default: var(--color-neutral-400, #999999);
+    --btn-white-outline-text-default: var(--color-text-primary, #333333);
+
+    --btn-white-outline-bg-hover: transparent;
+    --btn-white-outline-border-hover: var(--color-neutral-800, #333333);
+    --btn-white-outline-text-hover: var(--color-text-primary, #333333);
+
+    --btn-white-outline-bg-pressed: var(--color-neutral-100, #ededed);
+    --btn-white-outline-border-pressed: var(--color-neutral-800, #333333);
+    --btn-white-outline-text-pressed: var(--color-text-primary, #333333);
+
+    --btn-white-outline-bg-disabled: transparent;
+    --btn-white-outline-border-disabled: var(--color-neutral-400, #999999);
+    --btn-white-outline-text-disabled: var(--color-text-disabled, #999999);
+
+    /* ───────── N100 ───────── */
+    /* Fill */
+    --btn-n100-fill-bg-default: var(--color-primary-n100, #fbe1d8);
+    --btn-n100-fill-border-default: transparent;
+    --btn-n100-fill-text-default: var(--color-primary-n700, #8c3e23);
+
+    --btn-n100-fill-bg-hover: var(--color-primary-n100, #fbe1d8);
+    --btn-n100-fill-border-hover: var(--color-primary-n400, #ed8662);
+    --btn-n100-fill-text-hover: var(--color-primary-n700, #8c3e23);
+
+    --btn-n100-fill-bg-pressed: var(--color-primary-n200, #f6c3b1);
+    --btn-n100-fill-border-pressed: transparent;
+    --btn-n100-fill-text-pressed: var(--color-primary-n700, #8c3e23);
+
+    --btn-n100-fill-bg-disabled: var(--color-primary-n100, #fbe1d8);
+    --btn-n100-fill-border-disabled: transparent;
+    --btn-n100-fill-text-disabled: var(--color-primary-n200, #f6c3b1);
+
+    /* Outline */
+    --btn-n100-outline-bg-default: transparent;
+    --btn-n100-outline-border-default: var(--color-primary-n200, #f6c3b1);
+    --btn-n100-outline-text-default: var(--color-primary-n700, #8c3e23);
+
+    --btn-n100-outline-bg-hover: transparent;
+    --btn-n100-outline-border-hover: var(--color-primary-n400, #ed8662);
+    --btn-n100-outline-text-hover: var(--color-primary-n700, #8c3e23);
+
+    --btn-n100-outline-bg-pressed: var(--color-primary-n200, #f6c3b1);
+    --btn-n100-outline-border-pressed: var(--color-primary-n400, #ed8662);
+    --btn-n100-outline-text-pressed: var(--color-primary-n700, #8c3e23);
+
+    --btn-n100-outline-bg-disabled: transparent;
+    --btn-n100-outline-border-disabled: var(--color-primary-n200, #f6c3b1);
+    --btn-n100-outline-text-disabled: var(--color-primary-n100, #fbe1d8);
+
+    /* ───────── ORANGE ───────── */
+    /* Fill */
+    --btn-orange-fill-bg-default: var(--color-primary-n500, #e9683b);
+    --btn-orange-fill-border-default: transparent;
+    --btn-orange-fill-text-default: var(--color-text-inverse, #ffffff);
+
+    --btn-orange-fill-bg-hover: var(--color-primary-600, #ba532f);
+    --btn-orange-fill-border-hover: transparent;
+    --btn-orange-fill-text-hover: var(--color-text-inverse, #ffffff);
+
+    --btn-orange-fill-bg-pressed: var(--color-primary-n700, #8c3e23);
+    --btn-orange-fill-border-pressed: transparent;
+    --btn-orange-fill-text-pressed: var(--color-text-inverse, #ffffff);
+
+    --btn-orange-fill-bg-disabled: var(--color-neutral-100, #ededed);
+    --btn-orange-fill-border-disabled: transparent;
+    --btn-orange-fill-text-disabled: var(--color-text-disabled, #999999);
+
+    /* Outline */
+    --btn-orange-outline-bg-default: transparent;
+    --btn-orange-outline-border-default: var(--color-primary-n500, #e9683b);
+    --btn-orange-outline-text-default: var(--color-primary-n500, #e9683b);
+
+    --btn-orange-outline-bg-hover: transparent;
+    --btn-orange-outline-border-hover: var(--color-primary-n700, #8c3e23);
+    --btn-orange-outline-text-hover: var(--color-primary-n500, #e9683b);
+
+    --btn-orange-outline-bg-pressed: var(--color-primary-n100, #fbe1d8);
+    --btn-orange-outline-border-pressed: var(--color-primary-n500, #e9683b);
+    --btn-orange-outline-text-pressed: var(--color-primary-n500, #e9683b);
+
+    --btn-orange-outline-bg-disabled: transparent;
+    --btn-orange-outline-border-disabled: var(--color-primary-n200, #f6c3b1);
+    --btn-orange-outline-text-disabled: var(--color-primary-n200, #f6c3b1);
+  }
+}
+
+@layer base {
+  :root {
+	/* ─────────────────────────── ICON BUTTON ─────────────────────────── */
+    /* ───────── ICON BUTTON: BLACK ───────── */
+    /* Fill */
+    --iconbtn-black-fill-bg-default: var(--color-neutral-black, #000000);
+    --iconbtn-black-fill-border-default: transparent;
+    --iconbtn-black-fill-icon-default: var(--color-neutral-white, #FFFFFF);
+
+    --iconbtn-black-fill-bg-hover: var(--color-neutral-800, #333333);
+    --iconbtn-black-fill-border-hover: var(--color-neutral-white, #FFFFFF);
+    --iconbtn-black-fill-icon-hover: var(--color-neutral-white, #FFFFFF);
+
+    --iconbtn-black-fill-bg-pressed: var(--color-neutral-600, #666666);
+    --iconbtn-black-fill-border-pressed: transparent;
+    --iconbtn-black-fill-icon-pressed: var(--color-neutral-white, #FFFFFF);
+
+    --iconbtn-black-fill-bg-disabled: var(--color-neutral-400, #999999);
+    --iconbtn-black-fill-border-disabled: transparent;
+    --iconbtn-black-fill-icon-disabled: var(--color-neutral-white, #FFFFFF);
+
+    /* Outline */
+    --iconbtn-black-outline-bg-default: transparent;
+    --iconbtn-black-outline-border-default: var(--color-neutral-800, #333333);
+    --iconbtn-black-outline-icon-default: var(--color-neutral-white, #FFFFFF);
+
+    --iconbtn-black-outline-bg-hover: transparent;
+    --iconbtn-black-outline-border-hover: var(--color-neutral-800, #333333);
+    --iconbtn-black-outline-icon-hover: var(--color-neutral-white, #FFFFFF);
+
+    --iconbtn-black-outline-bg-pressed: var(--color-neutral-600, #666666);
+    --iconbtn-black-outline-border-pressed: var(--color-neutral-400, #999999);
+    --iconbtn-black-outline-icon-pressed: var(--color-neutral-white, #FFFFFF);
+
+    --iconbtn-black-outline-bg-disabled: transparent;
+    --iconbtn-black-outline-border-disabled: var(--color-neutral-600, #666666);
+    --iconbtn-black-outline-icon-disabled: var(--color-neutral-white, #FFFFFF);
+
+
+    /* ───────── ICON BUTTON: ORANGE ───────── */
+    /* Fill */
+    --iconbtn-orange-fill-bg-default: var(--color-primary-n500, #E9683B);
+    --iconbtn-orange-fill-border-default: transparent;
+    --iconbtn-orange-fill-icon-default: var(--color-neutral-white, #FFFFFF);
+
+    --iconbtn-orange-fill-bg-hover: var(--color-primary-600, #BA532F);
+    --iconbtn-orange-fill-border-hover: transparent;
+    --iconbtn-orange-fill-icon-hover: var(--color-neutral-white, #FFFFFF);
+
+    --iconbtn-orange-fill-bg-pressed: var(--color-primary-n700, #8C3E23);
+    --iconbtn-orange-fill-border-pressed: transparent;
+    --iconbtn-orange-fill-icon-pressed: var(--color-neutral-white, #FFFFFF);
+
+    --iconbtn-orange-fill-bg-disabled: var(--color-neutral-100, #EDEDED);
+    --iconbtn-orange-fill-border-disabled: transparent;
+    --iconbtn-orange-fill-icon-disabled: var(--color-neutral-white, #FFFFFF);
+
+    /* Outline */
+    --iconbtn-orange-outline-bg-default: transparent;
+    --iconbtn-orange-outline-border-default: var(--color-primary-n500, #E9683B);
+    --iconbtn-orange-outline-icon-default: var(--color-neutral-white, #FFFFFF);
+
+    --iconbtn-orange-outline-bg-hover: transparent;
+    --iconbtn-orange-outline-border-hover: var(--color-primary-n600, #BA532F);
+    --iconbtn-orange-outline-icon-hover: var(--color-neutral-white, #FFFFFF);
+
+    --iconbtn-orange-outline-bg-pressed: var(--color-primary-n100, #FBE1D8);
+    --iconbtn-orange-outline-border-pressed: var(--color-primary-n500, #E9683B);
+    --iconbtn-orange-outline-icon-pressed: var(--color-neutral-white, #FFFFFF);
+
+    --iconbtn-orange-outline-bg-disabled: var(--color-primary-n200, #F6C3B1);
+    --iconbtn-orange-outline-border-disabled: transparent;
+    --iconbtn-orange-outline-icon-disabled: var(--color-neutral-400, #999999);
+
+
+    /* ───────── ICON BUTTON: WHITE ───────── */
+    /* Fill */
+    --iconbtn-white-fill-bg-default: var(--color-neutral-white, #FFFFFF);
+    --iconbtn-white-fill-border-default: var(--color-neutral-100, #EDEDED);
+    --iconbtn-white-fill-icon-default: var(--color-neutral-black, #000000);
+
+    --iconbtn-white-fill-bg-hover: var(--color-neutral-white, #FFFFFF);
+    --iconbtn-white-fill-border-hover: var(--color-neutral-800, #333333);
+    --iconbtn-white-fill-icon-hover: var(--color-neutral-black, #000000);
+
+    --iconbtn-white-fill-bg-pressed: var(--color-neutral-100, #EDEDED);
+    --iconbtn-white-fill-border-pressed: transparent;
+    --iconbtn-white-fill-icon-pressed: var(--color-neutral-black, #000000);
+
+    --iconbtn-white-fill-bg-disabled: var(--color-neutral-100, #EDEDED);
+    --iconbtn-white-fill-border-disabled: transparent;
+    --iconbtn-white-fill-icon-disabled: var(--color-neutral-400, #999999);
+
+    /* Outline */
+    --iconbtn-white-outline-bg-default: transparent;
+    --iconbtn-white-outline-border-default: var(--color-neutral-400, #999999);
+    --iconbtn-white-outline-icon-default: var(--color-neutral-black, #000000);
+
+    --iconbtn-white-outline-bg-hover: transparent;
+    --iconbtn-white-outline-border-hover: var(--color-neutral-800, #333333);
+    --iconbtn-white-outline-icon-hover: var(--color-neutral-black, #000000);
+
+    --iconbtn-white-outline-bg-pressed: var(--color-neutral-100, #EDEDED);
+    --iconbtn-white-outline-border-pressed: var(--color-neutral-800, #333333);
+    --iconbtn-white-outline-icon-pressed: var(--color-neutral-black, #000000);
+
+    --iconbtn-white-outline-bg-disabled: transparent;
+    --iconbtn-white-outline-border-disabled: var(--color-neutral-400, #999999);
+    --iconbtn-white-outline-icon-disabled: var(--color-neutral-400, #999999);
+
+
+    /* ───────── ICON BUTTON: ORANGE-REVERSE ───────── */
+    /* Fill */
+    --iconbtn-orange-reverse-fill-bg-default: var(--color-neutral-white, #FFFFFF);
+    --iconbtn-orange-reverse-fill-border-default: transparent;
+    --iconbtn-orange-reverse-fill-icon-default: var(--color-primary-n500, #E9683B);
+
+    --iconbtn-orange-reverse-fill-bg-hover: var(--color-neutral-white, #FFFFFF);
+    --iconbtn-orange-reverse-fill-border-hover: var(--color-primary-n500, #E9683B);
+    --iconbtn-orange-reverse-fill-icon-hover: var(--color-primary-n500, #E9683B);
+
+    --iconbtn-orange-reverse-fill-bg-pressed: var(--color-neutral-100, #EDEDED);
+    --iconbtn-orange-reverse-fill-border-pressed: transparent;
+    --iconbtn-orange-reverse-fill-icon-pressed: var(--color-primary-n500, #E9683B);
+
+    --iconbtn-orange-reverse-fill-bg-disabled: var(--color-neutral-100, #EDEDED);
+    --iconbtn-orange-reverse-fill-border-disabled: transparent;
+    --iconbtn-orange-reverse-fill-icon-disabled: var(--color-neutral-400, #999999);
+
+    /* Outline */
+    --iconbtn-orange-reverse-outline-bg-default: transparent;
+    --iconbtn-orange-reverse-outline-border-default: var(--color-neutral-400, #999999);
+    --iconbtn-orange-reverse-outline-icon-default: var(--color-primary-n500, #E9683B);
+
+    --iconbtn-orange-reverse-outline-bg-hover: transparent;
+    --iconbtn-orange-reverse-outline-border-hover: var(--color-primary-n500, #E9683B);
+    --iconbtn-orange-reverse-outline-icon-hover: var(--color-primary-n500, #E9683B);
+
+    --iconbtn-orange-reverse-outline-bg-pressed: var(--color-neutral-100, #EDEDED);
+    --iconbtn-orange-reverse-outline-border-pressed: var(--color-primary-n500, #E9683B);
+    --iconbtn-orange-reverse-outline-icon-pressed: var(--color-primary-n500, #E9683B);
+
+    --iconbtn-orange-reverse-outline-bg-disabled: transparent;
+    --iconbtn-orange-reverse-outline-border-disabled: var(--color-neutral-400, #999999);
+    --iconbtn-orange-reverse-outline-icon-disabled: var(--color-neutral-400, #999999);
+  }
 }
