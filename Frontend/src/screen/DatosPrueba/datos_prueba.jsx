@@ -12,12 +12,23 @@ export function DatosPrueba() {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        console.log('🔗 Conectando a:', `${BASE_URL}/empresas`);
+        
         const resp = await fetch(`${BASE_URL}/empresas`, {
           headers: { "Content-Type": "application/json" },
           // credentials: "include", // actívalo si usas cookies/sesión
         });
-        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        
+        console.log('📡 Respuesta:', resp.status, resp.statusText);
+        
+        if (!resp.ok) {
+          const errorText = await resp.text();
+          console.error('❌ Error response:', errorText);
+          throw new Error(`HTTP ${resp.status}: ${errorText}`);
+        }
+        
         const data = await resp.json();
+        console.log('📊 Datos recibidos:', data);
 
         if (Array.isArray(data) && data.length) {
           const latest = data[data.length - 1];
@@ -27,7 +38,9 @@ export function DatosPrueba() {
           setEmpleados(0);
         }
       } catch (err) {
-        console.error("Error obteniendo /empresas:", err);
+        console.error("❌ Error obteniendo /empresas:", err);
+        // Mostrar error al usuario
+        setEmpleados(0);
       }
     };
 
