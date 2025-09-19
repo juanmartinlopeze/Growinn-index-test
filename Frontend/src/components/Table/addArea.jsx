@@ -1,10 +1,13 @@
 // Archivo: utils/addArea.js
+
+const BASE_URL = (import.meta.env.VITE_API_URL || 'http://localhost:3000').replace(/\/$/, '');
+
 export async function handleAddArea(areas, setAreas, empresaId, showAlert) {
   try {
     const nombre = `Área ${areas.length + 1}`
 
     // 1. Crear el área en Supabase
-    const res = await fetch('http://localhost:3000/areas', {
+    const res = await fetch(`${BASE_URL}/areas`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
