@@ -111,3 +111,42 @@ export async function updateSubcargo(subcargoId, { nombre, personas }) {
   if (!res.ok) throw new Error(data.error || 'Error actualizando subcargo');
   return data;
 }
+
+// 👤 USUARIOS
+
+export async function fetchUsuarios() {
+    const res = await fetch(`${BASE_URL}/usuarios`);
+    if (!res.ok) throw new Error('Error cargando usuarios');
+    return res.json();
+}
+
+export async function saveUsuario(usuario) {
+    const res = await fetch(`${BASE_URL}/usuarios`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(usuario),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Error al crear usuario');
+    return data;
+}
+
+export async function updateUsuario(usuarioId, usuarioActualizado) {
+    const res = await fetch(`${BASE_URL}/usuarios/${usuarioId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(usuarioActualizado),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Error actualizando usuario');
+    return data;
+}
+
+export async function deleteUsuario(usuarioId) {
+    const res = await fetch(`${BASE_URL}/usuarios/${usuarioId}`, {
+        method: 'DELETE',
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Error al eliminar usuario');
+    return data;
+}
