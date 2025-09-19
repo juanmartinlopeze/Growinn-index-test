@@ -4,7 +4,7 @@ import { Button, Table, TitleSection } from "../../components/index";
 import { useNavigate } from "react-router-dom";
 import "./datos_prueba.css";
 
-const API_BASE = (import.meta.env.VITE_API_URL || "http://localhost:3000").replace(/\/$/, "");
+const BASE_URL = (import.meta.env.VITE_API_URL || "http://localhost:3000").replace(/\/$/, "");
 export function DatosPrueba() {
   const [empleados, setEmpleados] = useState(0);
   const navigate = useNavigate();
@@ -12,7 +12,7 @@ export function DatosPrueba() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const resp = await fetch(`${API_BASE}/empresas`, {
+        const resp = await fetch(`${BASE_URL}/empresas`, {
           headers: { "Content-Type": "application/json" },
           // credentials: "include", // actívalo si usas cookies/sesión
         });

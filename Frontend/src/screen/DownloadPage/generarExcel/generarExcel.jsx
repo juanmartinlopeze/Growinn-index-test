@@ -1,6 +1,8 @@
+const BASE_URL = (import.meta.env.VITE_API_URL || 'http://localhost:3000').replace(/\/$/, '');
+
 export async function generarExcelDesdeBD(empresaId) {
   try {
-    const response = await fetch(`http://localhost:3000/excel/${empresaId}`);
+    const response = await fetch(`${BASE_URL}/excel/${empresaId}`);
     if (!response.ok) throw new Error('No se pudo generar el archivo');
 
     const blob = await response.blob();
