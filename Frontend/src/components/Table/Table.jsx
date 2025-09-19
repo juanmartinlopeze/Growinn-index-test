@@ -11,7 +11,6 @@ import {
   fetchEmpresas,
   fetchSubcargos,
   fetchSubcargosByCargo,
-  fetchUsuarios,
   saveCargo,
   saveSubcargo,
   updateArea,
@@ -127,14 +126,13 @@ export function Table() {
           cargosData.filter((c) => areasData.some((a) => a.id === c.area_id))
         );
         setSubcargos(subcargosData);
-        setUsuarios([]); // Array vacío en lugar de filtrar usuariosData
         
         console.log('✅ Carga de datos completada exitosamente');
       } catch (e) {
         console.error("❌ Error cargando datos iniciales de la tabla:", e);
         console.error("❌ Stack trace:", e.stack);
         setEmpresaId(null);
-        setAreas([]); setCargos([]); setSubcargos([]);
+        setAreas([]); setCargos([]); setSubcargos([]); // ← Sin setUsuarios([])
       }
     }
     loadAll();
