@@ -28,6 +28,9 @@ import {
   loadStepData,
 } from "../../components/Utils/breadcrumbUtils";
 
+// 👉 usa BASE_URL (no API_BASE)
+const BASE_URL = (import.meta.env.VITE_API_URL || "http://localhost:3000").replace(/\/$/, "");
+
 export function Table() {
   const [empresaId, setEmpresaId] = useState(null);
 
@@ -90,26 +93,37 @@ export function Table() {
   // Carga inicial de tabla
   useEffect(() => {
     async function loadAll() {
-      const empresas = await fetchEmpresas();
-      const empresaActual = empresas[empresas.length - 1];
-      setEmpresaId(empresaActual.id);
+      try {
+        const empresas = await fetchEmpresas();
+        if (!empresas || empresas.length === 0) {
+          setEmpresaId(null);
+          setAreas([]); setCargos([]); setSubcargos([]); setUsuarios([]);
+          return;
+        }
+        const empresaActual = empresas[empresas.length - 1];
+        setEmpresaId(empresaActual.id);
 
-      const [areasData, cargosData, subcargosData, usuariosData] =
-        await Promise.all([
-          fetchAreas(empresaActual.id),
-          fetchCargos(),
-          fetchSubcargos(),
-          fetchUsuarios(),
-        ]);
+        const [areasData, cargosData, subcargosData, usuariosData] =
+          await Promise.all([
+            fetchAreas(empresaActual.id),
+            fetchCargos(),
+            fetchSubcargos(),
+            fetchUsuarios(),
+          ]);
 
-      setAreas(areasData);
-      setCargos(
-        cargosData.filter((c) => areasData.some((a) => a.id === c.area_id))
-      );
-      setSubcargos(subcargosData);
-      setUsuarios(
-        usuariosData.filter((u) => u.empresa_id === empresaActual.id)
-      );
+        setAreas(areasData);
+        setCargos(
+          cargosData.filter((c) => areasData.some((a) => a.id === c.area_id))
+        );
+        setSubcargos(subcargosData);
+        setUsuarios(
+          usuariosData.filter((u) => u.empresa_id === empresaActual.id)
+        );
+      } catch (e) {
+        console.error("❌ Error cargando datos iniciales de la tabla:", e);
+        setEmpresaId(null);
+        setAreas([]); setCargos([]); setSubcargos([]); setUsuarios([]);
+      }
     }
     loadAll();
   }, []);
@@ -121,8 +135,9 @@ export function Table() {
   };
 
   const openRoleModal = (area, cargo, jerarquia) => {
+    if (!area) return;
     setSelectedArea(area);
-    setSelectedCargo(cargo);
+    setSelectedCargo(cargo || null);
     setSelectedJerarquia(jerarquia);
     setPosition(cargo?.nombre || "");
     setEmployees(cargo?.personas || "");
@@ -147,149 +162,84 @@ export function Table() {
   };
 
   const handleSaveEverything = async () => {
-    // 1. Validación de campos principales (Cargo y Total Empleados)
-    // El nombre del cargo es obligatorio
+    // 1) Validaciones
     if (!position.trim()) {
-      showAlert(
-        "error",
-        "Error de Validación",
-        "El nombre del cargo es obligatorio."
-      );
-      return; // Detiene la ejecución si falla
+      showAlert("error", "Error de Validación", "El nombre del cargo es obligatorio.");
+      return;
     }
-
-    // El total de empleados es obligatorio y debe ser un número no negativo
     const totalEmp = parseInt(employees, 10);
     if (isNaN(totalEmp) || totalEmp < 0) {
-      showAlert(
-        "error",
-        "Error de Validación",
-        "La cantidad de empleados es obligatoria y debe ser un número no negativo."
-      );
-      return; // Detiene la ejecución si falla
+      showAlert("error", "Error de Validación", "La cantidad de empleados es obligatoria y debe ser un número no negativo.");
+      return;
     }
 
-    // 2. Validación de Subcargos (CONDICIONAL)
-    // Este bloque SOLO se ejecuta si existen subcargos en la lista (`subcargoList`).
     if (subcargoList.length > 0) {
-      // Itera sobre cada subcargo para validar sus campos
       for (const sub of subcargoList) {
-        // El nombre del subcargo es obligatorio si hay subcargos
         if (!sub.nombre.trim()) {
-          showAlert(
-            "error",
-            "Error de Validación",
-            "El nombre de todos los subcargos es obligatorio si hay subcargos."
-          );
-          return; // Detiene la ejecución si falla
+          showAlert("error", "Error de Validación", "El nombre de todos los subcargos es obligatorio si hay subcargos.");
+          return;
         }
-        // La cantidad de personas en el subcargo es obligatoria y debe ser un número no negativo si hay subcargos
         const subPersonas = parseInt(sub.personas, 10);
         if (isNaN(subPersonas) || subPersonas < 0) {
-          showAlert(
-            "error",
-            "Error de Validación",
-            "La cantidad de personas en todos los subcargos es obligatoria y debe ser un número no negativo si hay subcargos."
-          );
-          return; // Detiene la ejecución si falla
+          showAlert("error", "Error de Validación", "La cantidad de personas en todos los subcargos es obligatoria y debe ser un número no negativo.");
+          return;
         }
       }
-
-      // Si hay subcargos, valida que la suma de sus empleados coincida con el total del cargo.
-      const totalSub = subcargoList.reduce(
-        (sum, s) => sum + (s.personas || 0),
-        0
-      );
+      const totalSub = subcargoList.reduce((sum, s) => sum + (s.personas || 0), 0);
       if (totalSub !== totalEmp) {
-        showAlert(
-          "error",
-          "Error de validación",
+        showAlert("error", "Error de validación",
           `La suma de empleados en subcargos (${totalSub}) no coincide con el total del cargo (${totalEmp}).\n\nPor favor, ajusta las cantidades.`
         );
-        return; // Detiene la ejecución si falla
+        return;
       }
     }
-    // Si subcargoList.length es 0, todas las validaciones de subcargos se saltan,
-    // permitiendo guardar el cargo sin subcargos.
 
-    // 3. Lógica de Guardado (si todas las validaciones pasan)
+    // 2) Guardado
     try {
       let cargoId;
 
-      // Crear o actualizar el cargo principal
       if (!selectedCargo?.id) {
-        // Si no hay un cargo seleccionado, es un cargo nuevo (POST)
         const nuevo = await saveCargo({
-          nombre: position.trim(), // Guarda el nombre sin espacios extra
+          nombre: position.trim(),
           personas: totalEmp,
           area_id: selectedArea.id,
           jerarquia_id: String(selectedJerarquia),
         });
         cargoId = nuevo.id;
-        setCargos((prev) => [...prev, nuevo]); // Agrega el nuevo cargo a la lista local
+        setCargos((prev) => [...prev, nuevo]);
       } else {
-        // Si ya hay un cargo seleccionado, se actualiza (PUT)
         cargoId = selectedCargo.id;
-        await updateCargo(cargoId, {
-          nombre: position.trim(),
-          personas: totalEmp,
-        });
+        await updateCargo(cargoId, { nombre: position.trim(), personas: totalEmp });
         setCargos((prev) =>
-          prev.map((c) =>
-            c.id === cargoId
-              ? { ...c, nombre: position.trim(), personas: totalEmp }
-              : c
-          )
-        ); // Actualiza el cargo en la lista local
+          prev.map((c) => (c.id === cargoId ? { ...c, nombre: position.trim(), personas: totalEmp } : c))
+        );
       }
 
-      // Guardar/actualizar subcargos (CONDICIONAL)
-      // Este bloque SOLO se ejecuta si existen subcargos en la lista.
       if (subcargoList.length > 0) {
         for (const sub of subcargoList) {
           if (sub.id) {
-            // Si el subcargo ya tiene un ID, se actualiza (PUT)
-            await updateSubcargo(sub.id, {
-              nombre: sub.nombre.trim(),
-              personas: sub.personas,
-            });
+            await updateSubcargo(sub.id, { nombre: sub.nombre.trim(), personas: sub.personas });
           } else if (sub.nombre.trim()) {
-            // Solo guarda si es nuevo y tiene nombre
-            // Si es un subcargo nuevo (no tiene ID), se crea (POST)
-            await saveSubcargo({
-              nombre: sub.nombre.trim(),
-              personas: sub.personas,
-              cargo_id: cargoId, // Asocia al cargo que acabamos de crear/actualizar
-            });
+            await saveSubcargo({ nombre: sub.nombre.trim(), personas: sub.personas, cargo_id: cargoId });
           }
         }
       }
 
-      // Recargar sólo los subcargos de este cargo específico para reflejar los cambios (nuevos, actualizados)
       const subAct = await fetchSubcargosByCargo(cargoId);
-      // Filtra los subcargos antiguos de este cargo y añade los recién obtenidos
-      setSubcargos((prev) =>
-        prev.filter((s) => s.cargo_id !== cargoId).concat(subAct)
-      );
-      setSubcargoList(subAct); // Actualiza también la lista local del modal para que refleje los IDs, etc.
+      setSubcargos((prev) => prev.filter((s) => s.cargo_id !== cargoId).concat(subAct));
+      setSubcargoList(subAct);
     } catch (err) {
       console.error("❌ Error al guardar cargo/subcargos:", err);
-      showAlert(
-        "error",
-        "Error al guardar",
-        "❌ Error al guardar cargo o subcargos."
-      );
-      return; // Detiene la ejecución si hay un error en el guardado
+      showAlert("error", "Error al guardar", "❌ Error al guardar cargo o subcargos.");
+      return;
     }
 
-    // 4. Refrescar métricas (se hace una sola vez al final si todo fue bien)
     try {
       await refetch();
     } catch (e) {
       console.warn("⚠️ Error refrescando métricas después de guardar:", e);
     }
 
-    // Mostrar mensaje de éxito y cerrar el modal
     setModal(false);
   };
 
@@ -301,31 +251,18 @@ export function Table() {
       "Eliminar cargo",
       `¿Estás seguro de eliminar el cargo "${selectedCargo.nombre}"? Esta acción no se puede deshacer.`
     );
-
     if (!confirmed) return;
 
     try {
       await deleteCargo(selectedCargo.id);
       setCargos((prev) => prev.filter((c) => c.id !== selectedCargo.id));
-
-      // Mostrar confirmación de éxito
-      showAlert(
-        "complete",
-        "Cargo eliminado",
-        "✅ Cargo eliminado correctamente"
-      );
+      showAlert("complete", "Cargo eliminado", "✅ Cargo eliminado correctamente");
     } catch (err) {
       console.error("❌ Error al eliminar cargo:", err);
       showAlert("error", "Error", "❌ Error al eliminar cargo");
     }
 
-    // Refrescar métricas
-    try {
-      await refetch();
-    } catch (e) {
-      console.warn("⚠️ Error refrescando métricas:", e);
-    }
-
+    try { await refetch(); } catch (e) { console.warn("⚠️ Error refrescando métricas:", e); }
     setModal(false);
   };
 
@@ -340,11 +277,7 @@ export function Table() {
       setSubcargoList((prev) => prev.filter((s) => s.id !== id));
     } catch (e) {
       console.error("❌ Error al eliminar subcargo:", e);
-      setAlert({
-        show: true,
-        message: "Error al eliminar subcargo",
-        type: "error",
-      });
+      setAlert({ show: true, message: "Error al eliminar subcargo", type: "error" });
     }
   };
 
@@ -356,18 +289,17 @@ export function Table() {
       "Eliminar área",
       `¿Estás seguro de eliminar el área "${areaName}"?\n\nEsta acción no se puede deshacer.`
     );
-
     if (!confirmed) return;
 
     try {
       const id = areas[areaIndex].id;
-      await fetch(`http://localhost:3000/areas/${id}`, { method: "DELETE" });
+      const r = await fetch(`${BASE_URL}/areas/${id}`, { method: "DELETE" });
+      if (!r.ok) {
+        const e = await r.json().catch(() => ({}));
+        throw new Error(e.error || `HTTP ${r.status}`);
+      }
       setAreas((prev) => prev.filter((_, i) => i !== areaIndex));
-      showAlert(
-        "complete",
-        "Área eliminada",
-        "✅ Área eliminada correctamente"
-      );
+      showAlert("complete", "Área eliminada", "✅ Área eliminada correctamente");
     } catch (e) {
       console.error("❌ Error al eliminar área:", e);
       showAlert("error", "Error", "❌ Error al eliminar área");
@@ -395,9 +327,7 @@ export function Table() {
                   <div className="tooltip-jerarquia">
                     <p>{j}</p>
                     <Tooltip
-                      triggerText={
-                        <img src={jerarquiaIcons[j]} alt={j} width={40} />
-                      }
+                      triggerText={<img src={jerarquiaIcons[j]} alt={j} width={40} />}
                       popupText={nivelesJerarquia[j]}
                     />
                   </div>
@@ -419,18 +349,18 @@ export function Table() {
                         <path
                           d="M10.4753 2.84195L2.17058 11.1467C1.84214 11.4752 1.53712 12.0851 1.46674 12.5309L1.021 15.698C0.856777 16.8475 1.65443 17.6451 2.80396 17.4809L5.97105 17.0352C6.41679 16.9648 7.0502 16.6598 7.35517 16.3313L15.66 8.02662C17.091 6.59557 17.7713 4.92992 15.66 2.81854C13.572 0.730617 11.9063 1.4109 10.4753 2.84195Z"
                           stroke="#292D32"
-                          stroke-width="2"
-                          stroke-miterlimit="10"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
+                          strokeWidth="2"
+                          strokeMiterlimit="10"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
                         />
                         <path
                           d="M9.27904 4.03833C9.98283 6.57199 11.9535 8.54262 14.4871 9.24641"
                           stroke="#292D32"
-                          stroke-width="2"
-                          stroke-miterlimit="10"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
+                          strokeWidth="2"
+                          strokeMiterlimit="10"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
                         />
                       </svg>
                     }
@@ -461,7 +391,6 @@ export function Table() {
                   empleadosPlaneados={totalEmpleados}
                 />
               </td>
-
               {jerarquias.map((j) => (
                 <td key={j}>
                   <ProgressBar
@@ -497,7 +426,6 @@ export function Table() {
           onClose={() => setModal(false)}
           onDeleteSubcargo={handleDeleteSubcargo}
           onDeleteRole={handleDeleteRole}
-          onAddSubcargo={handleAddSubcargo}
           setAlert={setAlert}
         />
       )}
