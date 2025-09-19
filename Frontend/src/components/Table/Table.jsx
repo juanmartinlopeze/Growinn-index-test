@@ -94,15 +94,26 @@ export function Table() {
   useEffect(() => {
     async function loadAll() {
       try {
+        console.log('🔄 Iniciando carga de datos de tabla...');
+        console.log('🔗 BASE_URL configurado:', BASE_URL);
+        console.log('🔗 VITE_API_URL:', import.meta.env.VITE_API_URL);
+        
+        console.log('📡 Llamando a fetchEmpresas...');
         const empresas = await fetchEmpresas();
+        console.log('📊 Empresas recibidas:', empresas);
+        
         if (!empresas || empresas.length === 0) {
+          console.warn('⚠️ No se encontraron empresas');
           setEmpresaId(null);
           setAreas([]); setCargos([]); setSubcargos([]); setUsuarios([]);
           return;
         }
+        
         const empresaActual = empresas[empresas.length - 1];
+        console.log('🏢 Empresa actual seleccionada:', empresaActual);
         setEmpresaId(empresaActual.id);
 
+        console.log('📡 Cargando datos relacionados...');
         const [areasData, cargosData, subcargosData, usuariosData] =
           await Promise.all([
             fetchAreas(empresaActual.id),
@@ -110,6 +121,8 @@ export function Table() {
             fetchSubcargos(),
             fetchUsuarios(),
           ]);
+
+        console.log('📊 Datos cargados:', { areasData, cargosData, subcargosData, usuariosData });
 
         setAreas(areasData);
         setCargos(
@@ -119,8 +132,11 @@ export function Table() {
         setUsuarios(
           usuariosData.filter((u) => u.empresa_id === empresaActual.id)
         );
+        
+        console.log('✅ Carga de datos completada exitosamente');
       } catch (e) {
         console.error("❌ Error cargando datos iniciales de la tabla:", e);
+        console.error("❌ Stack trace:", e.stack);
         setEmpresaId(null);
         setAreas([]); setCargos([]); setSubcargos([]); setUsuarios([]);
       }
