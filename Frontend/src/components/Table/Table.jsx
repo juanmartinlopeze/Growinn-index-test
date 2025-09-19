@@ -43,8 +43,7 @@ export function Table() {
     saveStepData("step3", { areas, cargos, subcargos });
   }, [areas, cargos, subcargos]);
 
-  const [usuarios, setUsuarios] = useState([]);
-
+ 
   const [modal, setModal] = useState(false);
   const [areaModal, setAreaModal] = useState(false);
 
@@ -105,7 +104,7 @@ export function Table() {
         if (!empresas || empresas.length === 0) {
           console.warn('⚠️ No se encontraron empresas');
           setEmpresaId(null);
-          setAreas([]); setCargos([]); setSubcargos([]); setUsuarios([]);
+          setAreas([]); setCargos([]); setSubcargos([]);
           return;
         }
         
@@ -114,31 +113,28 @@ export function Table() {
         setEmpresaId(empresaActual.id);
 
         console.log('📡 Cargando datos relacionados...');
-        const [areasData, cargosData, subcargosData, usuariosData] =
+        const [areasData, cargosData, subcargosData] =
           await Promise.all([
             fetchAreas(empresaActual.id),
             fetchCargos(),
             fetchSubcargos(),
-            fetchUsuarios(),
           ]);
 
-        console.log('📊 Datos cargados:', { areasData, cargosData, subcargosData, usuariosData });
+        console.log('📊 Datos cargados:', { areasData, cargosData, subcargosData });
 
         setAreas(areasData);
         setCargos(
           cargosData.filter((c) => areasData.some((a) => a.id === c.area_id))
         );
         setSubcargos(subcargosData);
-        setUsuarios(
-          usuariosData.filter((u) => u.empresa_id === empresaActual.id)
-        );
+        setUsuarios([]); // Array vacío en lugar de filtrar usuariosData
         
         console.log('✅ Carga de datos completada exitosamente');
       } catch (e) {
         console.error("❌ Error cargando datos iniciales de la tabla:", e);
         console.error("❌ Stack trace:", e.stack);
         setEmpresaId(null);
-        setAreas([]); setCargos([]); setSubcargos([]); setUsuarios([]);
+        setAreas([]); setCargos([]); setSubcargos([]);
       }
     }
     loadAll();
@@ -391,7 +387,6 @@ export function Table() {
                         (c) => c.area_id === area.id && c.jerarquia_id === j
                       )}
                       subcargos={subcargos}
-                      usuarios={usuarios}
                       onClick={(c) => openRoleModal(area, c, j)}
                     />
                   </td>
