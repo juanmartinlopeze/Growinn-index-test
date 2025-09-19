@@ -11,7 +11,8 @@ const BASE = `
   focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2
   focus-visible:ring-[color:var(--color-primary-n200,#f6c3b1)]
   border
-  /* 👇 Estas clases son ESTÁTICAS; solo leen variables */
+
+  /* Solo leen variables (Tailwind no las purga) */
   bg-[var(--btn-bg)] border-[color:var(--btn-border)] text-[color:var(--btn-text)]
   hover:bg-[var(--btn-bg-hover)] hover:border-[color:var(--btn-border-hover)] hover:text-[color:var(--btn-text-hover)]
   active:bg-[var(--btn-bg-pressed)] active:border-[color:var(--btn-border-pressed)] active:text-[color:var(--btn-text-pressed)]
@@ -19,10 +20,10 @@ const BASE = `
   disabled:opacity-100 disabled:cursor-not-allowed
 `;
 
-// Mapa: qué prefijo usar según color/variant
+// Prefijo según color/variant (coincide con tus tokens)
 const PREFIX = (color, variant) => `--btn-${color}-${variant}-`;
 
-// Devuelve el objeto style con las 12 CSS vars que lee BASE
+// Mapea tokens → CSS vars usadas en BASE
 function styleFrom(prefix) {
   return {
     // default
@@ -55,12 +56,14 @@ export default function PrincipalButton({
 }) {
   const Comp = as;
   const prefix = PREFIX(color, variant);
-  const style = styleFrom(prefix);
+  const cssVars = styleFrom(prefix);
 
   return (
     <Comp
-      className={`${BASE} ${className}`}
-      style={style}
+      // ⚠️ Ponemos className primero y BASE al final (último gana)
+      className={`${className} ${BASE}`}
+      // Inline fallback para color por si alguna clase ajena pisa el texto
+      style={{ ...cssVars, color: "var(--btn-text)" }}
       disabled={as === "button" ? disabled : undefined}
       aria-disabled={as !== "button" ? disabled : undefined}
       {...rest}

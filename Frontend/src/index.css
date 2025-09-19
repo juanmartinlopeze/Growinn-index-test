@@ -300,15 +300,15 @@
     /* Fill */
     --btn-orange-fill-bg-default: var(--color-primary-n500, #e9683b);
     --btn-orange-fill-border-default: transparent;
-    --btn-orange-fill-text-default: var(--color-text-inverse, #ffffff);
+    --btn-orange-fill-text-default: #ffffff;
 
     --btn-orange-fill-bg-hover: var(--color-primary-600, #ba532f);
     --btn-orange-fill-border-hover: transparent;
-    --btn-orange-fill-text-hover: var(--color-text-inverse, #ffffff);
+    --btn-orange-fill-text-hover: #ffffff;
 
     --btn-orange-fill-bg-pressed: var(--color-primary-n700, #8c3e23);
     --btn-orange-fill-border-pressed: transparent;
-    --btn-orange-fill-text-pressed: var(--color-text-inverse, #ffffff);
+    --btn-orange-fill-text-pressed: #ffffff;
 
     --btn-orange-fill-bg-disabled: var(--color-neutral-100, #ededed);
     --btn-orange-fill-border-disabled: transparent;
@@ -335,94 +335,92 @@
 
 @layer base {
   :root {
-	/* ─────────────────────────── ICON BUTTON ─────────────────────────── */
+    /* ─────────────────────────── ICON BUTTON ─────────────────────────── */
     /* ───────── ICON BUTTON: BLACK ───────── */
     /* Fill */
     --iconbtn-black-fill-bg-default: var(--color-neutral-black, #000000);
     --iconbtn-black-fill-border-default: transparent;
-    --iconbtn-black-fill-icon-default: var(--color-neutral-white, #FFFFFF);
+    --iconbtn-black-fill-icon-default: var(--color-neutral-white, #ffffff);
 
     --iconbtn-black-fill-bg-hover: var(--color-neutral-800, #333333);
-    --iconbtn-black-fill-border-hover: var(--color-neutral-white, #FFFFFF);
-    --iconbtn-black-fill-icon-hover: var(--color-neutral-white, #FFFFFF);
+    --iconbtn-black-fill-border-hover: var(--color-neutral-white, #ffffff);
+    --iconbtn-black-fill-icon-hover: var(--color-neutral-white, #ffffff);
 
     --iconbtn-black-fill-bg-pressed: var(--color-neutral-600, #666666);
     --iconbtn-black-fill-border-pressed: transparent;
-    --iconbtn-black-fill-icon-pressed: var(--color-neutral-white, #FFFFFF);
+    --iconbtn-black-fill-icon-pressed: var(--color-neutral-white, #ffffff);
 
     --iconbtn-black-fill-bg-disabled: var(--color-neutral-400, #999999);
     --iconbtn-black-fill-border-disabled: transparent;
-    --iconbtn-black-fill-icon-disabled: var(--color-neutral-white, #FFFFFF);
+    --iconbtn-black-fill-icon-disabled: var(--color-neutral-white, #ffffff);
 
     /* Outline */
     --iconbtn-black-outline-bg-default: transparent;
     --iconbtn-black-outline-border-default: var(--color-neutral-800, #333333);
-    --iconbtn-black-outline-icon-default: var(--color-neutral-white, #FFFFFF);
+    --iconbtn-black-outline-icon-default: var(--color-neutral-white, #ffffff);
 
     --iconbtn-black-outline-bg-hover: transparent;
     --iconbtn-black-outline-border-hover: var(--color-neutral-800, #333333);
-    --iconbtn-black-outline-icon-hover: var(--color-neutral-white, #FFFFFF);
+    --iconbtn-black-outline-icon-hover: var(--color-neutral-white, #ffffff);
 
     --iconbtn-black-outline-bg-pressed: var(--color-neutral-600, #666666);
     --iconbtn-black-outline-border-pressed: var(--color-neutral-400, #999999);
-    --iconbtn-black-outline-icon-pressed: var(--color-neutral-white, #FFFFFF);
+    --iconbtn-black-outline-icon-pressed: var(--color-neutral-white, #ffffff);
 
     --iconbtn-black-outline-bg-disabled: transparent;
     --iconbtn-black-outline-border-disabled: var(--color-neutral-600, #666666);
-    --iconbtn-black-outline-icon-disabled: var(--color-neutral-white, #FFFFFF);
-
+    --iconbtn-black-outline-icon-disabled: var(--color-neutral-white, #ffffff);
 
     /* ───────── ICON BUTTON: ORANGE ───────── */
     /* Fill */
-    --iconbtn-orange-fill-bg-default: var(--color-primary-n500, #E9683B);
+    --iconbtn-orange-fill-bg-default: var(--color-primary-n500, #e9683b);
     --iconbtn-orange-fill-border-default: transparent;
-    --iconbtn-orange-fill-icon-default: var(--color-neutral-white, #FFFFFF);
+    --iconbtn-orange-fill-icon-default: var(--color-neutral-white, #ffffff);
 
-    --iconbtn-orange-fill-bg-hover: var(--color-primary-600, #BA532F);
+    --iconbtn-orange-fill-bg-hover: var(--color-primary-600, #ba532f);
     --iconbtn-orange-fill-border-hover: transparent;
-    --iconbtn-orange-fill-icon-hover: var(--color-neutral-white, #FFFFFF);
+    --iconbtn-orange-fill-icon-hover: var(--color-neutral-white, #ffffff);
 
-    --iconbtn-orange-fill-bg-pressed: var(--color-primary-n700, #8C3E23);
+    --iconbtn-orange-fill-bg-pressed: var(--color-primary-n700, #8c3e23);
     --iconbtn-orange-fill-border-pressed: transparent;
-    --iconbtn-orange-fill-icon-pressed: var(--color-neutral-white, #FFFFFF);
+    --iconbtn-orange-fill-icon-pressed: var(--color-neutral-white, #ffffff);
 
-    --iconbtn-orange-fill-bg-disabled: var(--color-neutral-100, #EDEDED);
+    --iconbtn-orange-fill-bg-disabled: var(--color-neutral-100, #ededed);
     --iconbtn-orange-fill-border-disabled: transparent;
-    --iconbtn-orange-fill-icon-disabled: var(--color-neutral-white, #FFFFFF);
+    --iconbtn-orange-fill-icon-disabled: var(--color-neutral-white, #ffffff);
 
     /* Outline */
     --iconbtn-orange-outline-bg-default: transparent;
-    --iconbtn-orange-outline-border-default: var(--color-primary-n500, #E9683B);
-    --iconbtn-orange-outline-icon-default: var(--color-neutral-white, #FFFFFF);
+    --iconbtn-orange-outline-border-default: var(--color-primary-n500, #e9683b);
+    --iconbtn-orange-outline-icon-default: var(--color-neutral-white, #ffffff);
 
     --iconbtn-orange-outline-bg-hover: transparent;
-    --iconbtn-orange-outline-border-hover: var(--color-primary-n600, #BA532F);
-    --iconbtn-orange-outline-icon-hover: var(--color-neutral-white, #FFFFFF);
+    --iconbtn-orange-outline-border-hover: var(--color-primary-n600, #ba532f);
+    --iconbtn-orange-outline-icon-hover: var(--color-neutral-white, #ffffff);
 
-    --iconbtn-orange-outline-bg-pressed: var(--color-primary-n100, #FBE1D8);
-    --iconbtn-orange-outline-border-pressed: var(--color-primary-n500, #E9683B);
-    --iconbtn-orange-outline-icon-pressed: var(--color-neutral-white, #FFFFFF);
+    --iconbtn-orange-outline-bg-pressed: var(--color-primary-n100, #fbe1d8);
+    --iconbtn-orange-outline-border-pressed: var(--color-primary-n500, #e9683b);
+    --iconbtn-orange-outline-icon-pressed: var(--color-neutral-white, #ffffff);
 
-    --iconbtn-orange-outline-bg-disabled: var(--color-primary-n200, #F6C3B1);
+    --iconbtn-orange-outline-bg-disabled: var(--color-primary-n200, #f6c3b1);
     --iconbtn-orange-outline-border-disabled: transparent;
     --iconbtn-orange-outline-icon-disabled: var(--color-neutral-400, #999999);
 
-
     /* ───────── ICON BUTTON: WHITE ───────── */
     /* Fill */
-    --iconbtn-white-fill-bg-default: var(--color-neutral-white, #FFFFFF);
-    --iconbtn-white-fill-border-default: var(--color-neutral-100, #EDEDED);
+    --iconbtn-white-fill-bg-default: var(--color-neutral-white, #ffffff);
+    --iconbtn-white-fill-border-default: var(--color-neutral-100, #ededed);
     --iconbtn-white-fill-icon-default: var(--color-neutral-black, #000000);
 
-    --iconbtn-white-fill-bg-hover: var(--color-neutral-white, #FFFFFF);
+    --iconbtn-white-fill-bg-hover: var(--color-neutral-white, #ffffff);
     --iconbtn-white-fill-border-hover: var(--color-neutral-800, #333333);
     --iconbtn-white-fill-icon-hover: var(--color-neutral-black, #000000);
 
-    --iconbtn-white-fill-bg-pressed: var(--color-neutral-100, #EDEDED);
+    --iconbtn-white-fill-bg-pressed: var(--color-neutral-100, #ededed);
     --iconbtn-white-fill-border-pressed: transparent;
     --iconbtn-white-fill-icon-pressed: var(--color-neutral-black, #000000);
 
-    --iconbtn-white-fill-bg-disabled: var(--color-neutral-100, #EDEDED);
+    --iconbtn-white-fill-bg-disabled: var(--color-neutral-100, #ededed);
     --iconbtn-white-fill-border-disabled: transparent;
     --iconbtn-white-fill-icon-disabled: var(--color-neutral-400, #999999);
 
@@ -435,7 +433,7 @@
     --iconbtn-white-outline-border-hover: var(--color-neutral-800, #333333);
     --iconbtn-white-outline-icon-hover: var(--color-neutral-black, #000000);
 
-    --iconbtn-white-outline-bg-pressed: var(--color-neutral-100, #EDEDED);
+    --iconbtn-white-outline-bg-pressed: var(--color-neutral-100, #ededed);
     --iconbtn-white-outline-border-pressed: var(--color-neutral-800, #333333);
     --iconbtn-white-outline-icon-pressed: var(--color-neutral-black, #000000);
 
@@ -443,40 +441,87 @@
     --iconbtn-white-outline-border-disabled: var(--color-neutral-400, #999999);
     --iconbtn-white-outline-icon-disabled: var(--color-neutral-400, #999999);
 
-
     /* ───────── ICON BUTTON: ORANGE-REVERSE ───────── */
     /* Fill */
-    --iconbtn-orange-reverse-fill-bg-default: var(--color-neutral-white, #FFFFFF);
+    --iconbtn-orange-reverse-fill-bg-default: var(
+      --color-neutral-white,
+      #ffffff
+    );
     --iconbtn-orange-reverse-fill-border-default: transparent;
-    --iconbtn-orange-reverse-fill-icon-default: var(--color-primary-n500, #E9683B);
+    --iconbtn-orange-reverse-fill-icon-default: var(
+      --color-primary-n500,
+      #e9683b
+    );
 
-    --iconbtn-orange-reverse-fill-bg-hover: var(--color-neutral-white, #FFFFFF);
-    --iconbtn-orange-reverse-fill-border-hover: var(--color-primary-n500, #E9683B);
-    --iconbtn-orange-reverse-fill-icon-hover: var(--color-primary-n500, #E9683B);
+    --iconbtn-orange-reverse-fill-bg-hover: var(--color-neutral-white, #ffffff);
+    --iconbtn-orange-reverse-fill-border-hover: var(
+      --color-primary-n500,
+      #e9683b
+    );
+    --iconbtn-orange-reverse-fill-icon-hover: var(
+      --color-primary-n500,
+      #e9683b
+    );
 
-    --iconbtn-orange-reverse-fill-bg-pressed: var(--color-neutral-100, #EDEDED);
+    --iconbtn-orange-reverse-fill-bg-pressed: var(--color-neutral-100, #ededed);
     --iconbtn-orange-reverse-fill-border-pressed: transparent;
-    --iconbtn-orange-reverse-fill-icon-pressed: var(--color-primary-n500, #E9683B);
+    --iconbtn-orange-reverse-fill-icon-pressed: var(
+      --color-primary-n500,
+      #e9683b
+    );
 
-    --iconbtn-orange-reverse-fill-bg-disabled: var(--color-neutral-100, #EDEDED);
+    --iconbtn-orange-reverse-fill-bg-disabled: var(
+      --color-neutral-100,
+      #ededed
+    );
     --iconbtn-orange-reverse-fill-border-disabled: transparent;
-    --iconbtn-orange-reverse-fill-icon-disabled: var(--color-neutral-400, #999999);
+    --iconbtn-orange-reverse-fill-icon-disabled: var(
+      --color-neutral-400,
+      #999999
+    );
 
     /* Outline */
     --iconbtn-orange-reverse-outline-bg-default: transparent;
-    --iconbtn-orange-reverse-outline-border-default: var(--color-neutral-400, #999999);
-    --iconbtn-orange-reverse-outline-icon-default: var(--color-primary-n500, #E9683B);
+    --iconbtn-orange-reverse-outline-border-default: var(
+      --color-neutral-400,
+      #999999
+    );
+    --iconbtn-orange-reverse-outline-icon-default: var(
+      --color-primary-n500,
+      #e9683b
+    );
 
     --iconbtn-orange-reverse-outline-bg-hover: transparent;
-    --iconbtn-orange-reverse-outline-border-hover: var(--color-primary-n500, #E9683B);
-    --iconbtn-orange-reverse-outline-icon-hover: var(--color-primary-n500, #E9683B);
+    --iconbtn-orange-reverse-outline-border-hover: var(
+      --color-primary-n500,
+      #e9683b
+    );
+    --iconbtn-orange-reverse-outline-icon-hover: var(
+      --color-primary-n500,
+      #e9683b
+    );
 
-    --iconbtn-orange-reverse-outline-bg-pressed: var(--color-neutral-100, #EDEDED);
-    --iconbtn-orange-reverse-outline-border-pressed: var(--color-primary-n500, #E9683B);
-    --iconbtn-orange-reverse-outline-icon-pressed: var(--color-primary-n500, #E9683B);
+    --iconbtn-orange-reverse-outline-bg-pressed: var(
+      --color-neutral-100,
+      #ededed
+    );
+    --iconbtn-orange-reverse-outline-border-pressed: var(
+      --color-primary-n500,
+      #e9683b
+    );
+    --iconbtn-orange-reverse-outline-icon-pressed: var(
+      --color-primary-n500,
+      #e9683b
+    );
 
     --iconbtn-orange-reverse-outline-bg-disabled: transparent;
-    --iconbtn-orange-reverse-outline-border-disabled: var(--color-neutral-400, #999999);
-    --iconbtn-orange-reverse-outline-icon-disabled: var(--color-neutral-400, #999999);
+    --iconbtn-orange-reverse-outline-border-disabled: var(
+      --color-neutral-400,
+      #999999
+    );
+    --iconbtn-orange-reverse-outline-icon-disabled: var(
+      --color-neutral-400,
+      #999999
+    );
   }
 }
