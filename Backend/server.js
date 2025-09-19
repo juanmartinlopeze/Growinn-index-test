@@ -6,16 +6,38 @@ const uploadRouter = require('./routes/uploadExcel')
 const surveyRouter = require('./routes/survey')
 const excelRouter = require('./routes/excelroute')
 
-const app = express()
-app.use(express.json())
+const app = express();
+app.use(express.json());
 
-app.use(
-	cors({
-		origin: ['http://localhost:5173', 'http://localhost:3000'],
-		methods: ['GET', 'POST', 'PUT', 'DELETE'],
-		allowedHeaders: ['Content-Type', 'Authorization'],
-	})
-)
+/* ===== CORS robusto por variables =====
+   Configura en Render (Backend → Environment Variables):
+   FRONTEND_ORIGIN=https://growinn-index.onrender.com
+   ADDITIONAL_ORIGINS=http://localhost:5173,http://localhost:3000   (opcional)
+*/
+const listFromEnv = (v) =>
+  (v || '').split(',').map(s => s.trim()).filter(Boolean);
+
+const allowlist = [
+  ...listFromEnv(process.env.FRONTEND_ORIGIN),
+  ...listFromEnv(process.env.ADDITIONAL_ORIGINS),
+];
+
+// policy: permite healthchecks y server-to-server (sin Origin)
+const corsOptions = {
+  origin(origin, cb) {
+    if (!origin) return cb(null, true);
+    if (allowlist.includes(origin)) return cb(null, true);
+    return cb(new Error(`Not allowed by CORS: ${origin}`));
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  exposedHeaders: ['Content-Length'],
+};
+app.use(cors(corsOptions));
+app.use((_, res, next) => { res.setHeader('Vary', 'Origin'); next(); });
+// Preflight global
+app.options('*', cors(corsOptions));
 
 app.use('/', uploadRouter)
 app.use('/', excelRouter)
