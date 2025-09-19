@@ -16,6 +16,7 @@ import {
 } from "../../components/index";
 import "./areas_form.css";
 
+const API_BASE = (import.meta.env.VITE_API_URL || "http://localhost:3000").replace(/\/$/, "");
 export function AreasForm() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -91,7 +92,7 @@ export function AreasForm() {
     console.log("📦 Payload que se envía al backend:", payload);
 
     try {
-      const res = await fetch("http://localhost:3000/empresas", {
+      const res = await fetch(`${API_BASE}/empresas`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),

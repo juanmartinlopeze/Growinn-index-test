@@ -4,8 +4,7 @@ import { Button, Table, TitleSection } from "../../components/index";
 import { useNavigate } from "react-router-dom";
 import "./datos_prueba.css";
 
-const API_BASE = (import.meta.env.VITE_API_URL ).replace(/\/$/, "");
-
+const API_BASE = (import.meta.env.VITE_API_URL || "http://localhost:3000").replace(/\/$/, "");
 export function DatosPrueba() {
   const [empleados, setEmpleados] = useState(0);
   const navigate = useNavigate();
