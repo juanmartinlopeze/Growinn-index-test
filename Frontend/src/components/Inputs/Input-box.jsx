@@ -1,6 +1,6 @@
 import './Input.css'
 
-export function InputBox({ placeholder, type = 'text', name, value, required = false }) {
+export function InputBox({ placeholder, type = 'text', name, value, required = false, onChange }) {
 	const inputId = `input-${name}`
 
 	return (
@@ -14,6 +14,7 @@ export function InputBox({ placeholder, type = 'text', name, value, required = f
 					placeholder={placeholder}
 					value={value}
 					required={required}
+					onChange={onChange}
 				/>
 			</div>
 		</div>
