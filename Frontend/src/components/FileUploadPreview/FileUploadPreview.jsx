@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import "./FileUploadPreview.css";
+import PrincipalButton from "../UiButtons/PrincipalButton";
 
 const excelIcon = (
   <svg
@@ -83,13 +84,13 @@ export const FileUploadPreview = ({ onFileChange, file, accept }) => {
 
   const renderFileActions = () => (
     <div className="file-actions">
-      <button
-        type="button"
-        className="change-file-button"
+      <PrincipalButton
+        variant="fill"
+        color="white"
         onClick={() => document.getElementById("file-upload").click()}
       >
         Remplazar
-      </button>
+      </PrincipalButton>
     </div>
   );
 
