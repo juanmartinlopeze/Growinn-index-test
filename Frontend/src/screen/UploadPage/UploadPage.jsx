@@ -9,6 +9,8 @@ import {
 import { useEmpresaData } from "../../components/Table/useEmpresaData";
 import "./UploadPage.css";
 
+const BASE_URL = (import.meta.env.VITE_API_URL || 'http://localhost:3000').replace(/\/$/, '');
+
 export function UploadPage() {
   const { empresaId } = useEmpresaData();
   const [file, setFile] = useState(null);
@@ -44,18 +46,15 @@ export function UploadPage() {
     formData.append("empresaId", empresaId);
 
     try {
-      const res = await fetch("http://localhost:3000/upload-excel", {
-        method: "POST",
+
+      const res = await fetch(`${BASE_URL}/upload-excel`, {
+        method: 'POST',
         body: formData,
       });
       const body = await res.json().catch(() => ({}));
       console.log("RESPUESTA BACKEND:", res.status, body);
-
-      // 1) Caso “no hay filas válidas”: navegamos a ValidationPage con warning genérico
-      if (
-        !res.ok &&
-        body.error === "No se encontraron filas válidas en el Excel."
-      ) {
+      // 1) Caso "no hay filas válidas": navegamos a ValidationPage con warning genérico
+      if (!res.ok && body.error === 'No se encontraron filas válidas en el Excel.') {
         const warnings = [
           {
             row: null,
@@ -68,7 +67,7 @@ export function UploadPage() {
         return;
       }
 
-      // 2) Caso “array de warnings puntuales”
+      // 2) Caso "array de warnings puntuales"
       if (!res.ok) {
         if (Array.isArray(body.warnings)) {
           setExcelWarnings(body.warnings);
@@ -77,8 +76,8 @@ export function UploadPage() {
           });
           return;
         }
-        // 2b) Si no entró en warnings ni en “no filas válidas”, lanzo excepción:
-        throw new Error(body.error || "Error desconocido");
+        // 2b) Si no entró en warnings ni en "no filas válidas", lanzo excepción:
+        throw new Error(body.error || 'Error desconocido')
       }
 
       // 3) Éxito (res.ok === true):

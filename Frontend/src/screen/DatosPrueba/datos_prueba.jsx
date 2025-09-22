@@ -4,31 +4,43 @@ import { Button, Table, TitleSection } from "../../components/index";
 import { useNavigate } from "react-router-dom";
 import "./datos_prueba.css";
 
+const BASE_URL = (import.meta.env.VITE_API_URL || "http://localhost:3000").replace(/\/$/, "");
 export function DatosPrueba() {
-  const [empleados, setEmpleados] = useState(0); // Número total de empleados
+  const [empleados, setEmpleados] = useState(0);
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch("http://localhost:3000/empresas"); // Endpoint para obtener los datos
-        if (response.ok) {
-          const data = await response.json(); // Datos obtenidos del backend
-          if (data.length > 0) {
-            const latestData = data[data.length - 1]; // Obtener el último registro (el más reciente)
-            setEmpleados(latestData.cantidad_empleados); // Cambiado a "cantidad_empleados"
-          } else {
-            console.warn(
-              "No se encontraron datos en la respuesta del backend."
-            );
-          }
-        } else {
-          console.error(
-            `Error al obtener los datos del backend: ${response.status} ${response.statusText}`
-          );
+        console.log('🔗 Conectando a:', `${BASE_URL}/empresas`);
+        
+        const resp = await fetch(`${BASE_URL}/empresas`, {
+          headers: { "Content-Type": "application/json" },
+          // credentials: "include", // actívalo si usas cookies/sesión
+        });
+        
+        console.log('📡 Respuesta:', resp.status, resp.statusText);
+        
+        if (!resp.ok) {
+          const errorText = await resp.text();
+          console.error('❌ Error response:', errorText);
+          throw new Error(`HTTP ${resp.status}: ${errorText}`);
         }
-      } catch (error) {
-        console.error("Error al conectar con el servidor:", error);
+        
+        const data = await resp.json();
+        console.log('📊 Datos recibidos:', data);
+
+        if (Array.isArray(data) && data.length) {
+          const latest = data[data.length - 1];
+          setEmpleados(latest.cantidad_empleados ?? 0);
+        } else {
+          console.warn("Respuesta vacía de /empresas");
+          setEmpleados(0);
+        }
+      } catch (err) {
+        console.error("❌ Error obteniendo /empresas:", err);
+        // Mostrar error al usuario
+        setEmpleados(0);
       }
     };
 
@@ -37,6 +49,12 @@ export function DatosPrueba() {
 
   return (
     <>
+      <StepBreadcrumb
+        steps={["1", "2", "3", "4"]}
+        currentStep={2}
+        clickableSteps={[0, 1]}
+        onStepClick={(idx) => idx === 0 && navigate("/innlab_form")}
+      />
       <section className="container">
         <StepBreadcrumb
           steps={["Jerarquías y cargos", "Áreas", "Tabla de jerarquías"]}
@@ -47,8 +65,7 @@ export function DatosPrueba() {
           }}
         />
         <TitleSection title="Tabla de Jerarquías y áreas" />
-        <Table />
-
+        <Table empleados={empleados} />
         <section className="navigation-buttons">
           <Button variant="back" to="/innlab_form" />
           <Button variant="next" text="Siguiente" to="/download_page" />
