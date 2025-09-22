@@ -23,10 +23,6 @@ import EditRoleModal from "./EditRoleModal";
 import RoleCell from "./RoleCell";
 import "./Table.css";
 import { useEmpresaData } from "./useEmpresaData";
-import {
-  saveStepData,
-  loadStepData,
-} from "../../components/Utils/breadcrumbUtils";
 
 // 👉 usa BASE_URL (no API_BASE)
 const BASE_URL = (import.meta.env.VITE_API_URL || "http://localhost:3000").replace(/\/$/, "");
