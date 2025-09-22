@@ -4,34 +4,31 @@
 	flex-direction: column;
 	justify-content: center;
 	align-items: center;
-	padding: 20px 0;
 }
 
 table {
 	table-layout: auto;
 	width: 100%;
 	border-collapse: collapse;
+	margin: 20px 0;
 }
 
 th,
 td {
-	min-width: 200px;
-	max-width: 400px;
+	padding: 8px;
 	text-align: center;
-	padding: 10px;
-}
-
-.area-row {
-	background-color: #f2f2f2;
-	border-radius: 30px;
-	border: 8px solid white;
-	padding: 4px 16px;
+	/* border: 1px solid #ddd; --> GUIA*/
 }
 
 .area-name {
 	display: flex;
 	justify-content: space-between;
-	width: 180px;
+	align-items: center;
+	width: 100%;
+	height: 40px;
+	background-color: #f2f2f2;
+	border-radius: 8px;
+	padding: 12px;
 }
 
 .area-name p {
@@ -47,11 +44,10 @@ td {
 	height: 19px;
 }
 
-.jerarquia {
+.tooltip-jerarquia {
 	background-color: #f2f2f2;
-	border-radius: 30px;
-	border: 8px solid white;
-	padding: 4px 32px;
+	border-radius: 8px;
+	padding: 8px;
 	font-weight: 400;
 }
 
@@ -63,7 +59,7 @@ td {
 }
 
 .jerarquia p {
-	font-size: 38px;
+	font-size: 18px;
 	font-weight: 100;
 }
 
@@ -72,15 +68,15 @@ td {
 }
 
 td button {
-	width: 180px;
-	max-width: 180px;
+	height: 40px;
+	width: 100%;
 	padding: 8px 0;
 	background: #ffffff;
 	border: 2px solid #f56f10;
 	color: #f56f10;
 	font-size: 16px;
 	font-weight: bold;
-	border-radius: 20px;
+	border-radius: 8px;
 	cursor: pointer;
 	transition: 0.3s;
 	white-space: nowrap;
@@ -97,11 +93,12 @@ td button {
 
 td button:hover {
 	background: #f56f10;
-	color: #ffffff;
+	stroke: #ffffff;
+	fill: white;
 }
 
 td span {
-	width: 180px;
+	width: 100%;
 	display: flex;
 	justify-content: center;
 	align-items: center;
@@ -109,15 +106,13 @@ td span {
 	background-color: #f56f10;
 	color: #ffffff;
 	padding: 10px 20px;
-	border-radius: 50px;
+	border-radius: var(--radius-sm);
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
 }
 
 td span .role-name {
-	flex-shrink: 1;
-	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
 	font-weight: bold;
@@ -158,13 +153,6 @@ td span .role-name {
 	display: block;
 	text-align: left;
 	font-weight: bold;
-}
-
-.modal-content input {
-	width: 100%;
-	padding: 8px;
-	border: 1px solid #ccc;
-	border-radius: 5px;
 }
 
 .modal-content form {

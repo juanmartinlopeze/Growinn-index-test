@@ -29,7 +29,7 @@ export function StepBreadcrumb({
           if (isActive) className += " active";
           if (isClickable) className += " clickable";
 
-          return (
+          return [
             <li
               key={step}
               className={className}
@@ -37,11 +37,18 @@ export function StepBreadcrumb({
               aria-current={isActive ? "step" : undefined}
             >
               {step}
-              {idx < steps.length - 1 && (
-                <span className="breadcrumb-separator">&gt;</span>
-              )}
-            </li>
-          );
+            </li>,
+            idx < steps.length - 1 && (
+              <li key={`chevron-${idx}`}>
+                <img
+                  src="/chevron-icons.png"
+                  alt="Chevron"
+                  className="breadcrumb-separator"
+                  style={{ width: "24px", height: "24px" }}
+                />
+              </li>
+            ),
+          ];
         })}
       </ul>
     </nav>

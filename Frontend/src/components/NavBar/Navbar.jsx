@@ -1,8 +1,7 @@
-import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "../../lib/supabaseClient";
-import "./Navbar.css";
+import PrincipalButton from "../UiButtons/PrincipalButton";
 
 const InnlabLogo = (
   <svg
@@ -339,6 +338,7 @@ const InnlabLogo = (
 
 export function NavBar() {
   const [user, setUser] = useState(null);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -365,66 +365,193 @@ export function NavBar() {
     navigate("/login");
   };
 
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
   return (
-    <nav className="navbar">
-      <div className="LogoContainer">
-        <Link to="/" className="logo-link">
-          {InnlabLogo}
-        </Link>
-      </div>
+    <nav className="fixed top-0 w-full bg-white z-10 shadow-lg">
+      {/* Desktop Menu */}
+      <div className="hidden md:flex justify-between items-center px-6 lg:px-24 py-6">
+        <div className="flex-shrink-0">
+          <Link to="/" className="block">
+            {InnlabLogo}
+          </Link>
+        </div>
 
-      <ul className="nav-links">
-        <li>
-          <a href="#Inicio">Inicio</a>
-        </li>
-        <li>
-          <a href="#Capacidades">Capacidades/líneas</a>
-        </li>
-        <li>
-          <a href="#Casos de exito">Casos de exito</a>
-        </li>
-        <li>
-          <a href="#Quienes somos">Quienes somos</a>
-        </li>
-        <li>
-          <a href="#Recursos">Recursos</a>
-        </li>
-        <li>
-          <a href="#Contact">Contacto</a>
-        </li>
-      </ul>
-
-      <div className="nav-login">
-        <ul>
-          <li>
-            {user ? (
-              <button
+        <ul className="flex items-center gap-5 list-none">
+          {user ? (
+            <li className="ml-2 flex items-center gap-5 !list-none pl-0 [&>li]:marker:content-none">
+              <PrincipalButton
+                color="orange"
+                variant="fill"
                 onClick={handleLogout}
-                style={{
-                  background: "none",
-                  border: "none",
-                  cursor: "pointer",
-                  font: "inherit",
-                }}
               >
                 Cerrar sesión
-              </button>
-            ) : (
-              <button
-                onClick={handleLogin}
-                style={{
-                  background: "none",
-                  border: "none",
-                  cursor: "pointer",
-                  font: "inherit",
-                }}
+              </PrincipalButton>
+            </li>
+          ) : (
+            <>
+              <li
+                className="opacity-60 hover:opacity-100 hover:text-[#ff4081] font-normal transition-all duration-300 ease-in-out cursor-pointer flex items-center gap-5 !list-none pl-0 [&>li]:marker:content-none"
+                style={{ color: "var(--color-text-primary)" }}
               >
-                Ingresar
-              </button>
-            )}
-          </li>
+                Inicio
+              </li>
+              <li
+                className="opacity-60 hover:opacity-100 hover:text-[#ff4081] font-normal transition-all duration-300 ease-in-out cursor-pointer flex items-center gap-5 !list-none pl-0 [&>li]:marker:content-none"
+                style={{ color: "var(--color-text-primary)" }}
+              >
+                Capacidades/líneas
+              </li>
+              <li
+                className="opacity-60 hover:opacity-100 hover:text-[#ff4081] font-normal transition-all duration-300 ease-in-out cursor-pointer flex items-center gap-5 !list-none pl-0 [&>li]:marker:content-none"
+                style={{ color: "var(--color-text-primary)" }}
+              >
+                Casos de exito
+              </li>
+              <li
+                className="opacity-60 hover:opacity-100 hover:text-[#ff4081] font-normal transition-all duration-300 ease-in-out cursor-pointer flex items-center gap-5 !list-none pl-0 [&>li]:marker:content-none"
+                style={{ color: "var(--color-text-primary)" }}
+              >
+                Quienes somos
+              </li>
+              <li
+                className="opacity-60 hover:opacity-100 hover:text-[#ff4081] font-normal transition-all duration-300 ease-in-out cursor-pointer flex items-center gap-5 !list-none pl-0 [&>li]:marker:content-none"
+                style={{ color: "var(--color-text-primary)" }}
+              >
+                Recursos
+              </li>
+              <li
+                className="opacity-60 hover:opacity-100 hover:text-[#ff4081] font-normal transition-all duration-300 ease-in-out cursor-pointer flex items-center gap-5 !list-none pl-0 [&>li]:marker:content-none"
+                style={{ color: "var(--color-text-primary)" }}
+              >
+                Contacto
+              </li>
+              <li className="ml-2 flex items-center gap-5 !list-none pl-0 [&>li]:marker:content-none">
+                <PrincipalButton
+                  color="orange"
+                  variant="fill"
+                  onClick={handleLogin}
+                >
+                  Ingresar
+                </PrincipalButton>
+              </li>
+            </>
+          )}
         </ul>
       </div>
+
+      {/* Mobile Menu */}
+      <div className="md:hidden flex justify-between items-center px-6 py-4">
+        <div className="flex-shrink-0">
+          <Link to="/" className="block">
+            <div className="w-32">{InnlabLogo}</div>
+          </Link>
+        </div>
+
+        {/* Hamburger Menu Button */}
+        <button
+          onClick={toggleMobileMenu}
+          className="flex flex-col justify-center items-center w-8 h-8 space-y-1"
+        >
+          <span
+            className={`block w-6 h-0.5 bg-black transition-transform ${
+              isMobileMenuOpen ? "rotate-45 translate-y-2" : ""
+            }`}
+            style={{ backgroundColor: "var(--color-text-primary)" }}
+          ></span>
+          <span
+            className={`block w-6 h-0.5 bg-black transition-opacity ${
+              isMobileMenuOpen ? "opacity-0" : ""
+            }`}
+            style={{ backgroundColor: "var(--color-text-primary)" }}
+          ></span>
+          <span
+            className={`block w-6 h-0.5 bg-black transition-transform ${
+              isMobileMenuOpen ? "-rotate-45 -translate-y-2" : ""
+            }`}
+            style={{ backgroundColor: "var(--color-text-primary)" }}
+          ></span>
+        </button>
+      </div>
+
+      {/* Mobile Menu Items */}
+      {isMobileMenuOpen && (
+        <div className="md:hidden bg-white border-t border-gray-200 px-6 py-4">
+          <ul className="flex flex-col space-y-4 list-none">
+            <li
+              className="opacity-60 hover:opacity-100 hover:text-[#ff4081] font-normal transition-all duration-300 ease-in-out cursor-pointer py-2 flex items-center gap-5 !list-none pl-0 [&>li]:marker:content-none"
+              style={{ color: "var(--color-text-primary)" }}
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              Inicio
+            </li>
+            <li
+              className="opacity-60 hover:opacity-100 hover:text-[#ff4081] font-normal transition-all duration-300 ease-in-out cursor-pointer py-2 flex items-center gap-5 !list-none pl-0 [&>li]:marker:content-none"
+              style={{ color: "var(--color-text-primary)" }}
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              Capacidades/líneas
+            </li>
+            <li
+              className="opacity-60 hover:opacity-100 hover:text-[#ff4081] font-normal transition-all duration-300 ease-in-out cursor-pointer py-2 flex items-center gap-5 !list-none pl-0 [&>li]:marker:content-none"
+              style={{ color: "var(--color-text-primary)" }}
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              Casos de exito
+            </li>
+            <li
+              className="opacity-60 hover:opacity-100 hover:text-[#ff4081] font-normal transition-all duration-300 ease-in-out cursor-pointer py-2 flex items-center gap-5 !list-none pl-0 [&>li]:marker:content-none"
+              style={{ color: "var(--color-text-primary)" }}
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              Quienes somos
+            </li>
+            <li
+              className="opacity-60 hover:opacity-100 hover:text-[#ff4081] font-normal transition-all duration-300 ease-in-out cursor-pointer py-2 flex items-center gap-5 !list-none pl-0 [&>li]:marker:content-none"
+              style={{ color: "var(--color-text-primary)" }}
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              Recursos
+            </li>
+            <li
+              className="opacity-60 hover:opacity-100 hover:text-[#ff4081] font-normal transition-all duration-300 ease-in-out cursor-pointer py-2 flex items-center gap-5 !list-none pl-0 [&>li]:marker:content-none"
+              style={{ color: "var(--color-text-primary)" }}
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              Contacto
+            </li>
+            <li className="pt-4 flex items-center gap-5 !list-none pl-0 [&>li]:marker:content-none">
+              {user ? (
+                <PrincipalButton
+                  color="orange"
+                  variant="fill"
+                  className="w-full"
+                  onClick={() => {
+                    handleLogout();
+                    setIsMobileMenuOpen(false);
+                  }}
+                >
+                  Cerrar sesión
+                </PrincipalButton>
+              ) : (
+                <PrincipalButton
+                  color="orange"
+                  variant="fill"
+                  className="w-full"
+                  onClick={() => {
+                    handleLogin();
+                    setIsMobileMenuOpen(false);
+                  }}
+                >
+                  Ingresar
+                </PrincipalButton>
+              )}
+            </li>
+          </ul>
+        </div>
+      )}
     </nav>
   );
 }

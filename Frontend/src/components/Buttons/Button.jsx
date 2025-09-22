@@ -1,114 +1,183 @@
+// src/components/buttons/Button.jsx
 import { useNavigate } from "react-router-dom";
-import "./Button.css";
+import PrincipalButton from "../UiButtons/PrincipalButton";
+import ActionButton from "../UiButtons/ActionButton";
+import RoleTagButton from "../UiButtons/RoleTagButton";
 
 export const Button = ({
-  variant = "default", // Variantes: back | next | download
+  variant = "default", // 'cancel' | 'delete' | 'submit' | 'next' | 'download' | 'back' | 'ok' | ...
   text,
-  to, //Invoca la función navigate
+  to,
   onClick,
   className = "",
-  icon,
+  disabled = false,
+
+  // Overrides opcionales
+  color, // ej: 'white' | 'orange' | 'n100'
+  uiVariant, // 'fill' | 'outline'
+
+  // Control de iconos para ActionButton
+  leftIcon, // boolean
+  rightIcon, // boolean
+  iconLeftType, // 'arrow' | 'download'
+  iconRightType, // 'arrow' | 'download'
+  arrowDirection = "right", // 'left' | 'right' | 'up' | 'down'
+
   ...props
 }) => {
   const navigate = useNavigate();
+  const join = (...xs) => xs.filter(Boolean).join(" ");
 
-  const joinClasses = (...classes) => classes.filter(Boolean).join(" ");
-
-  const handleClick = () => {
-    if (onClick) {
-      onClick();
-    } else if (to) {
-      navigate(to);
-    } else if (variant === "back") {
-      navigate(-1);
+  const handleClick = (e) => {
+    if (disabled) {
+      e.preventDefault();
+      return;
     }
+    if (onClick) onClick(e);
+    else if (to) navigate(to);
+    else if (variant === "back") navigate(-1);
   };
 
-  const renderContent = () => {
-    if (variant === "back") {
-      return (
-        <div className="button-content">
-          <span className="button-icon">
-            <img src={icon || "/arrow-left.png"} alt="Back Icon" />
-          </span>
-        </div>
-      );
-    }
+  // ─────────────────────────────────────────────────────────────
+  // 1) Variantes principales → PrincipalButton
+  // ─────────────────────────────────────────────────────────────
+  if (variant === "cancel" || variant === "delete" || variant === "submit") {
+    const map = {
+      cancel: { color: "white", uiVariant: "fill", label: "Cancelar" },
+      delete: { color: "n100", uiVariant: "fill", label: "Eliminar" },
+      submit: { color: "orange", uiVariant: "fill", label: "Guardar" },
+    };
+    const cfg = map[variant];
 
-    if (variant === "next") {
-      return (
-        <div className="button-content">
-          <span className="button-text">{text}</span>
-          <span className="button-icon">
-            <img src={icon || "/next-icon.png"} alt="Next Icon" />
-          </span>
-        </div>
-      );
-    }
+    return (
+      <div className={join("button-section", className)}>
+        <PrincipalButton
+          as="button"
+          color={color ?? cfg.color}
+          variant={uiVariant ?? cfg.uiVariant}
+          disabled={disabled}
+          onClick={handleClick}
+          {...props}
+        >
+          {text ?? cfg.label}
+        </PrincipalButton>
+      </div>
+    );
+  }
 
-    if (variant === "download") {
-      return (
-        <div className="button-content">
-          <span className="button-icon">
-            <img
-              src={icon || "/arrow-left.png"}
-              alt="Download Icon"
-              style={{ transform: "rotate(-90deg)" }}
-            />
-          </span>
-          <span className="button-text">{text}</span>
-        </div>
-      );
-    }
+  // ─────────────────────────────────────────────────────────────
+  // 2) Variantes de acción → ActionButton
+  // ─────────────────────────────────────────────────────────────
+  if (variant === "next") {
+    // Valores por defecto “de diseño” + posibilidad de override
+    const cfg = {
+      color: color ?? "white",
+      uiVariant: uiVariant ?? "fill",
+      leftIcon: leftIcon ?? false,
+      rightIcon: rightIcon ?? true,
+      iconLeftType: iconLeftType ?? "arrow",
+      iconRightType: iconRightType ?? "arrow",
+      arrowDirection,
+      label: text ?? "Siguiente",
+    };
 
-    if (variant === "submit") {
-      return <span className="button-text">{text || "Guardar"}</span>;
-    }
+    return (
+      <div className={join("button-section", className)}>
+        <ActionButton
+          color={cfg.color}
+          variant={cfg.uiVariant}
+          leftIcon={cfg.leftIcon}
+          rightIcon={cfg.rightIcon}
+          iconLeftType={cfg.iconLeftType}
+          iconRightType={cfg.iconRightType}
+          arrowDirection={cfg.arrowDirection}
+          disabled={disabled}
+          onClick={handleClick}
+          // burbuja derecha negra sólida por defecto (como definimos)
+          iconRightScheme={{ color: "black", variant: "fill" }}
+          {...props}
+        >
+          {cfg.label}
+        </ActionButton>
+      </div>
+    );
+  }
 
-    if (variant === "delete") {
-      return <span className="button-text">{text || "Eliminar"}</span>;
-    }
+  if (variant === "download") {
+    const cfg = {
+      color: color ?? "orange",
+      uiVariant: uiVariant ?? "fill",
+      leftIcon: leftIcon ?? true,
+      rightIcon: rightIcon ?? false,
+      iconLeftType: iconLeftType ?? "download",
+      iconRightType: iconRightType ?? "arrow",
+      arrowDirection,
+      label: text ?? "Descargar documento",
+    };
 
-    if (variant === "cancel") {
-      return <span className="button-text">{text || "Cancelar"}</span>;
-    }
+    return (
+      <div className={join("button-section", className)}>
+        <ActionButton
+          color={cfg.color}
+          variant={cfg.uiVariant}
+          leftIcon={cfg.leftIcon}
+          rightIcon={cfg.rightIcon}
+          iconLeftType={cfg.iconLeftType}
+          iconRightType={cfg.iconRightType}
+          arrowDirection={cfg.arrowDirection}
+          disabled={disabled}
+          onClick={handleClick}
+          {...props}
+        >
+          {cfg.label}
+        </ActionButton>
+      </div>
+    );
+  }
 
-    if (variant === "ok") {
-      return <span className="button-text">{text || "Ok"}</span>;
-    }
+  // ─────────────────────────────────────────────────────────────
+  // 3) Back → RoleTagButton
+  // ─────────────────────────────────────────────────────────────
+  if (variant === "back") {
+    return (
+      <div className={join("button-section", className)}>
+        <RoleTagButton onClick={handleClick} disabled={disabled} {...props} />
+      </div>
+    );
+  }
 
-    // Variante por defecto
-    return <span className="button-text">{text}</span>;
-  };
+  // ─────────────────────────────────────────────────────────────
+  // 4) Fallbacks simples (si los necesitas)
+  // ─────────────────────────────────────────────────────────────
+  if (variant === "ok") {
+    return (
+      <div className={join("button-section", className)}>
+        <PrincipalButton
+          as="button"
+          color="white"
+          variant="outline"
+          disabled={disabled}
+          onClick={handleClick}
+          {...props}
+        >
+          {text ?? "Ok"}
+        </PrincipalButton>
+      </div>
+    );
+  }
 
-  // Definir el atributo type dependiendo de la variante: 'submit' para guardar, o 'button' por defecto.
-  const defaultType = variant === "submit" ? "submit" : "button";
-
-  // Mapear variantes a clases CSS específicas para los nuevos estilos.
-  const variantClass = (() => {
-    switch (variant) {
-      case "submit":
-        return "submit-button";
-      case "delete":
-        return "delete-button";
-      case "cancel":
-        return "cancel-button";
-      case "ok":
-        return "ok-button";
-      default:
-        return variant; // Usa el mismo nombre de la variante para back, next, download, etc.
-    }
-  })();
-
+  // default plano
   return (
-    <section className={joinClasses("button-section", className)}>
+    <div className={join("button-section", className)}>
       <button
-        className={joinClasses("custom-button", variantClass)}
+        type="button"
+        className="custom-button"
+        disabled={disabled}
         onClick={handleClick}
         {...props}
       >
-        {renderContent()}
+        {text ?? "Button"}
       </button>
-    </section>
+    </div>
   );
 };

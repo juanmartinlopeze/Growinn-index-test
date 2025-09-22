@@ -1,3 +1,24 @@
+/* Estilos para el texto de arrastre */
+.fileupload-drag-text {
+	color: var(--Brand-Text-Body, #484848);
+	text-align: center;
+	font-family: "Plus Jakarta Sans";
+	font-size: var(--Versin-web-Contenido-Caption, 12px);
+	font-style: normal;
+	font-weight: 500;
+	line-height: normal;
+}
+
+/* Estilos para el texto de tamaño máximo */
+.fileupload-maxsize-text {
+	color: var(--Brand-Text-Caption, #8A8C8E);
+	text-align: center;
+	font-family: Arial;
+	font-size: var(--Versin-web-Contenido-Caption, 12px);
+	font-style: normal;
+	font-weight: 400;
+	line-height: normal;
+}
 .upload-container {
 	border: 2px dashed #5b9eff;
 	border-radius: 10px;
@@ -162,3 +183,5 @@
 	border-color: #ff4d4d;
 	background-color: rgba(255, 77, 77, 0.05);
 }
+
+.

@@ -1,14 +1,18 @@
-.title-main {
-	color: #090011;
-	font-size: 1.313rem;
-	font-weight: bold;
-	font-style: normal;
-	font-weight: bold;
-   text-align: left;
-}
-
 .title-section {
-   width: max-content;
-	border-bottom: 3px solid #f56f10;
-   margin-bottom: 1.3rem;
+  color: var(--Colors-Text-text-primary, #333);
+  font-family: "Plus Jakarta Sans";
+  font-size: var(--Versin-web-Titulos-H4, 24px);
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  text-decoration-line: underline;
+  text-decoration-style: solid;
+  text-decoration-skip-ink: none;
+  text-decoration-color: var(--Colors-Primary-color-n500, #e9683b);
+  text-decoration-thickness: 10.5%; /* 2.52px */
+  text-underline-offset: 25%; /* 6px */
+  text-underline-position: from-font;
+  text-align: left;
+  margin-left: 0;
+  align-self: flex-start;
 }

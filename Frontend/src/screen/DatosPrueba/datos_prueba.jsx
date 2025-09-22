@@ -56,6 +56,14 @@ export function DatosPrueba() {
         onStepClick={(idx) => idx === 0 && navigate("/innlab_form")}
       />
       <section className="container">
+        <StepBreadcrumb
+          steps={["Jerarquías y cargos", "Áreas", "Tabla de jerarquías"]}
+          currentStep={2} // Tercer paso
+          clickableSteps={[0, 1]} // Permite volver al paso 1 y 2
+          onStepClick={(idx) => {
+            if (idx === 0) navigate("/innlab_form");
+          }}
+        />
         <TitleSection title="Tabla de Jerarquías y áreas" />
         <Table empleados={empleados} />
         <section className="navigation-buttons">

@@ -1,6 +1,21 @@
+.breadcrumb-step {
+  padding: 0 12px;
+  color: var(--Colors-Text-text-primary, #333);
+  font-family: "Plus Jakarta Sans";
+  font-size: var(--Versin-web-Contenido-Caption, 12px);
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+  display: flex;
+  align-items: center;
+  gap: var(--padding-md, 12px);
+}
+
 .step-breadcrumb {
-  margin-top: 168px;
-  font-family: inherit;
+  display: flex;
+  width: 493px;
+  align-items: center;
+  gap: var(--padding-md, 12px);
 }
 
 .step-breadcrumb ul {
@@ -10,42 +25,7 @@
   margin: 0;
 }
 
-.breadcrumb-step {
-  padding: 0 12px;
-  color: #888;
-  font-weight: 500;
-  cursor: default;
-  text-decoration: none;
-  display: flex;
-  align-items: center;
-  transition: color 0.2s;
-}
-
-.breadcrumb-step.completed {
-  color: #2ecc40 !important; /* Verde para completados, prioridad alta */
-  font-weight: bold;
-  cursor: pointer;
-  text-decoration: none;
-}
-
 .breadcrumb-step.active {
-  color: #4b2eff;
-  font-weight: bold;
-  text-decoration: none;
-}
-
-.breadcrumb-step.clickable {
-  color: #4b2eff;
-  cursor: pointer;
-  text-decoration: none;
-}
-
-.breadcrumb-step.clickable:hover {
-  text-decoration: underline;
-}
-
-.breadcrumb-separator {
-  margin: 0 8px;
-  color: #bbb;
-  font-size: 1.1em;
+  color: #e9683b;
+  font-weight: 700; /* Opcional: para resaltar más */
 }

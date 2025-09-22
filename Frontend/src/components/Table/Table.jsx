@@ -1,8 +1,9 @@
 // Table.jsx
-import { useEffect, useState } from "react";
-import { useAlert } from "../Alerts/useAlert";
-import { Alert, FeedbackMessage, Tooltip } from "../index";
-import ProgressBar from "../ProgressBar/ProgressBar";
+import { useEffect, useState } from 'react'
+import { loadStepData, saveStepData } from '../../components/Utils/breadcrumbUtils'
+import { useAlert } from '../Alerts/useAlert'
+import { Alert, FeedbackMessage, Tooltip } from '../index'
+import ProgressBar from '../ProgressBar/ProgressBar'
 import {
   deleteCargo,
   deleteSubcargo,
@@ -452,4 +453,4 @@ export function Table() {
   );
 }
 
-export default Table;
+export default Table
