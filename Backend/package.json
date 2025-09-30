@@ -1,13 +1,11 @@
 {
-  "name": "growinn-backend",
+  "name": "backend",
   "version": "1.0.0",
-  "description": "Backend seguro para Growinn Index Test",
   "main": "server.js",
+  "engines": { "node": ">=18" },
   "scripts": {
     "start": "node server.js",
-    "dev": "NODE_ENV=development node server.js",
-    "prod": "NODE_ENV=production node server.js",
-    "generate-certs": "openssl req -x509 -newkey rsa:4096 -keyout certs/key.pem -out certs/cert.pem -days 365 -nodes -subj '/C=ES/ST=Madrid/L=Madrid/O=Growinn/OU=Development/CN=localhost'"
+    "dev": "nodemon server.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.49.4",

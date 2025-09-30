@@ -1,11 +1,27 @@
 .jerarquia-header {
-    width: max-content;
-    text-align: start;
-    margin-bottom: 20px;
+  width: max-content;
+  text-align: start;
+  margin-bottom: 20px;
 }
 
 .forms-container .form-areas {
-    display: flex;
-    flex-direction: column;
-    gap: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.areas-header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 26px;
+  align-self: stretch;
+}
+
+.areas-subtitle {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  align-self: stretch;
 }

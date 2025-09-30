@@ -1,0 +1,131 @@
+.login-container {
+	display: flex;
+	width: 100%;
+}
+
+.left-login-container {
+	width: 50%;
+	background: url('/register-login-bckg.png') no-repeat;
+	background-size: cover;
+	display: flex;
+	flex-direction: column;
+	align-items: start;
+	justify-content: center;
+	height: 100vh;
+	padding: 10%;
+	text-align: left;
+	gap: 2rem;
+}
+
+.left-login-container h1 {
+	font-size: 45px;
+	font-weight: 00;
+	color: #ffffff;
+	margin: 0;
+}
+
+.left-login-container span {
+	font-weight: 600;
+}
+
+.left-login-container p,
+.left-login-container ul {
+	font-size: 22px;
+	color: #ffffff;
+	line-height: 200%;
+}
+
+.right-login-success {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	height: 100vh;
+	gap: 2rem;
+	text-align: center;
+	width: 100%;
+}
+
+.right-login-container {
+	width: 50%;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	height: 100vh;
+	gap: 2rem;
+	padding: 15% 5% 10% 5%;
+	box-sizing: border-box;
+}
+
+.right-login-header {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 10px;
+}
+
+.right-login-title {
+	margin: 0;
+	font-size: 2rem;
+	font-weight: 600;
+	color: #090011;
+}
+
+.right-login-header p {
+	text-align: center;
+}
+
+.right-login-title span {
+	color: #f56f10;
+}
+
+.btn-toa {
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	gap: 1.9rem;
+}
+
+.right-login-footer {
+	font-size: 14px;
+	font-weight: 400;
+	color: #706f6f;
+}
+
+.right-login-footer span {
+	font-size: 14px;
+	font-weight: 500;
+	color: #f56f10;
+	margin-left: 5px;
+}
+
+.left-login-bottom-cards {
+	display: flex;
+	align-items: start;
+	justify-content: start;
+	gap: 1.5rem;
+	width: 100%;
+}
+
+.left-login-bottom-cards div {
+	background-color: rgba(255, 255, 255, 0.2);
+	padding: 1rem 1.5rem;
+	border-radius: 16px;
+	stroke: 1px solid rgba(255, 255, 255, 0.8);
+}
+
+.left-login-bottom-cards h1 {
+	font-size: 2rem;
+	font-weight: 600;
+	color: #ffffff;
+	margin: 0;
+}
+
+.left-login-bottom-cards p {
+	font-size: 1rem;
+	font-weight: 400;
+	color: #ffffff;
+	margin: 0;
+}

@@ -1,0 +1,94 @@
+.register-container {
+	display: flex;
+	width: 100%;
+}
+
+.left-register-container {
+	width: 50%;
+	background: url('/register-login-bckg.png') no-repeat;
+	background-size: cover;
+	display: flex;
+	flex-direction: column;
+	align-items: start;
+	justify-content: center;
+	height: 100vh;
+	padding: 10%;
+	text-align: left;
+	gap: 2rem;
+}
+
+.left-register-container h1 {
+	font-size: 45px;
+	font-weight: 00;
+	color: #ffffff;
+	margin: 0;
+}
+
+.left-register-container span {
+	font-weight: 600;
+}
+
+.left-register-container p,
+.left-register-container ul {
+	font-size: 22px;
+	color: #ffffff;
+	line-height: 200%;
+}
+
+.right-register-success {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	height: 100vh;
+	gap: 2rem;
+	text-align: center;
+	width: 100%;
+}
+
+.right-register-container {
+	width: 50%;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	height: 100vh;
+	gap: 2rem;
+	padding: 15% 10% 10% 10%;
+}
+
+.right-register-header {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 10px;
+}
+
+.right-register-title {
+	margin: 0;
+	font-size: 2rem;
+	font-weight: 600;
+	color: #090011;
+}
+
+.right-register-header p {
+	text-align: center;
+}
+
+.right-register-title span {
+	color: #f56f10;
+}
+
+.right-register-footer {
+	font-size: 14px;
+	font-weight: 400;
+	color: #706f6f;
+}
+
+.right-register-footer span {
+	font-size: 14px;
+	font-weight: 500;
+	color: #f56f10;
+	margin-left: 5px;
+}

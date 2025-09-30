@@ -1,0 +1,31 @@
+.breadcrumb-step {
+  padding: 0 12px;
+  color: var(--Colors-Text-text-primary, #333);
+  font-family: "Plus Jakarta Sans";
+  font-size: var(--Versin-web-Contenido-Caption, 12px);
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+  display: flex;
+  align-items: center;
+  gap: var(--padding-md, 12px);
+}
+
+.step-breadcrumb {
+  display: flex;
+  width: 493px;
+  align-items: center;
+  gap: var(--padding-md, 12px);
+}
+
+.step-breadcrumb ul {
+  display: flex;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.breadcrumb-step.active {
+  color: #e9683b;
+  font-weight: 700; /* Opcional: para resaltar más */
+}
