@@ -5,7 +5,7 @@ import ActionButton from "../UiButtons/ActionButton";
 import RoleTagButton from "../UiButtons/RoleTagButton";
 
 export const Button = ({
-  variant = "default", // 'cancel' | 'delete' | 'submit' | 'next' | 'download' | 'back' | 'ok' | ...
+  variant = "default", // 'cancel' | 'delete' | 'submit' | 'next' | 'download' | 'email' | 'analytics' | 'back' | 'ok' | ...
   text,
   to,
   onClick,
@@ -127,6 +127,72 @@ export const Button = ({
           arrowDirection={cfg.arrowDirection}
           disabled={disabled}
           onClick={handleClick}
+          {...props}
+        >
+          {cfg.label}
+        </ActionButton>
+      </div>
+    );
+  }
+
+  if (variant === "email") {
+    const cfg = {
+      color: color ?? "orange",
+      uiVariant: uiVariant ?? "fill",
+      leftIcon: leftIcon ?? true,
+      rightIcon: rightIcon ?? false,
+      iconLeftType: iconLeftType ?? "mail",
+      iconRightType: iconRightType ?? "arrow",
+      arrowDirection,
+      label: text ?? "Reenviar correos",
+    };
+
+    return (
+      <div className={join("button-section")}>
+        <ActionButton
+          color={cfg.color}
+          variant={cfg.uiVariant}
+          leftIcon={cfg.leftIcon}
+          rightIcon={cfg.rightIcon}
+          iconLeftType={cfg.iconLeftType}
+          iconRightType={cfg.iconRightType}
+          arrowDirection={cfg.arrowDirection}
+          disabled={disabled}
+          onClick={handleClick}
+          className={className}
+          {...props}
+        >
+          {cfg.label}
+        </ActionButton>
+      </div>
+    );
+  }
+
+  if (variant === "analytics") {
+    const cfg = {
+      color: color ?? "orange",
+      uiVariant: uiVariant ?? "fill",
+      leftIcon: leftIcon ?? true,
+      rightIcon: rightIcon ?? false,
+      iconLeftType: iconLeftType ?? "analytics",
+      iconRightType: iconRightType ?? "arrow",
+      arrowDirection,
+      label: text ?? "Analizar resultados",
+    };
+
+    return (
+      <div className={join("button-section")}>
+        <ActionButton
+          color={cfg.color}
+          variant={cfg.uiVariant}
+          leftIcon={cfg.leftIcon}
+          rightIcon={cfg.rightIcon}
+          iconLeftType={cfg.iconLeftType}
+          iconRightType={cfg.iconRightType}
+          arrowDirection={cfg.arrowDirection}
+          disabled={disabled}
+          onClick={handleClick}
+          className={className}
           {...props}
         >
           {cfg.label}

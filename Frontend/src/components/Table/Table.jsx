@@ -1,5 +1,5 @@
 // Table.jsx
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo, useCallback, memo } from 'react'
 import { loadStepData, saveStepData } from '../../components/Utils/breadcrumbUtils'
 import { useAlert } from '../Alerts/useAlert'
 import { Alert, FeedbackMessage, Tooltip } from '../index'
@@ -23,16 +23,17 @@ import EditRoleModal from "./EditRoleModal";
 import RoleCell from "./RoleCell";
 import "./Table.css";
 import { useEmpresaData } from "./useEmpresaData";
-import {
-  saveStepData,
-  loadStepData,
-} from "../../components/Utils/breadcrumbUtils";
 
 // 👉 usa BASE_URL (no API_BASE)
 const BASE_URL = (import.meta.env.VITE_API_URL || "http://localhost:3000").replace(/\/$/, "");
 
+// Memoizar componentes pesados
+const MemoizedRoleCell = memo(RoleCell);
+const MemoizedProgressBar = memo(ProgressBar);
+
 export function Table() {
   const [empresaId, setEmpresaId] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   const saved = loadStepData("step3") || {};
   const [areas, setAreas] = useState(saved.areas || []);
@@ -64,14 +65,16 @@ export function Table() {
   });
   const { alertInfo, showAlert } = useAlert();
 
-  // Métricas y recarga
+  // Estado de empresa actual
+  const [empresaData, setEmpresaData] = useState(null);
+
+  // Métricas calculadas
   const {
     empleadosPorJerarquia,
     jerarquiasPlaneadas,
     empleadosAsignados,
     totalEmpleados,
-    refetch,
-  } = useEmpresaData();
+  } = useEmpresaData(areas, cargos, subcargos, empresaData);
 
   const jerarquias = ["J1", "J2", "J3", "J4"];
 
@@ -89,63 +92,59 @@ export function Table() {
     J4: "La Jerarquía 4 (Directivo)",
   };
 
-  // Carga inicial de tabla
-  useEffect(() => {
-    async function loadAll() {
-      try {
-        console.log('🔄 Iniciando carga de datos de tabla...');
-        console.log('🔗 BASE_URL configurado:', BASE_URL);
-        console.log('🔗 VITE_API_URL:', import.meta.env.VITE_API_URL);
-        
-        console.log('📡 Llamando a fetchEmpresas...');
-        const empresas = await fetchEmpresas();
-        console.log('📊 Empresas recibidas:', empresas);
-        
-        if (!empresas || empresas.length === 0) {
-          console.warn('⚠️ No se encontraron empresas');
-          setEmpresaId(null);
-          setAreas([]); setCargos([]); setSubcargos([]);
-          return;
-        }
-        
-        const empresaActual = empresas[empresas.length - 1];
-        console.log('🏢 Empresa actual seleccionada:', empresaActual);
-        setEmpresaId(empresaActual.id);
-
-        console.log('📡 Cargando datos relacionados...');
-        const [areasData, cargosData, subcargosData] =
-          await Promise.all([
-            fetchAreas(empresaActual.id),
-            fetchCargos(),
-            fetchSubcargos(),
-          ]);
-
-        console.log('📊 Datos cargados:', { areasData, cargosData, subcargosData });
-
-        setAreas(areasData);
-        setCargos(
-          cargosData.filter((c) => areasData.some((a) => a.id === c.area_id))
-        );
-        setSubcargos(subcargosData);
-        
-        console.log('✅ Carga de datos completada exitosamente');
-      } catch (e) {
-        console.error("❌ Error cargando datos iniciales de la tabla:", e);
-        console.error("❌ Stack trace:", e.stack);
+  // Carga inicial de tabla optimizada
+  const loadAllData = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      console.log('🔄 Iniciando carga optimizada de datos...');
+      
+      const empresas = await fetchEmpresas();
+      if (!empresas?.length) {
         setEmpresaId(null);
-        setAreas([]); setCargos([]); setSubcargos([]); // ← Sin setUsuarios([])
+        setAreas([]); setCargos([]); setSubcargos([]);
+        return;
       }
+      
+      const empresaActual = empresas[empresas.length - 1];
+      setEmpresaId(empresaActual.id);
+      setEmpresaData(empresaActual);
+
+      // Carga paralela y optimizada
+      const [areasData, cargosData, subcargosData] = await Promise.all([
+        fetchAreas(empresaActual.id),
+        fetchCargos(),
+        fetchSubcargos(),
+      ]);
+
+      // Crear índices para filtrado rápido
+      const areaIds = new Set(areasData.map(a => a.id));
+      const cargosFiltrados = cargosData.filter(c => areaIds.has(c.area_id));
+
+      setAreas(areasData);
+      setCargos(cargosFiltrados);
+      setSubcargos(subcargosData);
+      
+      console.log('✅ Carga optimizada completada');
+    } catch (e) {
+      console.error("❌ Error cargando datos:", e);
+      setEmpresaId(null);
+      setAreas([]); setCargos([]); setSubcargos([]);
+    } finally {
+      setIsLoading(false);
     }
-    loadAll();
   }, []);
 
-  const openAreaModal = (index, name) => {
+  useEffect(() => {
+    loadAllData();
+  }, [loadAllData]);
+
+  const openAreaModal = useCallback((index, name) => {
     setAreaIndex(index);
     setAreaName(name);
     setAreaModal(true);
-  };
+  }, []);
 
-  const openRoleModal = (area, cargo, jerarquia) => {
+  const openRoleModal = useCallback((area, cargo, jerarquia) => {
     if (!area) return;
     setSelectedArea(area);
     setSelectedCargo(cargo || null);
@@ -162,7 +161,7 @@ export function Table() {
       }));
     setSubcargoList(actuales);
     setModal(true);
-  };
+  }, [subcargos]);
 
   const handleSaveAreaName = async () => {
     await updateArea(areas[areaIndex].id, areaName);
@@ -245,11 +244,7 @@ export function Table() {
       return;
     }
 
-    try {
-      await refetch();
-    } catch (e) {
-      console.warn("⚠️ Error refrescando métricas después de guardar:", e);
-    }
+    // Métricas se recalculan automáticamente por useMemo
 
     setModal(false);
   };
@@ -273,7 +268,7 @@ export function Table() {
       showAlert("error", "Error", "❌ Error al eliminar cargo");
     }
 
-    try { await refetch(); } catch (e) { console.warn("⚠️ Error refrescando métricas:", e); }
+    // Métricas se recalculan automáticamente
     setModal(false);
   };
 
@@ -318,6 +313,38 @@ export function Table() {
     setAreaModal(false);
   };
 
+  // Memoizar cálculos costosos
+  const cargosPorAreaYJerarquia = useMemo(() => {
+    const map = new Map();
+    cargos.forEach(cargo => {
+      const key = `${cargo.area_id}-${cargo.jerarquia_id}`;
+      map.set(key, cargo);
+    });
+    return map;
+  }, [cargos]);
+
+  const subcargosMap = useMemo(() => {
+    const map = new Map();
+    subcargos.forEach(sub => {
+      if (!map.has(sub.cargo_id)) {
+        map.set(sub.cargo_id, []);
+      }
+      map.get(sub.cargo_id).push(sub);
+    });
+    return map;
+  }, [subcargos]);
+
+  // Mostrar loading state
+  if (isLoading) {
+    return (
+      <div className="table-container">
+        <div className="loading-spinner">
+          <p>Cargando datos de la tabla...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
       <div className="table-container">
@@ -347,15 +374,14 @@ export function Table() {
             </tr>
           </thead>
           <tbody>
-            {areas.map((area, i) => (
-              <tr key={area.id}>
-                <th className="area-row">
-                  <div
-                    className="area-name"
-                    onClick={() => openAreaModal(i, area.nombre)}
-                  >
-                    {area.nombre}
-                    {
+            {areas.map((area, i) => {
+              const areaClickHandler = () => openAreaModal(i, area.nombre);
+              
+              return (
+                <tr key={area.id}>
+                  <th className="area-row">
+                    <div className="area-name" onClick={areaClickHandler}>
+                      {area.nombre}
                       <svg fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path
                           d="M10.4753 2.84195L2.17058 11.1467C1.84214 11.4752 1.53712 12.0851 1.46674 12.5309L1.021 15.698C0.856777 16.8475 1.65443 17.6451 2.80396 17.4809L5.97105 17.0352C6.41679 16.9648 7.0502 16.6598 7.35517 16.3313L15.66 8.02662C17.091 6.59557 17.7713 4.92992 15.66 2.81854C13.572 0.730617 11.9063 1.4109 10.4753 2.84195Z"
@@ -374,36 +400,37 @@ export function Table() {
                           strokeLinejoin="round"
                         />
                       </svg>
-                    }
-                  </div>
-                </th>
-                {jerarquias.map((j) => (
-                  <td key={j}>
-                    <RoleCell
-                      areaId={area.id}
-                      jerarquia={j}
-                      cargos={cargos.filter(
-                        (c) => c.area_id === area.id && c.jerarquia_id === j
-                      )}
-                      subcargos={subcargos}
-                      onClick={(c) => openRoleModal(area, c, j)}
-                    />
-                  </td>
-                ))}
-              </tr>
-            ))}
+                    </div>
+                  </th>
+                  {jerarquias.map((j) => {
+                    const cargo = cargosPorAreaYJerarquia.get(`${area.id}-${j}`);
+                    const roleClickHandler = () => openRoleModal(area, cargo, j);
+                    
+                    return (
+                      <td key={j}>
+                        <MemoizedRoleCell
+                          cargo={cargo}
+                          subcargos={cargo ? subcargosMap.get(cargo.id) || [] : []}
+                          onClick={roleClickHandler}
+                        />
+                      </td>
+                    );
+                  })}
+                </tr>
+              );
+            })}
           </tbody>
           <tfoot>
             <tr>
               <td className="area-column">
-                <ProgressBar
+                <MemoizedProgressBar
                   empleadosAsignados={empleadosAsignados}
                   empleadosPlaneados={totalEmpleados}
                 />
               </td>
               {jerarquias.map((j) => (
                 <td key={j}>
-                  <ProgressBar
+                  <MemoizedProgressBar
                     empleadosAsignados={empleadosPorJerarquia[j]}
                     empleadosPlaneados={jerarquiasPlaneadas[j]}
                   />
