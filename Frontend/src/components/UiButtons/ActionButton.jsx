@@ -95,6 +95,44 @@ const Download = ({ size = 16 }) => (
   </svg>
 );
 
+const Mail = ({ size = 16 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+    <path
+      d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <polyline
+      points="22,6 12,13 2,6"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+const Analytics = ({ size = 16 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+    <path
+      d="M3 3v18h18"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      d="m19 9-5 5-4-4-3 3"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
 /** Esquema de burbujas por defecto (según color/variant del contenedor) */
 function defaultIconSchemeFor(btnColor, btnVariant) {
   if (btnColor === "white") return { color: "black", variant: "fill" };
@@ -116,8 +154,8 @@ export default function ActionButton({
   // control de iconos
   leftIcon = false,
   rightIcon = false,
-  iconLeftType = "arrow", // 'arrow' | 'download'
-  iconRightType = "arrow", // 'arrow' | 'download'
+  iconLeftType = "arrow", // 'arrow' | 'download' | 'mail' | 'analytics'
+  iconRightType = "arrow", // 'arrow' | 'download' | 'mail' | 'analytics'
   arrowDirection = "right", // 'left' | 'right' | 'up' | 'down'
 
   // overrides opcionales para el esquema de los bubbles
@@ -153,6 +191,10 @@ export default function ActionButton({
         >
           {iconLeftType === "download" ? (
             <Download />
+          ) : iconLeftType === "mail" ? (
+            <Mail />
+          ) : iconLeftType === "analytics" ? (
+            <Analytics />
           ) : (
             <Arrow dir={arrowDirection} />
           )}
@@ -185,6 +227,10 @@ export default function ActionButton({
         >
           {iconRightType === "download" ? (
             <Download />
+          ) : iconRightType === "mail" ? (
+            <Mail />
+          ) : iconRightType === "analytics" ? (
+            <Analytics />
           ) : (
             <Arrow dir={arrowDirection} />
           )}
