@@ -7,10 +7,8 @@ Repositorio para el proyecto **Growing Index**.
 ## 📦 Requisitos
 
 Antes de ejecutar el proyecto, asegúrate de tener instalado:
-
 - **Node.js**
 - **Supabase**
-
 ---
 
 ## 🛠️ Instalación
