@@ -81,7 +81,16 @@ export function ValidationPage() {
     setSuccess(false);
 
     try {
-      const res = await fetch("http://localhost:3001/enviar-correos");
+      // Detectar si estamos en producción o desarrollo
+      const isProduction = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+      const mailServiceUrl = isProduction 
+        ? "https://growinn-mail-service.onrender.com/enviar-correos"
+        : "http://localhost:3001/enviar-correos";
+      
+      console.log("🌐 Enviando correos desde:", window.location.hostname);
+      console.log("📧 URL del servicio de mail:", mailServiceUrl);
+      
+      const res = await fetch(mailServiceUrl);
       if (!res.ok) throw new Error(`Status ${res.status}`);
       setSuccess(true);
     } catch (err) {
