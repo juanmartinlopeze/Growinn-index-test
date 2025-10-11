@@ -1,0 +1,11 @@
+# Render configuration for Mail Service
+# This file tells Render how to build and run the service
+
+# Build Command (if needed)
+# npm install
+
+# Start Command
+node mail/mailSender.js
+
+# Environment
+NODE_ENV=production
