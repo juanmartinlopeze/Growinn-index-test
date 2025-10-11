@@ -1,12 +1,22 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { StepBreadcrumb } from "../../components/StepBreadcrumb/breadcrumb";
-import { Button, Description, TitleSection } from "../../components/index";
+import {
+  Button,
+  Description,
+  TitleSection,
+  Alert,
+} from "../../components/index";
 
 export function EmailManagement() {
   const navigate = useNavigate();
 
   const [progress, setProgress] = useState(169);
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertType, setAlertType] = useState(null);
+  const [message, setMessage] = useState("");
+  const [messageType, setMessageType] = useState("info");
+  const [messageTitle, setMessageTitle] = useState("");
 
   const meta = 200;
 
@@ -72,22 +82,94 @@ export function EmailManagement() {
         <Button
           variant="email"
           text="Reenviar correos"
-          onClick={() => console.log("Reenviar correos")}
+          onClick={() => {
+            setAlertType("confirmResend");
+            setShowAlert(true);
+          }}
           className="w-[534px] shrink-0"
         />
 
         <Button
           variant="analytics"
           text="Analizar resultados"
-          onClick={() => console.log("Ver análisis")}
+          onClick={() => {
+            setAlertType("confirmAnalysis");
+            setShowAlert(true);
+          }}
           className="w-[534px] shrink-0"
         />
       </div>
+
+      {/** Toast flotante bottom-right para mensajes */}
+      {message && (
+        <div
+          className="fixed bottom-8 right-8 z-50"
+          style={{
+            display: "flex",
+            width: "386px",
+            height: "113px",
+            padding: "24px",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "flex-start",
+            gap: "8px",
+            flexShrink: 0,
+            borderRadius: "8px",
+            border: "1px solid #CCC",
+            background: "#FFF",
+            boxShadow: "0 4px 8px 0 rgba(0,0,0,0.12)",
+          }}
+        >
+          {messageType === "success" ? (
+            <div>
+              <h4 className="text-base font-medium text-gray-900 mb-1 text-left">
+                {messageTitle || "Correos reenviados"}
+              </h4>
+              <p className="text-sm text-gray-700 text-left">{message}</p>
+            </div>
+          ) : (
+            <p
+              className={`text-sm ${
+                messageType === "error"
+                  ? "text-semantic-error"
+                  : "text-gray-700"
+              }`}
+            >
+              {message}
+            </p>
+          )}
+        </div>
+      )}
 
       <section className="navigation-buttons">
         <Button variant="back" to="/upload_page" />
         <Button variant="next" text="Siguiente" to="/validation_page" />
       </section>
+
+      {showAlert && (
+        <Alert
+          type={alertType || "confirmResend"}
+          onClose={() => setShowAlert(false)}
+          onCancel={() => setShowAlert(false)}
+          onConfirm={async () => {
+            // manejar confirmaciones por tipo
+            if (alertType === "confirmResend") {
+              setMessageType("success");
+              setMessageTitle("Correos reenviados");
+              setMessage(
+                "Se han reenviado los correos a 75 participantes pendientes"
+              );
+            }
+            if (alertType === "confirmAnalysis") {
+              setMessageType("success");
+              setMessageTitle("Análisis iniciado");
+              setMessage("Generando reporte de resultados..");
+            }
+            setShowAlert(false);
+            setAlertType(null);
+          }}
+        />
+      )}
 
       <img className="line-bckg-img" src="/BgLine-decoration2.png" alt="" />
       <img className="line-bckg-img2" src="/BgLine-decoration3.png" alt="" />
