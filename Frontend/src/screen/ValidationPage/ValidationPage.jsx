@@ -155,9 +155,37 @@ export function ValidationPage() {
                 </div>
               </>
             ) : (
-              <p className="no-errors-message">
-                Validación completada: No se encontraron errores.
-              </p>
+              <div className="success-validation">
+                <p className="no-errors-message">
+                  ✅ Validación completada: No se encontraron errores.
+                </p>
+                <button
+                  onClick={handleSendEmails}
+                  disabled={loading}
+                  style={{ 
+                    marginTop: "1rem",
+                    backgroundColor: "#059669",
+                    color: "white",
+                    padding: "0.75rem 1.5rem",
+                    border: "none",
+                    borderRadius: "0.5rem",
+                    cursor: loading ? "not-allowed" : "pointer",
+                    fontSize: "1rem",
+                    fontWeight: "500"
+                  }}
+                >
+                  {loading ? "Enviando..." : "📧 Enviar correos de encuesta"}
+                </button>
+                
+                {error && (
+                  <p style={{ color: "red", marginTop: "0.5rem" }}>{error}</p>
+                )}
+                {success && (
+                  <p style={{ color: "green", marginTop: "0.5rem" }}>
+                    ✅ Correos enviados correctamente.
+                  </p>
+                )}
+              </div>
             )}
           </div>
 
@@ -168,23 +196,26 @@ export function ValidationPage() {
                 text="Regresar"
                 onClick={() => navigate(-1)}
               />
-              <Button
-                variant="next"
-                text="Corregir archivo"
-                onClick={() => navigate("/upload_page")}
-                rightIcon={true}
-                iconRightType="arrow"
-                arrowDirection="right"
-              />
+              {excelWarnings.length > 0 ? (
+                <Button
+                  variant="next"
+                  text="Corregir archivo"
+                  onClick={() => navigate("/upload_page")}
+                  rightIcon={true}
+                  iconRightType="arrow"
+                  arrowDirection="right"
+                />
+              ) : (
+                <Button
+                  variant="next"
+                  text="Finalizar proceso"
+                  onClick={() => navigate("/email_management")}
+                  rightIcon={true}
+                  iconRightType="arrow"
+                  arrowDirection="right"
+                />
+              )}
             </div>
-            {error && (
-              <p style={{ color: "red", marginTop: "0.5rem" }}>{error}</p>
-            )}
-            {success && (
-              <p style={{ color: "green", marginTop: "0.5rem" }}>
-                Correos enviados correctamente.
-              </p>
-            )}
           </div>
         </div>
       </div>
