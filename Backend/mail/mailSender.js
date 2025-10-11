@@ -23,6 +23,10 @@ app.use(express.json()); // Para parsear JSON en el body
 const PORT       = process.env.PORT || 3001;
 const mailerSend = new MailerSend({ apiKey: process.env.MAILERSEND_API_KEY });
 
+console.log("🔑 MailerSend API Key:", process.env.MAILERSEND_API_KEY ? "✅ Configurado" : "❌ No encontrado");
+console.log("📧 From Email:", process.env.FROM_EMAIL);
+console.log("🌐 Base URL:", process.env.BASE_URL);
+
 // Carga la plantilla _una sola vez_
 const templatePath = path.join(__dirname, 'template.html');
 const rawTemplate  = fs.readFileSync(templatePath, 'utf8');
@@ -60,6 +64,9 @@ app.get('/enviar-correos', async (req, res) => {
     if (!usuarios.length) return res.send('No hay usuarios con correo.');
 
     const from = new Sender(process.env.FROM_EMAIL, 'INNLAB');
+    console.log("📤 Preparando envío de correos...");
+    console.log("👥 Usuarios encontrados:", usuarios.length);
+    console.log("📧 Email remitente:", process.env.FROM_EMAIL);
 
     for (const user of usuarios) {
       // 2️⃣ Genera token y lo guarda en survey_tokens
@@ -90,10 +97,16 @@ app.get('/enviar-correos', async (req, res) => {
         .setHtml(htmlBody);
 
       try {
+        console.log(`📤 Intentando enviar correo a: ${user.correo}`);
         await mailerSend.email.send(emailParams);
-        console.log(`📤 Correo enviado a ${user.correo}`);
+        console.log(`✅ Correo enviado exitosamente a ${user.correo}`);
       } catch (err) {
-        console.error(`❌ Error enviando a ${user.correo}:`, err);
+        console.error(`❌ Error enviando a ${user.correo}:`, {
+          message: err.message,
+          status: err.statusCode,
+          body: err.body,
+          headers: err.headers
+        });
       }
     }
 

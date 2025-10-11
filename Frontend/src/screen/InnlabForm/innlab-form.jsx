@@ -15,6 +15,7 @@ import {
   saveStepData,
   loadStepData,
 } from "../../components/Utils/breadcrumbUtils";
+import { createEmpresa } from "../../lib/api";
 
 export function InnlabForm() {
   const navigate = useNavigate();
@@ -42,6 +43,7 @@ export function InnlabForm() {
   const [showAlert, setShowAlert] = useState(false);
   const [alertType, setAlertType] = useState("complete");
   const [alertMessage, setAlertMessage] = useState("");
+  const [isCreatingEmpresa, setIsCreatingEmpresa] = useState(false);
 
   const questions = [
     {
@@ -183,7 +185,7 @@ export function InnlabForm() {
     }));
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const isFormComplete = Object.values(formData).every((val) => {
       const s = val === null || val === undefined ? "" : String(val);
       return s.trim() !== "";
@@ -214,19 +216,45 @@ export function InnlabForm() {
       return;
     }
 
-    const totalAreas = Number(formData.areas);
+    try {
+      setIsCreatingEmpresa(true);
+      
+      // 🏢 Crear empresa en Supabase
+      console.log("🏢 Creando empresa con datos:", formData);
+      const empresaCreada = await createEmpresa(formData);
+      console.log("✅ Empresa creada con ID:", empresaCreada.id);
+      
+      // 💾 Guardar datos completos en localStorage incluyendo el ID
+      const empresaDataConId = {
+        ...formData,
+        id: empresaCreada.id,
+        empresa_id: empresaCreada.id
+      };
+      saveStepData("step1", empresaDataConId);
+      
+      const totalAreas = Number(formData.areas);
 
-    // Navegar manteniendo los datos en memoria, sin localStorage
-    navigate("/areas_form", {
-      state: {
-        totalAreas,
-        empleados: formData.empleados,
-        jerarquia1: formData.jerarquia1,
-        jerarquia2: formData.jerarquia2,
-        jerarquia3: formData.jerarquia3,
-        jerarquia4: formData.jerarquia4,
-      },
-    });
+      // Navegar con empresa_id real
+      navigate("/areas_form", {
+        state: {
+          totalAreas,
+          empleados: formData.empleados,
+          jerarquia1: formData.jerarquia1,
+          jerarquia2: formData.jerarquia2,
+          jerarquia3: formData.jerarquia3,
+          jerarquia4: formData.jerarquia4,
+          empresa_id: empresaCreada.id
+        },
+      });
+      
+    } catch (error) {
+      console.error("❌ Error creando empresa:", error);
+      setAlertType("error");
+      setAlertMessage("Error creando la empresa. Por favor, intenta de nuevo.");
+      setShowAlert(true);
+    } finally {
+      setIsCreatingEmpresa(false);
+    }
   };
 
   return (
@@ -275,8 +303,13 @@ export function InnlabForm() {
       </div>
 
       <div className="buttons-container">
-        <Button variant="back" onClick={() => navigate(-1)} />
-        <Button variant="next" text="Siguiente" onClick={handleSubmit} />
+        <Button variant="back" onClick={() => navigate(-1)} disabled={isCreatingEmpresa} />
+        <Button 
+          variant="next" 
+          text={isCreatingEmpresa ? "Creando empresa..." : "Siguiente"} 
+          onClick={handleSubmit} 
+          disabled={isCreatingEmpresa}
+        />
       </div>
 
       <img
