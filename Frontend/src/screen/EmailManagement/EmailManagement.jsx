@@ -78,6 +78,15 @@ export function EmailManagement() {
         </div>
       </div>
 
+      {/* Header strip for the table: left, 3 center, right */}
+      <div className="inline-flex items-center mt-8 mb-6" role="presentation">
+        <HeaderTable label="Área" variant="left" />
+        <HeaderTable label="J1" variant="center" />
+        <HeaderTable label="J2" variant="center" />
+        <HeaderTable label="J3" variant="center" />
+        <HeaderTable label="Completado" variant="right" />
+      </div>
+
       {/* Botones de acción */}
       <div className="flex w-[1125px] justify-between items-center mt-8">
         <Button
@@ -168,14 +177,6 @@ export function EmailManagement() {
       )}
 
       {/* Header strip for the table: left, 3 center, right */}
-      <div className="inline-flex items-center mt-8" role="presentation">
-        <HeaderTable label="Área" variant="left" />
-        <HeaderTable label="J1" variant="center" />
-        <HeaderTable label="J2" variant="center" />
-        <HeaderTable label="J3" variant="center" />
-        <HeaderTable label="Completado" variant="right" />
-      </div>
-
       <img className="line-bckg-img" src="/BgLine-decoration2.png" alt="" />
       <img className="line-bckg-img2" src="/BgLine-decoration3.png" alt="" />
       <img className="squares-bckg-img" src="/squaresBckg.png" alt="" />
