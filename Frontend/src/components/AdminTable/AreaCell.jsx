@@ -8,8 +8,7 @@ export default function AreaCell({ label }) {
       style={{
         width: AREA_WIDTH,
         height: ROW_HEIGHT,
-        gap: 10,
-        border: "1px solid #CCC",
+        border: "1px solid #E5E7EB",
         background: "#FFF",
         color: "#000",
         boxSizing: "border-box",

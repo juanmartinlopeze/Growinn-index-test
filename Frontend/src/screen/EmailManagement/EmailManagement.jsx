@@ -90,7 +90,7 @@ export function EmailManagement() {
           width: TOTAL_TABLE_WIDTH,
           flexDirection: "column",
           alignItems: "flex-start",
-          gap: 1,
+          gap: 0,
         }}
         className="mt-8 mb-6 mx-auto"
       >
@@ -107,7 +107,7 @@ export function EmailManagement() {
             display: "inline-flex",
             flexDirection: "column",
             alignItems: "flex-start",
-            gap: 1,
+            gap: 0,
           }}
         >
           <TableRowExample areaLabel="Área 1" percent={20} />
@@ -120,7 +120,7 @@ export function EmailManagement() {
         {/* Footer row */}
         <div
           className="inline-flex items-center w-full"
-          style={{ marginTop: 2 }}
+          style={{ marginTop: 0 }}
         >
           {/* Left: label */}
           <FooterTable variant="left">

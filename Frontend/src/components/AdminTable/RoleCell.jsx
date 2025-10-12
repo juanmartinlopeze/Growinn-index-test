@@ -12,7 +12,7 @@ export default function RoleCell({ total = 0, answered = 0 }) {
         padding: 12,
         gap: 10,
         flexShrink: 0,
-        border: "1px solid #CCC",
+        border: "1px solid #E5E7EB",
         background: "#FFF",
         boxSizing: "border-box",
       }}

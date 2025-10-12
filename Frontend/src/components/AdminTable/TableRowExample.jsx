@@ -13,7 +13,7 @@ export default function TableRowExample({
       className="inline-flex items-center"
       style={{
         width: TOTAL_TABLE_WIDTH,
-        gap: 1,
+        gap: 0,
       }}
     >
       <AreaCell label={areaLabel} />
