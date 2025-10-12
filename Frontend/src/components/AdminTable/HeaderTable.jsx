@@ -1,4 +1,10 @@
 import React from "react";
+import {
+  AREA_WIDTH,
+  ROLE_WIDTH,
+  COMPLETED_WIDTH,
+  HEADER_HEIGHT,
+} from "./columnSizes";
 
 /**
  * HeaderTable
@@ -14,7 +20,8 @@ export default function HeaderTable({ label = "", variant = "left" }) {
       <div
         className={`${baseClasses} flex items-center justify-center h-11 px-3 gap-2 flex-shrink-0 bg-neutral-100 border border-neutral-200`}
         style={{
-          width: 174,
+          width: ROLE_WIDTH,
+          height: HEADER_HEIGHT,
           borderRadius: 0,
         }}
       >
@@ -30,7 +37,8 @@ export default function HeaderTable({ label = "", variant = "left" }) {
       <div
         className={`${baseClasses} flex items-center justify-center h-11 px-3 gap-2 flex-shrink-0 bg-neutral-100 border border-neutral-200`}
         style={{
-          width: 230,
+          width: COMPLETED_WIDTH,
+          height: HEADER_HEIGHT,
           borderTopRightRadius: 8,
           borderBottomRightRadius: 0,
           borderTopLeftRadius: 0,
@@ -49,7 +57,8 @@ export default function HeaderTable({ label = "", variant = "left" }) {
     <div
       className={`${baseClasses} flex items-center h-11 px-3 gap-2 flex-shrink-0 bg-neutral-100 border border-neutral-200`}
       style={{
-        width: 190,
+        width: AREA_WIDTH,
+        height: HEADER_HEIGHT,
         borderTopLeftRadius: 8,
         borderBottomLeftRadius: 0,
         borderTopRightRadius: 0,

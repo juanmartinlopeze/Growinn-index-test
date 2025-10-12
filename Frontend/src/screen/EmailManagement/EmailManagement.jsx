@@ -1,6 +1,10 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import HeaderTable from "../../components/AdminTable/HeaderTable";
+import TableRowExample from "../../components/AdminTable/TableRowExample";
+import FooterTable from "../../components/AdminTable/FooterTable";
+import JerarquiaAverage from "../../components/AdminTable/JerarquiaAverage";
+import { TOTAL_TABLE_WIDTH } from "../../components/AdminTable/columnSizes";
 import { StepBreadcrumb } from "../../components/StepBreadcrumb/breadcrumb";
 import {
   Button,
@@ -79,12 +83,81 @@ export function EmailManagement() {
       </div>
 
       {/* Header strip for the table: left, 3 center, right */}
-      <div className="inline-flex items-center mt-8 mb-6" role="presentation">
-        <HeaderTable label="Área" variant="left" />
-        <HeaderTable label="J1" variant="center" />
-        <HeaderTable label="J2" variant="center" />
-        <HeaderTable label="J3" variant="center" />
-        <HeaderTable label="Completado" variant="right" />
+      {/* Table container: header + rows */}
+      <div
+        style={{
+          display: "flex",
+          width: TOTAL_TABLE_WIDTH,
+          flexDirection: "column",
+          alignItems: "flex-start",
+          gap: 1,
+        }}
+        className="mt-8 mb-6 mx-auto"
+      >
+        <div className="inline-flex items-center w-full" role="presentation">
+          <HeaderTable label="Área" variant="left" />
+          <HeaderTable label="J1" variant="center" />
+          <HeaderTable label="J2" variant="center" />
+          <HeaderTable label="J3" variant="center" />
+          <HeaderTable label="Completado" variant="right" />
+        </div>
+
+        <div
+          style={{
+            display: "inline-flex",
+            flexDirection: "column",
+            alignItems: "flex-start",
+            gap: 1,
+          }}
+        >
+          <TableRowExample areaLabel="Área 1" percent={20} />
+          <TableRowExample areaLabel="Área 2" percent={50} />
+          <TableRowExample areaLabel="Área 3" percent={40} />
+          <TableRowExample areaLabel="Área 4" percent={63} />
+          <TableRowExample areaLabel="Área 5" percent={55} />
+          <TableRowExample areaLabel="Área 6" percent={100} />
+        </div>
+        {/* Footer row */}
+        <div
+          className="inline-flex items-center w-full"
+          style={{ marginTop: 2 }}
+        >
+          {/* Left: label */}
+          <FooterTable variant="left">
+            <span style={{ fontFamily: "Plus Jakarta Sans", fontSize: 14 }}>
+              Total por jerarquía
+            </span>
+          </FooterTable>
+
+          {/* Compute simple averages for the demo rows above */}
+          {(() => {
+            // hard-coded sample percents from the example rows rendered above
+            const examplePercents = [20, 50, 40, 63, 55, 100];
+            // For demo, compute average percent per jerarquia (J1,J2,J3) using the same values
+            // In a real implementation we'd aggregate per-column metrics; here we'll derive three values
+            const avg = (arr) =>
+              Math.round(arr.reduce((s, v) => s + v, 0) / arr.length);
+            const avgJ1 = avg(examplePercents);
+            const avgJ2 = avg(examplePercents);
+            const avgJ3 = avg(examplePercents);
+            return (
+              <>
+                <FooterTable variant="center">
+                  <JerarquiaAverage percent={avgJ1} />
+                </FooterTable>
+                <FooterTable variant="center">
+                  <JerarquiaAverage percent={avgJ2} />
+                </FooterTable>
+                <FooterTable variant="center">
+                  <JerarquiaAverage percent={avgJ3} />
+                </FooterTable>
+              </>
+            );
+          })()}
+
+          {/* Right: empty */}
+          <FooterTable variant="right" />
+        </div>
       </div>
 
       {/* Botones de acción */}
