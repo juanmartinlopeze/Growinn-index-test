@@ -116,8 +116,13 @@ export function Register() {
 		const fd = new FormData(e.currentTarget)
 		const name = fd.get('name')
 		const email = fd.get('email')
-
 		const [password, confirmPassword] = fd.getAll('password')
+
+		const company = fd.get('company') || null
+		const organization_type = fd.get('organization_type') || null
+		const adress = fd.get('adress') || null
+		const category = fd.get('category') || null
+		const sector = fd.get('sector') || null
 
 		if (!email || !password) {
 			setMsg('Faltan datos.')
@@ -136,7 +141,14 @@ export function Register() {
 			email,
 			password,
 			options: {
-				data: { full_name: name },
+				data: {
+					full_name: name,
+					company,
+					organization_type,
+					adress,
+					category,
+					sector,
+				},
 				emailRedirectTo: `${location.origin}/auth/callback`,
 			},
 		})
