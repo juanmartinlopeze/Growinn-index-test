@@ -1,10 +1,16 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import HeaderTable from "../../components/AdminTable/HeaderTable";
 import TableRowExample from "../../components/AdminTable/TableRowExample";
 import FooterTable from "../../components/AdminTable/FooterTable";
 import JerarquiaAverage from "../../components/AdminTable/JerarquiaAverage";
 import { TOTAL_TABLE_WIDTH } from "../../components/AdminTable/columnSizes";
+import {
+  fetchEmpresas,
+  fetchAreas,
+  fetchCargos,
+  fetchSubcargos,
+} from "../../components/Table/api";
 import { StepBreadcrumb } from "../../components/StepBreadcrumb/breadcrumb";
 import {
   Button,
@@ -16,12 +22,99 @@ import {
 export function EmailManagement() {
   const navigate = useNavigate();
 
-  const [progress, setProgress] = useState(169);
+  const [progress] = useState(169);
   const [showAlert, setShowAlert] = useState(false);
   const [alertType, setAlertType] = useState(null);
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState("info");
   const [messageTitle, setMessageTitle] = useState("");
+  const [rows, setRows] = useState([]);
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const empresas = await fetchEmpresas();
+        if (!empresas || empresas.length === 0) {
+          setRows([]);
+          return;
+        }
+        const empresaActual = empresas[empresas.length - 1];
+        const [areas, cargos, subcargos] = await Promise.all([
+          fetchAreas(empresaActual.id),
+          fetchCargos(),
+          fetchSubcargos(),
+        ]);
+
+        const areaIds = new Set((areas || []).map((a) => a.id));
+
+        // Map cargos by areaId + jerarquia
+        const cargoMap = new Map();
+        (cargos || []).forEach((c) => {
+          if (!areaIds.has(c.area_id)) return;
+          const key = `${c.area_id}-${c.jerarquia_id}`;
+          cargoMap.set(key, c);
+        });
+
+        // Map subcargos by cargo_id
+        const subMap = new Map();
+        (subcargos || []).forEach((s) => {
+          if (!subMap.has(s.cargo_id)) subMap.set(s.cargo_id, []);
+          subMap.get(s.cargo_id).push(s);
+        });
+
+        const newRows = (areas || []).map((area) => {
+          const roles = ["J1", "J2", "J3"].map((j) => {
+            const key = `${area.id}-${j}`;
+            const cargo = cargoMap.get(key);
+            if (!cargo) return { answered: 0, total: 0, percent: 0 };
+            const subs = subMap.get(cargo.id) || [];
+            const total =
+              subs.length > 0
+                ? subs.reduce((s, x) => s + (x.personas || 0), 0)
+                : cargo.personas || 0;
+            // answered is unknown here (responses), default 0
+            const answered = 0;
+            const percent =
+              total > 0 ? Math.round((answered / total) * 100) : 0;
+            return { answered, total, percent };
+          });
+
+          const assignedSum = roles.reduce((s, r) => s + (r.total || 0), 0);
+          // percent of this area relative to total assigned across areas
+          const totalAssignedAll = (areas || []).reduce((s, a) => {
+            const rs = ["J1", "J2", "J3"].map((j) => {
+              const c = cargoMap.get(`${a.id}-${j}`);
+              if (!c) return 0;
+              const sub = subMap.get(c.id) || [];
+              return sub.length > 0
+                ? sub.reduce((ss, x) => ss + (x.personas || 0), 0)
+                : c.personas || 0;
+            });
+            return s + rs.reduce((ss, v) => ss + v, 0);
+          }, 0);
+
+          const percent =
+            totalAssignedAll > 0
+              ? Math.round((assignedSum / totalAssignedAll) * 100)
+              : 0;
+
+          return {
+            areaId: area.id,
+            areaLabel: area.nombre,
+            roles,
+            percent,
+          };
+        });
+
+        setRows(newRows);
+      } catch (err) {
+        console.error("Error cargando datos en EmailManagement:", err);
+        setRows([]);
+      }
+    }
+
+    load();
+  }, []);
 
   const meta = 200;
 
@@ -60,7 +153,7 @@ export function EmailManagement() {
           <Description
             variant="forms"
             text="En caso de ser necesario puedes reenviar los correos para llegar la meta establecida."
-          />
+          />  
         </div>
       </div>
 
@@ -83,7 +176,7 @@ export function EmailManagement() {
       </div>
 
       {/* Header strip for the table: left, 3 center, right */}
-      {/* Table container: header + rows */}
+      {/* Table container: header + rows (dynamic) */}
       <div
         style={{
           display: "flex",
@@ -110,52 +203,78 @@ export function EmailManagement() {
             gap: 0,
           }}
         >
-          <TableRowExample areaLabel="Área 1" percent={20} />
-          <TableRowExample areaLabel="Área 2" percent={50} />
-          <TableRowExample areaLabel="Área 3" percent={40} />
-          <TableRowExample areaLabel="Área 4" percent={63} />
-          <TableRowExample areaLabel="Área 5" percent={55} />
-          <TableRowExample areaLabel="Área 6" percent={100} />
+          {rows.length ? (
+            rows.map((row) => (
+              <TableRowExample
+                key={row.areaId}
+                areaLabel={row.areaLabel}
+                percent={row.percent}
+                roles={row.roles}
+              />
+            ))
+          ) : (
+            // fallback: show a few placeholders
+            <>
+              <TableRowExample areaLabel="Área 1" percent={0} />
+              <TableRowExample areaLabel="Área 2" percent={0} />
+            </>
+          )}
         </div>
+
         {/* Footer row */}
         <div
           className="inline-flex items-center w-full"
           style={{ marginTop: 0 }}
         >
-          {/* Left: label */}
           <FooterTable variant="left">
             <span style={{ fontFamily: "Plus Jakarta Sans", fontSize: 14 }}>
               Total por jerarquía
             </span>
           </FooterTable>
 
-          {/* Compute simple averages for the demo rows above */}
           {(() => {
-            // hard-coded sample percents from the example rows rendered above
-            const examplePercents = [20, 50, 40, 63, 55, 100];
-            // For demo, compute average percent per jerarquia (J1,J2,J3) using the same values
-            // In a real implementation we'd aggregate per-column metrics; here we'll derive three values
-            const avg = (arr) =>
-              Math.round(arr.reduce((s, v) => s + v, 0) / arr.length);
-            const avgJ1 = avg(examplePercents);
-            const avgJ2 = avg(examplePercents);
-            const avgJ3 = avg(examplePercents);
+            if (!rows.length) {
+              return (
+                <>
+                  <FooterTable variant="center">
+                    <JerarquiaAverage percent={0} />
+                  </FooterTable>
+                  <FooterTable variant="center">
+                    <JerarquiaAverage percent={0} />
+                  </FooterTable>
+                  <FooterTable variant="center">
+                    <JerarquiaAverage percent={0} />
+                  </FooterTable>
+                </>
+              );
+            }
+            const j1 = Math.round(
+              rows.reduce((s, r) => s + (r.roles[0]?.percent || 0), 0) /
+                rows.length
+            );
+            const j2 = Math.round(
+              rows.reduce((s, r) => s + (r.roles[1]?.percent || 0), 0) /
+                rows.length
+            );
+            const j3 = Math.round(
+              rows.reduce((s, r) => s + (r.roles[2]?.percent || 0), 0) /
+                rows.length
+            );
             return (
               <>
                 <FooterTable variant="center">
-                  <JerarquiaAverage percent={avgJ1} />
+                  <JerarquiaAverage percent={j1} />
                 </FooterTable>
                 <FooterTable variant="center">
-                  <JerarquiaAverage percent={avgJ2} />
+                  <JerarquiaAverage percent={j2} />
                 </FooterTable>
                 <FooterTable variant="center">
-                  <JerarquiaAverage percent={avgJ3} />
+                  <JerarquiaAverage percent={j3} />
                 </FooterTable>
               </>
             );
           })()}
 
-          {/* Right: empty */}
           <FooterTable variant="right" />
         </div>
       </div>
@@ -183,7 +302,7 @@ export function EmailManagement() {
         />
       </div>
 
-      {/** Toast flotante bottom-right para mensajes */}
+      {/* Toast flotante bottom-right para mensajes */}
       {message && (
         <div
           className="fixed bottom-8 right-8 z-50"
