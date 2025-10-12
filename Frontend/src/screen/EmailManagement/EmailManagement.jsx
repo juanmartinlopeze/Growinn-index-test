@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import HeaderTable from "../../components/AdminTable/HeaderTable";
 import { StepBreadcrumb } from "../../components/StepBreadcrumb/breadcrumb";
 import {
   Button,
@@ -141,11 +142,6 @@ export function EmailManagement() {
         </div>
       )}
 
-      <section className="navigation-buttons">
-        <Button variant="back" to="/upload_page" />
-        <Button variant="next" text="Siguiente" to="/validation_page" />
-      </section>
-
       {showAlert && (
         <Alert
           type={alertType || "confirmResend"}
@@ -170,6 +166,15 @@ export function EmailManagement() {
           }}
         />
       )}
+
+      {/* Header strip for the table: left, 3 center, right */}
+      <div className="inline-flex items-center mt-8" role="presentation">
+        <HeaderTable label="Área" variant="left" />
+        <HeaderTable label="J1" variant="center" />
+        <HeaderTable label="J2" variant="center" />
+        <HeaderTable label="J3" variant="center" />
+        <HeaderTable label="Completado" variant="right" />
+      </div>
 
       <img className="line-bckg-img" src="/BgLine-decoration2.png" alt="" />
       <img className="line-bckg-img2" src="/BgLine-decoration3.png" alt="" />
