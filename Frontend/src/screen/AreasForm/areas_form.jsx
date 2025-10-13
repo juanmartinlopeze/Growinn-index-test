@@ -25,6 +25,7 @@ export function AreasForm() {
   const [showAlert, setShowAlert] = useState(false);
   const [alertType, setAlertType] = useState("");
   const [alertMessage, setAlertMessage] = useState("");
+  const [isCreatingAreas, setIsCreatingAreas] = useState(false);
 
   // Recibir datos desde InnlabForm
   const {
@@ -34,6 +35,7 @@ export function AreasForm() {
     jerarquia2,
     jerarquia3,
     jerarquia4,
+    empresa_id, // 🆔 Nuevo: recibir empresa_id del step anterior
   } = location.state || {};
 
   // Inicializar formData sin localStorage
@@ -78,45 +80,73 @@ export function AreasForm() {
       return;
     }
 
-    const payload = {
-      nombre: "Empresa sin nombre",
-      cantidad_empleados: Number(empleados),
-      jerarquia: 4,
-      jerarquia1: Number(jerarquia1),
-      jerarquia2: Number(jerarquia2),
-      jerarquia3: Number(jerarquia3),
-      jerarquia4: Number(jerarquia4),
-      areas: nombresAreas,
-    };
+    if (!empresa_id) {
+      setAlertType("generalError");
+      setAlertMessage("Error: No se encontró el ID de la empresa. Vuelve al paso anterior.");
+      setShowAlert(true);
+      return;
+    }
 
-    console.log("📦 Payload que se envía al backend:", payload);
+    console.log("📁 Creando áreas para empresa_id:", empresa_id, "Areas:", nombresAreas);
 
     try {
-      const res = await fetch(`${BASE_URL}/empresas`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+      setIsCreatingAreas(true);
+      
+      // 📁 Crear cada área individualmente vinculada a la empresa
+      const areasCreadas = [];
+      
+      for (const nombreArea of nombresAreas) {
+        console.log("� Creando área:", nombreArea);
+        
+        const response = await fetch(`${BASE_URL}/areas`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            nombre: nombreArea,
+            empresa_id: empresa_id,
+            jerarquia1: Number(jerarquia1),
+            jerarquia2: Number(jerarquia2),
+            jerarquia3: Number(jerarquia3),
+            jerarquia4: Number(jerarquia4),
+          }),
+        });
 
-      if (!res.ok) {
-        const error = await res.json();
-        console.error("Error:", error);
-        setAlertType("generalError");
-        setAlertMessage(error.error || "❌ Error al crear empresa");
-        setShowAlert(true);
-        return;
+        if (!response.ok) {
+          const error = await response.json();
+          console.error("❌ Error creando área:", nombreArea, error);
+          throw new Error(error.error || `Error creando área: ${nombreArea}`);
+        }
+
+        const areaCreada = await response.json();
+        areasCreadas.push(areaCreada);
+        console.log("✅ Área creada:", areaCreada);
       }
 
-      const data = await res.json();
-      console.log("✅ Empresa creada con áreas:", data);
+      console.log("✅ Todas las áreas creadas exitosamente:", areasCreadas);
 
-      // Redirigir a la siguiente vista
-      navigate("/datos_prueba", { state: { areas: nombresAreas } });
+      // 💾 Guardar áreas en localStorage con empresa_id correcto
+      const areasDataConEmpresaId = areasCreadas.map(area => ({
+        ...area,
+        empresa_id: empresa_id // Asegurar que tengan empresa_id
+      }));
+      
+      saveStepData("step2", { areas: areasDataConEmpresaId });
+
+      // Redirigir a la siguiente vista con areas y empresa_id
+      navigate("/datos_prueba", { 
+        state: { 
+          areas: areasDataConEmpresaId,
+          empresa_id: empresa_id 
+        } 
+      });
+      
     } catch (err) {
-      console.error("❌ Error en la petición:", err);
+      console.error("❌ Error en handleSubmit:", err);
       setAlertType("generalError");
-      setAlertMessage("No se pudo guardar la empresa");
+      setAlertMessage(err.message || "❌ Error al crear las áreas");
       setShowAlert(true);
+    } finally {
+      setIsCreatingAreas(false);
     }
   };
 
@@ -165,7 +195,12 @@ export function AreasForm() {
             navigate("/innlab_form");
           }}
         />
-        <Button variant="next" text="Siguiente" onClick={handleSubmit} />
+        <Button 
+          variant="next" 
+          text={isCreatingAreas ? "Creando áreas..." : "Siguiente"} 
+          onClick={handleSubmit}
+          disabled={isCreatingAreas}
+        />
       </div>
 
       <img
