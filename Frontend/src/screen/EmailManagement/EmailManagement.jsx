@@ -5,7 +5,7 @@ import TableRowExample from "../../components/AdminTable/TableRowExample";
 import FooterTable from "../../components/AdminTable/FooterTable";
 import JerarquiaAverage from "../../components/AdminTable/JerarquiaAverage";
 import { TOTAL_TABLE_WIDTH } from "../../components/AdminTable/columnSizes";
-import SurveyProgress from "../../components/SurveyProgress";
+import SurveyProgress from "../../components/SurveyProgress/SurveyProgress";
 import { getSurveyProgress } from "../../lib/getSurveyProgress";
 import {
   fetchEmpresas,
@@ -281,9 +281,48 @@ export function EmailManagement() {
         <Button
           variant="analytics"
           text="Analizar resultados"
-          onClick={() => {
-            setAlertType("confirmAnalysis");
-            setShowAlert(true);
+          onClick={async () => {
+            // Llama al endpoint backend para analizar resultados
+            try {
+              const empresas = await fetchEmpresas();
+              if (!empresas || empresas.length === 0) {
+                setMessageType("error");
+                setMessageTitle("Error");
+                setMessage("No hay empresa para analizar.");
+                setShowAlert(false);
+                return;
+              }
+              const empresaActual = empresas[empresas.length - 1];
+              const response = await fetch(
+                `${import.meta.env.VITE_BACKEND_URL || "http://localhost:3000"}/api/analizar-resultados`,
+                {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ empresa_id: empresaActual.id })
+                }
+              );
+              const data = await response.json();
+              if (response.ok) {
+                setMessageType("success");
+                setMessageTitle("Análisis completado");
+                setMessage("Resultados generados correctamente.");
+                // Puedes mostrar el resultado en consola o guardarlo en estado
+                console.log("Resultados del análisis:", data.resultados);
+                // Si quieres mostrarlo en UI, puedes guardarlo en un estado
+              } else {
+                setMessageType("error");
+                setMessageTitle("Error");
+                setMessage(data.error || "Error al analizar resultados");
+              }
+              setShowAlert(false);
+              setAlertType(null);
+            } catch (err) {
+              setMessageType("error");
+              setMessageTitle("Error");
+              setMessage("Error de red o del servidor al analizar resultados.");
+              setShowAlert(false);
+              setAlertType(null);
+            }
           }}
           className="w-[534px] shrink-0"
         />

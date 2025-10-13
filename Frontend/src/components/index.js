@@ -25,3 +25,4 @@ export * from "./TextQuestions/TextQuestions";
 export * from "./TitleSection/TitleSection";
 export * from "./ToolTip/Tooltip";
 export * from "./AdminTable/HeaderTable";
+export * from "./SurveyProgress/SurveyProgress"

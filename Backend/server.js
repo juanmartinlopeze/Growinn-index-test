@@ -78,6 +78,7 @@ function safeUse(path, loader) {
 safeUse('/',         () => require('./routes/uploadExcel'));
 safeUse('/',         () => require('./routes/excelroute'));
 safeUse('/encuesta', () => require('./routes/survey'));
+safeUse('/api',      () => require('./routes/analizarResultados'));
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Auth middleware (aplicativo; no HTTPS)
