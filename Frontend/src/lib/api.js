@@ -20,3 +20,35 @@ export async function apiFetch(path, options = {}) {
 
 	return res
 }
+
+// Función para crear empresa en Supabase
+export async function createEmpresa(empresaData) {
+	try {
+		console.log("🏢 Creando empresa en Supabase:", empresaData);
+		
+		const { data, error } = await supabase
+			.from('empresas')
+			.insert([{
+				nombre: empresaData.nombre || 'Empresa sin nombre',
+				cantidad_empleados: parseInt(empresaData.empleados, 10),
+				jerarquia1: parseInt(empresaData.jerarquia1, 10),
+				jerarquia2: parseInt(empresaData.jerarquia2, 10),
+				jerarquia3: parseInt(empresaData.jerarquia3, 10),
+				jerarquia4: parseInt(empresaData.jerarquia4, 10),
+				areas: parseInt(empresaData.areas, 10)
+			}])
+			.select()
+			.single();
+
+		if (error) {
+			console.error("❌ Error creando empresa:", error);
+			throw error;
+		}
+
+		console.log("✅ Empresa creada exitosamente:", data);
+		return data;
+	} catch (error) {
+		console.error("❌ Error en createEmpresa:", error);
+		throw error;
+	}
+}

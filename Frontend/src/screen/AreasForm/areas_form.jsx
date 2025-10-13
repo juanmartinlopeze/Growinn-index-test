@@ -25,8 +25,10 @@ export function AreasForm() {
   const [showAlert, setShowAlert] = useState(false);
   const [alertType, setAlertType] = useState("");
   const [alertMessage, setAlertMessage] = useState("");
+  const [isCreatingAreas, setIsCreatingAreas] = useState(false);
 
   // Recibir datos desde InnlabForm
+
   const {
     totalAreas = 0,
     empleados,
@@ -34,7 +36,12 @@ export function AreasForm() {
     jerarquia2,
     jerarquia3,
     jerarquia4,
+    empresa_id, // 🆔 Nuevo: recibir empresa_id del step anterior
   } = location.state || {};
+
+  console.log('DEBUG AreasForm location.state:', location.state);
+  console.log('DEBUG AreasForm empresa_id:', empresa_id);
+  console.log('DEBUG AreasForm totalAreas:', totalAreas, 'empleados:', empleados, 'jerarquias:', jerarquia1, jerarquia2, jerarquia3, jerarquia4);
 
   // Inicializar formData sin localStorage
   const [formData, setFormData] = useState(() => {
@@ -47,17 +54,31 @@ export function AreasForm() {
   }, [formData]);
 
   // preguntas dinámicas
-  const questions = Array.from({ length: totalAreas }, (_, i) => ({
-    id: i + 1,
-    field: `area${i + 1}`,
-    title: (
-      <>
-        ¿Cuál es el nombre del{" "}
-        <span style={{ fontWeight: 500 }}>área {i + 1}?</span>
-      </>
-    ),
-    placeholder: "Digite aquí",
-  }));
+  // Si ya vienen nombres de áreas desde el backend, usarlos
+  let areaNamesFromBackend = (location.state && location.state.areas) ? location.state.areas : null;
+  const questions = areaNamesFromBackend
+    ? areaNamesFromBackend.map((area, i) => ({
+        id: i + 1,
+        field: `area${i + 1}`,
+        title: (
+          <>
+            Área {i + 1}: <span style={{ fontWeight: 500 }}>{area.nombre || area}</span>
+          </>
+        ),
+        placeholder: area.nombre || area,
+        disabled: true
+      }))
+    : Array.from({ length: totalAreas }, (_, i) => ({
+        id: i + 1,
+        field: `area${i + 1}`,
+        title: (
+          <>
+            ¿Cuál es el nombre del{" "}
+            <span style={{ fontWeight: 500 }}>área {i + 1}?</span>
+          </>
+        ),
+        placeholder: "Digite aquí",
+      }));
 
   const handleInputChange = (field, value) => {
     setFormData((prev) => ({
@@ -67,56 +88,85 @@ export function AreasForm() {
   };
 
   const handleSubmit = async () => {
-    const nombresAreas = questions.map((q) => (formData[q.field] || "").trim());
+    // Si ya vienen áreas del backend, no validar ni pedir nombres
+    let nombresAreas;
+    if (areaNamesFromBackend) {
+      nombresAreas = areaNamesFromBackend.map(a => a.nombre || a);
+    } else {
+      nombresAreas = questions.map((q) => (formData[q.field] || "").trim());
+      // Ya no mostramos alerta aquí, solo prevenimos avanzar si falta info
+      if (nombresAreas.some((nombre) => nombre === "")) {
+        return;
+      }
+    }
 
-    if (nombresAreas.some((nombre) => nombre === "")) {
-      setAlertType("complete");
-      setAlertMessage(
-        "Por favor, completa todos los nombres de las áreas para continuar."
-      );
+    if (!empresa_id) {
+      setAlertType("generalError");
+      setAlertMessage("Error: No se encontró el ID de la empresa. Vuelve al paso anterior.");
       setShowAlert(true);
       return;
     }
 
-    const payload = {
-      nombre: "Empresa sin nombre",
-      cantidad_empleados: Number(empleados),
-      jerarquia: 4,
-      jerarquia1: Number(jerarquia1),
-      jerarquia2: Number(jerarquia2),
-      jerarquia3: Number(jerarquia3),
-      jerarquia4: Number(jerarquia4),
-      areas: nombresAreas,
-    };
-
-    console.log("📦 Payload que se envía al backend:", payload);
+    console.log("📁 Creando áreas para empresa_id:", empresa_id, "Areas:", nombresAreas);
 
     try {
-      const res = await fetch(`${BASE_URL}/empresas`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+      setIsCreatingAreas(true);
+      
+      // 📁 Crear cada área individualmente vinculada a la empresa
+      const areasCreadas = [];
+      
+      for (const nombreArea of nombresAreas) {
+        console.log("� Creando área:", nombreArea);
+        
+        const response = await fetch(`${BASE_URL}/areas`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            nombre: nombreArea,
+            empresa_id: empresa_id,
+            jerarquia1: Number(jerarquia1),
+            jerarquia2: Number(jerarquia2),
+            jerarquia3: Number(jerarquia3),
+            jerarquia4: Number(jerarquia4),
+          }),
+        });
 
-      if (!res.ok) {
-        const error = await res.json();
-        console.error("Error:", error);
-        setAlertType("generalError");
-        setAlertMessage(error.error || "❌ Error al crear empresa");
-        setShowAlert(true);
-        return;
+        if (!response.ok) {
+          const error = await response.json();
+          console.error("❌ Error creando área:", nombreArea, error);
+          throw new Error(error.error || `Error creando área: ${nombreArea}`);
+        }
+
+        const areaCreada = await response.json();
+        areasCreadas.push(areaCreada);
+        console.log("✅ Área creada:", areaCreada);
       }
 
-      const data = await res.json();
-      console.log("✅ Empresa creada con áreas:", data);
+      console.log("✅ Todas las áreas creadas exitosamente:", areasCreadas);
 
-      // Redirigir a la siguiente vista
-      navigate("/datos_prueba", { state: { areas: nombresAreas } });
+      // 💾 Guardar áreas en localStorage con empresa_id correcto
+      const areasDataConEmpresaId = areasCreadas.map(area => ({
+        ...area,
+        empresa_id: empresa_id // Asegurar que tengan empresa_id
+      }));
+      
+      saveStepData("step2", { areas: areasDataConEmpresaId });
+
+      // Redirigir a la siguiente vista con areas y empresa_id
+      navigate("/datos_prueba", { 
+        state: { 
+          areas: areasDataConEmpresaId,
+          empresa_id: empresa_id 
+        } 
+      });
+      
     } catch (err) {
-      console.error("❌ Error en la petición:", err);
+      console.error("❌ Error en handleSubmit:", err);
       setAlertType("generalError");
-      setAlertMessage("No se pudo guardar la empresa");
+      setAlertMessage(err.message || "❌ Error al crear las áreas");
       setShowAlert(true);
+    } finally {
+      setIsCreatingAreas(false);
     }
   };
 
@@ -165,7 +215,12 @@ export function AreasForm() {
             navigate("/innlab_form");
           }}
         />
-        <Button variant="next" text="Siguiente" onClick={handleSubmit} />
+        <Button 
+          variant="next" 
+          text={isCreatingAreas ? "Creando áreas..." : "Siguiente"} 
+          onClick={handleSubmit}
+          disabled={isCreatingAreas}
+        />
       </div>
 
       <img
@@ -175,7 +230,8 @@ export function AreasForm() {
       />
       <img className="puntos" src="/BgPoints-decoration.png" alt="Decoración" />
 
-      {showAlert && (
+      {/* Solo mostramos alertas generales, no de nombres de áreas */}
+      {showAlert && alertType === "generalError" && (
         <Alert
           type={alertType}
           message={alertMessage}
