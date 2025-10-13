@@ -293,6 +293,7 @@ export function EmailManagement() {
                 return;
               }
               const empresaActual = empresas[empresas.length - 1];
+              console.log('empresa_id enviado al análisis:', empresaActual.id);
               const response = await fetch(
                 `${import.meta.env.VITE_BACKEND_URL || "http://localhost:3000"}/api/analizar-resultados`,
                 {
