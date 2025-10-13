@@ -6,12 +6,14 @@ import FooterTable from "../../components/AdminTable/FooterTable";
 import JerarquiaAverage from "../../components/AdminTable/JerarquiaAverage";
 import { TOTAL_TABLE_WIDTH } from "../../components/AdminTable/columnSizes";
 import SurveyProgress from "../../components/SurveyProgress";
+import { getSurveyProgress } from "../../lib/getSurveyProgress";
 import {
   fetchEmpresas,
   fetchAreas,
   fetchCargos,
   fetchSubcargos,
 } from "../../components/Table/api";
+import { supabase } from "../../lib/supabaseClient";
 import { StepBreadcrumb } from "../../components/StepBreadcrumb/breadcrumb";
 import {
   Button,
@@ -43,28 +45,25 @@ export function EmailManagement() {
           setProgress(0);
           return;
         }
-        const empresaActual = empresas[empresas.length - 1];
-        const [areas, cargos, subcargos] = await Promise.all([
+  const empresaActual = empresas[empresas.length - 1];
+  console.log('EMPRESA ACTUAL PARA PROGRESO:', empresaActual);
+        const [areas, cargos, subcargos, progreso, usuariosEmpresa] = await Promise.all([
           fetchAreas(empresaActual.id),
           fetchCargos(),
           fetchSubcargos(),
+          getSurveyProgress(empresaActual.id),
+          (async () => {
+            const { data, error } = await supabase
+              .from('usuarios')
+              .select('id')
+              .eq('empresa_id', empresaActual.id);
+            if (error) return [];
+            return data || [];
+          })()
         ]);
 
-        // Calcular total participantes (sum personas de todos los cargos y subcargos)
-        let totalParticipantes = 0;
-        (cargos || []).forEach((cargo) => {
-          const subs = (subcargos || []).filter((s) => s.cargo_id === cargo.id);
-          if (subs.length > 0) {
-            totalParticipantes += subs.reduce((sum, s) => sum + (s.personas || 0), 0);
-          } else {
-            totalParticipantes += cargo.personas || 0;
-          }
-        });
-        setTotal(totalParticipantes);
-
-        // Progreso: aquí deberías consultar la cantidad de encuestas respondidas reales
-        // Por ahora, lo dejamos en 0 o puedes poner un valor simulado
-        setProgress(0);
+  setTotal(empresaActual.cantidad_empleados);
+        setProgress(progreso);
 
         // ...código original para la tabla...
         const areaIds = new Set((areas || []).map((a) => a.id));
