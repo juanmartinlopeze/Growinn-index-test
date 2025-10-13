@@ -5,6 +5,7 @@ import TableRowExample from "../../components/AdminTable/TableRowExample";
 import FooterTable from "../../components/AdminTable/FooterTable";
 import JerarquiaAverage from "../../components/AdminTable/JerarquiaAverage";
 import { TOTAL_TABLE_WIDTH } from "../../components/AdminTable/columnSizes";
+import SurveyProgress from "../../components/SurveyProgress";
 import {
   fetchEmpresas,
   fetchAreas,
@@ -12,19 +13,19 @@ import {
   fetchSubcargos,
 } from "../../components/Table/api";
 import { StepBreadcrumb } from "../../components/StepBreadcrumb/breadcrumb";
-
 import {
   Button,
   Description,
   TitleSection,
   Alert,
 } from "../../components/index";
-import SurveyProgress from "../../components/SurveyProgress";
 
 export function EmailManagement() {
   const navigate = useNavigate();
 
-  const [progress] = useState(169);
+  // Estos valores deben venir de la base de datos en producción
+  const [progress, setProgress] = useState(0);
+  const [total, setTotal] = useState(0);
   const [showAlert, setShowAlert] = useState(false);
   const [alertType, setAlertType] = useState(null);
   const [message, setMessage] = useState("");
@@ -38,6 +39,8 @@ export function EmailManagement() {
         const empresas = await fetchEmpresas();
         if (!empresas || empresas.length === 0) {
           setRows([]);
+          setTotal(0);
+          setProgress(0);
           return;
         }
         const empresaActual = empresas[empresas.length - 1];
@@ -47,23 +50,35 @@ export function EmailManagement() {
           fetchSubcargos(),
         ]);
 
-        const areaIds = new Set((areas || []).map((a) => a.id));
+        // Calcular total participantes (sum personas de todos los cargos y subcargos)
+        let totalParticipantes = 0;
+        (cargos || []).forEach((cargo) => {
+          const subs = (subcargos || []).filter((s) => s.cargo_id === cargo.id);
+          if (subs.length > 0) {
+            totalParticipantes += subs.reduce((sum, s) => sum + (s.personas || 0), 0);
+          } else {
+            totalParticipantes += cargo.personas || 0;
+          }
+        });
+        setTotal(totalParticipantes);
 
-        // Map cargos by areaId + jerarquia
+        // Progreso: aquí deberías consultar la cantidad de encuestas respondidas reales
+        // Por ahora, lo dejamos en 0 o puedes poner un valor simulado
+        setProgress(0);
+
+        // ...código original para la tabla...
+        const areaIds = new Set((areas || []).map((a) => a.id));
         const cargoMap = new Map();
         (cargos || []).forEach((c) => {
           if (!areaIds.has(c.area_id)) return;
           const key = `${c.area_id}-${c.jerarquia_id}`;
           cargoMap.set(key, c);
         });
-
-        // Map subcargos by cargo_id
         const subMap = new Map();
         (subcargos || []).forEach((s) => {
           if (!subMap.has(s.cargo_id)) subMap.set(s.cargo_id, []);
           subMap.get(s.cargo_id).push(s);
         });
-
         const newRows = (areas || []).map((area) => {
           const roles = ["J1", "J2", "J3"].map((j) => {
             const key = `${area.id}-${j}`;
@@ -80,9 +95,7 @@ export function EmailManagement() {
               total > 0 ? Math.round((answered / total) * 100) : 0;
             return { answered, total, percent };
           });
-
           const assignedSum = roles.reduce((s, r) => s + (r.total || 0), 0);
-          // percent of this area relative to total assigned across areas
           const totalAssignedAll = (areas || []).reduce((s, a) => {
             const rs = ["J1", "J2", "J3"].map((j) => {
               const c = cargoMap.get(`${a.id}-${j}`);
@@ -94,12 +107,10 @@ export function EmailManagement() {
             });
             return s + rs.reduce((ss, v) => ss + v, 0);
           }, 0);
-
           const percent =
             totalAssignedAll > 0
               ? Math.round((assignedSum / totalAssignedAll) * 100)
               : 0;
-
           return {
             areaId: area.id,
             areaLabel: area.nombre,
@@ -107,28 +118,19 @@ export function EmailManagement() {
             percent,
           };
         });
-
         setRows(newRows);
       } catch (err) {
-        console.error("Error cargando datos en EmailManagement:", err);
         setRows([]);
+        setTotal(0);
+        setProgress(0);
       }
     }
-
     load();
   }, []);
 
-  const meta = 200;
+  // meta ahora se calcula en SurveyProgress
 
-  function setProgressColor() {
-    if (progress < 70) {
-      return "text-h1 font-bold text-semantic-error";
-    } else if (progress < meta) {
-      return "text-h1 font-bold text-extended-yellow";
-    } else {
-      return "text-h1 font-bold text-semantic-success";
-    }
-  }
+
 
   return (
     <section className="w-full h-full flex flex-col justify-center items-start px-[10%] pt-[10%] gap-5 relative">
@@ -159,7 +161,7 @@ export function EmailManagement() {
         </div>
       </div>
 
-      <SurveyProgress progress={progress} meta={meta} setProgressColor={setProgressColor} />
+      <SurveyProgress total={total} progreso={progress} />
 
       {/* Header strip for the table: left, 3 center, right */}
       {/* Table container: header + rows (dynamic) */}

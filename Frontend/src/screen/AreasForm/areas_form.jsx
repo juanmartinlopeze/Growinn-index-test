@@ -28,6 +28,7 @@ export function AreasForm() {
   const [isCreatingAreas, setIsCreatingAreas] = useState(false);
 
   // Recibir datos desde InnlabForm
+
   const {
     totalAreas = 0,
     empleados,
@@ -37,6 +38,10 @@ export function AreasForm() {
     jerarquia4,
     empresa_id, // 🆔 Nuevo: recibir empresa_id del step anterior
   } = location.state || {};
+
+  console.log('DEBUG AreasForm location.state:', location.state);
+  console.log('DEBUG AreasForm empresa_id:', empresa_id);
+  console.log('DEBUG AreasForm totalAreas:', totalAreas, 'empleados:', empleados, 'jerarquias:', jerarquia1, jerarquia2, jerarquia3, jerarquia4);
 
   // Inicializar formData sin localStorage
   const [formData, setFormData] = useState(() => {
@@ -49,17 +54,31 @@ export function AreasForm() {
   }, [formData]);
 
   // preguntas dinámicas
-  const questions = Array.from({ length: totalAreas }, (_, i) => ({
-    id: i + 1,
-    field: `area${i + 1}`,
-    title: (
-      <>
-        ¿Cuál es el nombre del{" "}
-        <span style={{ fontWeight: 500 }}>área {i + 1}?</span>
-      </>
-    ),
-    placeholder: "Digite aquí",
-  }));
+  // Si ya vienen nombres de áreas desde el backend, usarlos
+  let areaNamesFromBackend = (location.state && location.state.areas) ? location.state.areas : null;
+  const questions = areaNamesFromBackend
+    ? areaNamesFromBackend.map((area, i) => ({
+        id: i + 1,
+        field: `area${i + 1}`,
+        title: (
+          <>
+            Área {i + 1}: <span style={{ fontWeight: 500 }}>{area.nombre || area}</span>
+          </>
+        ),
+        placeholder: area.nombre || area,
+        disabled: true
+      }))
+    : Array.from({ length: totalAreas }, (_, i) => ({
+        id: i + 1,
+        field: `area${i + 1}`,
+        title: (
+          <>
+            ¿Cuál es el nombre del{" "}
+            <span style={{ fontWeight: 500 }}>área {i + 1}?</span>
+          </>
+        ),
+        placeholder: "Digite aquí",
+      }));
 
   const handleInputChange = (field, value) => {
     setFormData((prev) => ({
@@ -69,15 +88,16 @@ export function AreasForm() {
   };
 
   const handleSubmit = async () => {
-    const nombresAreas = questions.map((q) => (formData[q.field] || "").trim());
-
-    if (nombresAreas.some((nombre) => nombre === "")) {
-      setAlertType("complete");
-      setAlertMessage(
-        "Por favor, completa todos los nombres de las áreas para continuar."
-      );
-      setShowAlert(true);
-      return;
+    // Si ya vienen áreas del backend, no validar ni pedir nombres
+    let nombresAreas;
+    if (areaNamesFromBackend) {
+      nombresAreas = areaNamesFromBackend.map(a => a.nombre || a);
+    } else {
+      nombresAreas = questions.map((q) => (formData[q.field] || "").trim());
+      // Ya no mostramos alerta aquí, solo prevenimos avanzar si falta info
+      if (nombresAreas.some((nombre) => nombre === "")) {
+        return;
+      }
     }
 
     if (!empresa_id) {
@@ -210,7 +230,8 @@ export function AreasForm() {
       />
       <img className="puntos" src="/BgPoints-decoration.png" alt="Decoración" />
 
-      {showAlert && (
+      {/* Solo mostramos alertas generales, no de nombres de áreas */}
+      {showAlert && alertType === "generalError" && (
         <Alert
           type={alertType}
           message={alertMessage}
