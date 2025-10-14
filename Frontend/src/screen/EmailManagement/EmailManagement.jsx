@@ -65,6 +65,52 @@ export function EmailManagement() {
       setLoading(false);
     }
   };
+
+  // Función para iniciar el análisis (se llamará desde el Alert cuando se confirme)
+  const handleAnalyzeResults = async () => {
+    try {
+      const empresas = await fetchEmpresas();
+      if (!empresas || empresas.length === 0) {
+        setMessageType("error");
+        setMessageTitle("Error");
+        setMessage("No hay empresa para analizar.");
+        setShowAlert(false);
+        setAlertType(null);
+        return;
+      }
+      const empresaActual = empresas[empresas.length - 1];
+      console.log("empresa_id enviado al análisis:", empresaActual.id);
+      const response = await fetch(
+        `${
+          import.meta.env.VITE_BACKEND_URL || "http://localhost:3000"
+        }/api/analizar-resultados`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ empresa_id: empresaActual.id }),
+        }
+      );
+      const data = await response.json();
+      if (response.ok) {
+        setMessageType("success");
+        setMessageTitle("Análisis completado");
+        setMessage("Resultados generados correctamente.");
+        console.log("Resultados del análisis:", data.resultados);
+      } else {
+        setMessageType("error");
+        setMessageTitle("Error");
+        setMessage(data.error || "Error al analizar resultados");
+      }
+      setShowAlert(false);
+      setAlertType(null);
+    } catch {
+      setMessageType("error");
+      setMessageTitle("Error");
+      setMessage("Error de red o del servidor al analizar resultados.");
+      setShowAlert(false);
+      setAlertType(null);
+    }
+  };
   const navigate = useNavigate();
 
   // Estos valores deben venir de la base de datos en producción
@@ -244,49 +290,10 @@ export function EmailManagement() {
         <Button
           variant="analytics"
           text="Analizar resultados"
-          onClick={async () => {
-            // Llama al endpoint backend para analizar resultados
-            try {
-              const empresas = await fetchEmpresas();
-              if (!empresas || empresas.length === 0) {
-                setMessageType("error");
-                setMessageTitle("Error");
-                setMessage("No hay empresa para analizar.");
-                setShowAlert(false);
-                return;
-              }
-              const empresaActual = empresas[empresas.length - 1];
-              console.log("empresa_id enviado al análisis:", empresaActual.id);
-              const response = await fetch(
-                `${
-                  import.meta.env.VITE_BACKEND_URL || "http://localhost:3000"
-                }/api/analizar-resultados`,
-                {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ empresa_id: empresaActual.id }),
-                }
-              );
-              const data = await response.json();
-              if (response.ok) {
-                setMessageType("success");
-                setMessageTitle("Análisis completado");
-                setMessage("Resultados generados correctamente.");
-                console.log("Resultados del análisis:", data.resultados);
-              } else {
-                setMessageType("error");
-                setMessageTitle("Error");
-                setMessage(data.error || "Error al analizar resultados");
-              }
-              setShowAlert(false);
-              setAlertType(null);
-            } catch {
-              setMessageType("error");
-              setMessageTitle("Error");
-              setMessage("Error de red o del servidor al analizar resultados.");
-              setShowAlert(false);
-              setAlertType(null);
-            }
+          onClick={() => {
+            // show confirmation alert before analyzing
+            setAlertType("confirmAnalysis");
+            setShowAlert(true);
           }}
           style={{
             display: "flex",
@@ -417,16 +424,8 @@ export function EmailManagement() {
       {/* Toast flotante bottom-right para mensajes */}
       {message && (
         <>
-          {/* slide-in from right animation for the toast */}
-          <style>{`
-            @keyframes slideInFromRight {
-              from { transform: translateX(120%); opacity: 0; }
-              to { transform: translateX(0); opacity: 1; }
-            }
-          `}</style>
-
           <div
-            className="fixed bottom-8 right-8 z-50"
+            className="fixed bottom-8 right-8 z-50 toast-slide-in"
             style={{
               display: "flex",
               width: "386px",
@@ -441,7 +440,6 @@ export function EmailManagement() {
               border: "1px solid #CCC",
               background: "#FFF",
               boxShadow: "0 4px 8px 0 rgba(0,0,0,0.12)",
-              animation: "slideInFromRight 350ms ease-out forwards",
             }}
           >
             {messageType === "success" ? (
@@ -514,9 +512,8 @@ export function EmailManagement() {
               }
             }
             if (alertType === "confirmAnalysis") {
-              setMessageType("success");
-              setMessageTitle("Análisis iniciado");
-              setMessage("Generando reporte de resultados..");
+              // user confirmed: call analyze function
+              await handleAnalyzeResults();
             }
             setShowAlert(false);
             setAlertType(null);
