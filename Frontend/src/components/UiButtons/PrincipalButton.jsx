@@ -3,10 +3,10 @@ import React from "react";
 
 const BASE = `
   inline-flex items-center justify-center
-  px-[var(--padding-md,0.75rem)] py-[var(--padding-sm,0.5rem)]
+  px-[var(--padding-md,0.45rem)] py-[var(--padding-sm,0.3125rem)]
   gap-[var(--spacing-xs,0.25rem)]
-  rounded-[var(--padding-xs,0.25rem)]
-  font-['Plus_Jakarta_Sans'] text-[var(--font-size-content-btn,0.875rem)] font-medium leading-normal
+  rounded-[var(--padding-xs,0.2rem)]
+  font-['Plus_Jakarta_Sans'] text-[var(--font-size-content-btn,0.8125rem)] font-medium leading-normal
   transition-colors
   focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2
   focus-visible:ring-[color:var(--color-primary-n200,#f6c3b1)]

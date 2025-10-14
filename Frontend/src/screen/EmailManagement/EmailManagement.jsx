@@ -34,7 +34,9 @@ export function EmailManagement() {
     setError(null);
     setSuccess(false);
     try {
-      const isProduction = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+      const isProduction =
+        window.location.hostname !== "localhost" &&
+        window.location.hostname !== "127.0.0.1";
       const mailServiceUrl = isProduction
         ? "https://growinn-mail-service.onrender.com/enviar-correos"
         : "http://localhost:3001/enviar-correos";
@@ -79,21 +81,22 @@ export function EmailManagement() {
           return;
         }
         const empresaActual = empresas[empresas.length - 1];
-        console.log('EMPRESA ACTUAL PARA PROGRESO:', empresaActual);
-        const [areas, cargos, subcargos, progreso, _usuariosEmpresa] = await Promise.all([
-          fetchAreas(empresaActual.id),
-          fetchCargos(),
-          fetchSubcargos(),
-          getSurveyProgress(empresaActual.id),
-          (async () => {
-            const { data, error } = await supabase
-              .from('usuarios')
-              .select('id')
-              .eq('empresa_id', empresaActual.id);
-            if (error) return [];
-            return data || [];
-          })(),
-        ]);
+        console.log("EMPRESA ACTUAL PARA PROGRESO:", empresaActual);
+        const [areas, cargos, subcargos, progreso, _usuariosEmpresa] =
+          await Promise.all([
+            fetchAreas(empresaActual.id),
+            fetchCargos(),
+            fetchSubcargos(),
+            getSurveyProgress(empresaActual.id),
+            (async () => {
+              const { data, error } = await supabase
+                .from("usuarios")
+                .select("id")
+                .eq("empresa_id", empresaActual.id);
+              if (error) return [];
+              return data || [];
+            })(),
+          ]);
 
         setTotal(empresaActual.cantidad_empleados);
         setProgress(progreso);
@@ -162,8 +165,6 @@ export function EmailManagement() {
 
   // meta ahora se calcula en SurveyProgress
 
-
-
   return (
     <section className="w-full h-full flex flex-col justify-center items-start px-[10%] pt-[10%] gap-5 relative">
       <StepBreadcrumb
@@ -179,7 +180,7 @@ export function EmailManagement() {
           if (idx === 2) navigate("/datos_prueba");
         }}
       />
-  <div className="flex flex-col w-[1200px] items-start gap-[26px]">
+      <div className="flex flex-col w-[1200px] items-start gap-[26px]">
         <TitleSection title="Gestión de análisis y respuestas" />
         <div className="flex flex-col items-start gap-[26px] w-full">
           <Description
@@ -189,11 +190,112 @@ export function EmailManagement() {
           <Description
             variant="forms"
             text="En caso de ser necesario puedes reenviar los correos para llegar la meta establecida."
-          />  
+          />
         </div>
       </div>
 
       <SurveyProgress total={total} progreso={progress} />
+
+      {/* Botones de acción */}
+      <div
+        style={{
+          display: "flex",
+          width: "1125px",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+        className="mt-4 mx-auto mb-10"
+      >
+        <Button
+          variant="email"
+          text={loading ? "Enviando..." : "Reenviar correos"}
+          onClick={handleSendEmails}
+          disabled={loading}
+          style={{
+            display: "flex",
+            width: "534px",
+            padding: "var(--padding-md, 12px) var(--padding-xxl, 24px)",
+            justifyContent: "center",
+            alignItems: "center",
+            gap: "var(--spacing-sm, 8px)",
+            flexShrink: 0,
+            borderRadius: "var(--radius-lg, 24px)",
+            background: "var(--Colors-Primary-color-n500, #E9683B)",
+            color: "var(--Colors-Text-text-inverse, #FFF)",
+            fontFamily: "Inter, sans-serif",
+            fontSize: "14px",
+            fontStyle: "normal",
+            fontWeight: 400,
+            lineHeight: "normal",
+          }}
+        />
+
+        <Button
+          variant="analytics"
+          text="Analizar resultados"
+          onClick={async () => {
+            // Llama al endpoint backend para analizar resultados
+            try {
+              const empresas = await fetchEmpresas();
+              if (!empresas || empresas.length === 0) {
+                setMessageType("error");
+                setMessageTitle("Error");
+                setMessage("No hay empresa para analizar.");
+                setShowAlert(false);
+                return;
+              }
+              const empresaActual = empresas[empresas.length - 1];
+              console.log("empresa_id enviado al análisis:", empresaActual.id);
+              const response = await fetch(
+                `${
+                  import.meta.env.VITE_BACKEND_URL || "http://localhost:3000"
+                }/api/analizar-resultados`,
+                {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ empresa_id: empresaActual.id }),
+                }
+              );
+              const data = await response.json();
+              if (response.ok) {
+                setMessageType("success");
+                setMessageTitle("Análisis completado");
+                setMessage("Resultados generados correctamente.");
+                console.log("Resultados del análisis:", data.resultados);
+              } else {
+                setMessageType("error");
+                setMessageTitle("Error");
+                setMessage(data.error || "Error al analizar resultados");
+              }
+              setShowAlert(false);
+              setAlertType(null);
+            } catch {
+              setMessageType("error");
+              setMessageTitle("Error");
+              setMessage("Error de red o del servidor al analizar resultados.");
+              setShowAlert(false);
+              setAlertType(null);
+            }
+          }}
+          style={{
+            display: "flex",
+            width: "534px",
+            padding: "var(--padding-md, 12px) var(--padding-xxl, 24px)",
+            justifyContent: "center",
+            alignItems: "center",
+            gap: "var(--spacing-sm, 8px)",
+            flexShrink: 0,
+            borderRadius: "var(--radius-lg, 24px)",
+            background: "var(--Colors-Primary-color-n500, #E9683B)",
+            color: "var(--Colors-Text-text-inverse, #FFF)",
+            fontFamily: "Inter, sans-serif",
+            fontSize: "14px",
+            fontStyle: "normal",
+            fontWeight: 400,
+            lineHeight: "normal",
+          }}
+        />
+      </div>
 
       {/* Header strip for the table: left, 3 center, right */}
       {/* Table container: header + rows (dynamic) */}
@@ -206,7 +308,7 @@ export function EmailManagement() {
           alignItems: "flex-start",
           gap: 0,
         }}
-        className="mt-8 mb-6 mx-auto"
+        className="mt-6 mb-20 mx-auto"
       >
         <div className="inline-flex items-center w-full" role="presentation">
           <HeaderTable label="Área" variant="left" />
@@ -299,68 +401,6 @@ export function EmailManagement() {
 
           <FooterTable variant="right" />
         </div>
-      </div>
-
-      {/* Botones de acción */}
-  <div className="flex w-[1200px] justify-between items-center mt-8">
-
-        <Button
-          variant="email"
-          text={loading ? "Enviando..." : "Reenviar correos"}
-          onClick={handleSendEmails}
-          className="w-[534px] shrink-0"
-          disabled={loading}
-        />
-
-        <Button
-          variant="analytics"
-          text="Analizar resultados"
-          onClick={async () => {
-            // Llama al endpoint backend para analizar resultados
-            try {
-              const empresas = await fetchEmpresas();
-              if (!empresas || empresas.length === 0) {
-                setMessageType("error");
-                setMessageTitle("Error");
-                setMessage("No hay empresa para analizar.");
-                setShowAlert(false);
-                return;
-              }
-              const empresaActual = empresas[empresas.length - 1];
-              console.log('empresa_id enviado al análisis:', empresaActual.id);
-              const response = await fetch(
-                `${import.meta.env.VITE_BACKEND_URL || "http://localhost:3000"}/api/analizar-resultados`,
-                {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ empresa_id: empresaActual.id })
-                }
-              );
-              const data = await response.json();
-              if (response.ok) {
-                setMessageType("success");
-                setMessageTitle("Análisis completado");
-                setMessage("Resultados generados correctamente.");
-                // Puedes mostrar el resultado en consola o guardarlo en estado
-                console.log("Resultados del análisis:", data.resultados);
-                // Si quieres mostrarlo en UI, puedes guardarlo en un estado
-              } else {
-                setMessageType("error");
-                setMessageTitle("Error");
-                setMessage(data.error || "Error al analizar resultados");
-              }
-              setShowAlert(false);
-              setAlertType(null);
-        } catch {
-          setMessageType("error");
-          setMessageTitle("Error");
-          setMessage("Error de red o del servidor al analizar resultados.");
-          setShowAlert(false);
-          setAlertType(null);
-        }
-          }}
-          className="w-[534px] shrink-0"
-        />
       </div>
 
       {/* Toast flotante bottom-right para mensajes */}

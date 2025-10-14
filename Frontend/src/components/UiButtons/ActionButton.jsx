@@ -7,10 +7,10 @@ const cx = (...xs) => xs.filter(Boolean).join(" ");
 /* Base visual del contenedor (tamaños/espaciados, tipografía, etc.) */
 const BASE = `
   inline-flex items-center justify-center
-  px-[var(--padding-xxl,24px)] py-[var(--padding-md,12px)]
-  gap-[var(--spacing-sm,8px)]
-  rounded-[var(--radius-lg,24px)]
-  font-['Plus_Jakarta_Sans'] text-[var(--font-size-content-btn,0.875rem)] font-medium leading-normal
+  px-[var(--padding-xxl,12px)] py-[var(--padding-md,5px)]
+  gap-[var(--spacing-sm,6px)]
+  rounded-[var(--radius-lg,20px)]
+  font-['Plus_Jakarta_Sans'] text-[var(--font-size-content-btn,0.75rem)] font-medium leading-normal
   transition-colors
   focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2
   focus-visible:ring-[color:var(--color-primary-n200,#f6c3b1)]

@@ -29,7 +29,7 @@ export default function FooterTable({
     return (
       <div
         className={`${baseClasses} flex items-center justify-center h-11 px-3 gap-2 flex-shrink-0 bg-neutral-100 border border-neutral-200`}
-  style={commonStyle(ROLE_WIDTH, 0, 0)}
+        style={commonStyle(ROLE_WIDTH, 0, 0)}
       >
         {children ? (
           children
@@ -46,7 +46,7 @@ export default function FooterTable({
     return (
       <div
         className={`${baseClasses} flex items-center justify-center h-11 px-3 gap-2 flex-shrink-0 bg-neutral-100 border border-neutral-200`}
-  style={commonStyle(COMPLETED_WIDTH, 0, 8)}
+        style={commonStyle(COMPLETED_WIDTH, 0, 8)}
       >
         {children ? (
           children
@@ -63,7 +63,7 @@ export default function FooterTable({
   return (
     <div
       className={`${baseClasses} flex items-center h-11 px-3 gap-2 flex-shrink-0 bg-neutral-100 border border-neutral-200`}
-  style={commonStyle(AREA_WIDTH, 8, 0)}
+      style={commonStyle(AREA_WIDTH, 8, 0)}
     >
       {children ? (
         children

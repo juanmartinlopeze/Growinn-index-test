@@ -19,9 +19,9 @@ const BASE = `
 `;
 
 const SIZES = {
-  sm: "h-7 w-7 text-[12px]",
-  md: "h-8 w-8 text-[14px]",
-  lg: "h-10 w-10 text-[16px]",
+  sm: "h-6 w-6 text-[11px]",
+  md: "h-7 w-7 text-[12px]",
+  lg: "h-8 w-8 text-[14px]",
 };
 
 /** prefijo de tokens */
