@@ -8,13 +8,49 @@ const { supabaseAdmin } = require('../supabase/supabase');
 const { MailerSend, EmailParams, Sender, Recipient } = require('mailersend');
 
 const app        = express(); 
-app.use(cors({origin: 'http://localhost:5173' })); // Permite solicitudes CORS
+
+// Configuración de CORS más flexible para producción
+const corsOptions = {
+  origin: process.env.NODE_ENV === 'production' 
+    ? [process.env.FRONTEND_URL, process.env.ALLOWED_ORIGINS?.split(',')].flat().filter(Boolean)
+    : ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:3000'],
+  credentials: true
+};
+
+app.use(cors(corsOptions));
+app.use(express.json()); // Para parsear JSON en el body
+
 const PORT       = process.env.PORT || 3001;
 const mailerSend = new MailerSend({ apiKey: process.env.MAILERSEND_API_KEY });
+
+console.log("🔑 MailerSend API Key:", process.env.MAILERSEND_API_KEY ? "✅ Configurado" : "❌ No encontrado");
+console.log("📧 From Email:", process.env.FROM_EMAIL);
+console.log("🌐 Base URL:", process.env.BASE_URL);
 
 // Carga la plantilla _una sola vez_
 const templatePath = path.join(__dirname, 'template.html');
 const rawTemplate  = fs.readFileSync(templatePath, 'utf8');
+
+// Ruta de health check para Render
+app.get('/health', (req, res) => {
+  res.status(200).json({ 
+    status: 'OK', 
+    timestamp: new Date().toISOString(),
+    service: 'mail-service'
+  });
+});
+
+// Ruta principal para información del servicio
+app.get('/', (req, res) => {
+  res.json({
+    service: 'Growinn Mail Service',
+    version: '1.0.0',
+    endpoints: [
+      'GET /health - Health check',
+      'GET /enviar-correos - Enviar correos de encuesta'
+    ]
+  });
+});
 
 app.get('/enviar-correos', async (req, res) => {
   try {
@@ -28,6 +64,9 @@ app.get('/enviar-correos', async (req, res) => {
     if (!usuarios.length) return res.send('No hay usuarios con correo.');
 
     const from = new Sender(process.env.FROM_EMAIL, 'INNLAB');
+    console.log("📤 Preparando envío de correos...");
+    console.log("👥 Usuarios encontrados:", usuarios.length);
+    console.log("📧 Email remitente:", process.env.FROM_EMAIL);
 
     for (const user of usuarios) {
       // 2️⃣ Genera token y lo guarda en survey_tokens
@@ -58,10 +97,16 @@ app.get('/enviar-correos', async (req, res) => {
         .setHtml(htmlBody);
 
       try {
+        console.log(`📤 Intentando enviar correo a: ${user.correo}`);
         await mailerSend.email.send(emailParams);
-        console.log(`📤 Correo enviado a ${user.correo}`);
+        console.log(`✅ Correo enviado exitosamente a ${user.correo}`);
       } catch (err) {
-        console.error(`❌ Error enviando a ${user.correo}:`, err);
+        console.error(`❌ Error enviando a ${user.correo}:`, {
+          message: err.message,
+          status: err.statusCode,
+          body: err.body,
+          headers: err.headers
+        });
       }
     }
 
@@ -72,4 +117,8 @@ app.get('/enviar-correos', async (req, res) => {
   }
 });
 
-app.listen(PORT, () => console.log(`Escuchando en http://localhost:${PORT}`));
+app.listen(PORT, () => {
+  console.log(`🚀 Mail Service listening on port ${PORT}`);
+  console.log(`📧 Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`🌐 CORS origins configured`);
+});

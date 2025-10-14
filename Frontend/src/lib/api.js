@@ -3,6 +3,14 @@ import { supabase } from './supabaseClient'
 const BASE_URL = import.meta.env.VITE_API_URL
 
 export async function apiFetch(path, options = {}) {
+	console.log('🌐 API Debug:', {
+		baseUrl: BASE_URL,
+		fullUrl: `${BASE_URL}${path}`,
+		environment: import.meta.env.MODE,
+		path,
+		method: options.method || 'GET'
+	});
+
 	const {
 		data: { session },
 	} = await supabase.auth.getSession()
@@ -17,6 +25,12 @@ export async function apiFetch(path, options = {}) {
 		},
 		body: options.body ? JSON.stringify(options.body) : undefined,
 	})
+
+	console.log('📡 API Response:', {
+		status: res.status,
+		statusText: res.statusText,
+		url: res.url
+	});
 
 	return res
 }
