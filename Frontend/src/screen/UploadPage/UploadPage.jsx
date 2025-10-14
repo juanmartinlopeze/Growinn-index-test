@@ -200,18 +200,6 @@ export function UploadPage() {
         {generalError && <p className="error-message">{generalError}</p>}
         {successMsg && <p className="success-message">{successMsg}</p>}
 
-        {/* Debug temporal */}
-        <div style={{ margin: '10px 0', padding: '10px', backgroundColor: '#f0f0f0', borderRadius: '5px' }}>
-          <p><strong>Debug UploadPage:</strong></p>
-          <p>EmpresaId: {empresaId} | Archivo: {file ? '✅' : '❌'} | Botón habilitado: {(!file || !empresaId) ? '❌' : '✅'}</p>
-          <button 
-            onClick={() => alert(`EmpresaId: ${empresaId}\nFile: ${file?.name}\nHook: ${hookEmpresaId}\nCargos: ${cargos.length}`)} 
-            style={{padding: '5px 10px', backgroundColor: '#059669', color: 'white', border: 'none', borderRadius: '3px'}}
-          >
-            🔍 Debug
-          </button>
-        </div>
-
         <section className="navigation-buttons">
           <Button variant="back" to="/download_page" />
           <Button
