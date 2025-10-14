@@ -17,10 +17,7 @@ export default function TableRowExample({
   return (
     <div
       className="inline-flex items-center"
-      style={{
-        width: TOTAL_TABLE_WIDTH,
-        gap: 0,
-      }}
+      style={{ width: "100%", gap: 0, alignItems: "stretch" }}
     >
       <AreaCell label={areaLabel} />
       {/* First role with numbers */}

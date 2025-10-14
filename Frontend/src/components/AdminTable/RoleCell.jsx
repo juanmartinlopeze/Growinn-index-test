@@ -1,13 +1,14 @@
 import React from "react";
 import RoleTag from "./RoleTag";
-import { ROLE_WIDTH, ROW_HEIGHT } from "./columnSizes";
+import { ROLE_WIDTH, ROW_HEIGHT, TOTAL_TABLE_WIDTH } from "./columnSizes";
 
 export default function RoleCell({ total = 0, answered = 0 }) {
   return (
     <div
       className="role-cell flex items-center justify-center"
       style={{
-        width: ROLE_WIDTH,
+        flex: `${ROLE_WIDTH} 0 auto`,
+        flexBasis: `${(ROLE_WIDTH / TOTAL_TABLE_WIDTH) * 100}%`,
         height: ROW_HEIGHT,
         padding: 12,
         gap: 10,

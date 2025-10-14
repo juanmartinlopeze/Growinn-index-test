@@ -4,6 +4,7 @@ import {
   ROLE_WIDTH,
   COMPLETED_WIDTH,
   HEADER_HEIGHT,
+  TOTAL_TABLE_WIDTH,
 } from "./columnSizes";
 
 export default function FooterTable({
@@ -15,7 +16,8 @@ export default function FooterTable({
 
   // shared style
   const commonStyle = (width, borderRadiusLeft, borderRadiusRight) => ({
-    width,
+    flex: `${width} 0 auto`,
+    flexBasis: `${(width / TOTAL_TABLE_WIDTH) * 100}%`,
     height: HEADER_HEIGHT,
     borderTopLeftRadius: 0,
     borderTopRightRadius: 0,
@@ -27,7 +29,7 @@ export default function FooterTable({
     return (
       <div
         className={`${baseClasses} flex items-center justify-center h-11 px-3 gap-2 flex-shrink-0 bg-neutral-100 border border-neutral-200`}
-        style={commonStyle(ROLE_WIDTH, 0, 0)}
+  style={commonStyle(ROLE_WIDTH, 0, 0)}
       >
         {children ? (
           children
@@ -44,7 +46,7 @@ export default function FooterTable({
     return (
       <div
         className={`${baseClasses} flex items-center justify-center h-11 px-3 gap-2 flex-shrink-0 bg-neutral-100 border border-neutral-200`}
-        style={commonStyle(COMPLETED_WIDTH, 0, 8)}
+  style={commonStyle(COMPLETED_WIDTH, 0, 8)}
       >
         {children ? (
           children
@@ -61,7 +63,7 @@ export default function FooterTable({
   return (
     <div
       className={`${baseClasses} flex items-center h-11 px-3 gap-2 flex-shrink-0 bg-neutral-100 border border-neutral-200`}
-      style={commonStyle(AREA_WIDTH, 8, 0)}
+  style={commonStyle(AREA_WIDTH, 8, 0)}
     >
       {children ? (
         children

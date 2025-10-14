@@ -78,9 +78,9 @@ export function EmailManagement() {
           setProgress(0);
           return;
         }
-  const empresaActual = empresas[empresas.length - 1];
-  console.log('EMPRESA ACTUAL PARA PROGRESO:', empresaActual);
-        const [areas, cargos, subcargos, progreso, usuariosEmpresa] = await Promise.all([
+        const empresaActual = empresas[empresas.length - 1];
+        console.log('EMPRESA ACTUAL PARA PROGRESO:', empresaActual);
+        const [areas, cargos, subcargos, progreso, _usuariosEmpresa] = await Promise.all([
           fetchAreas(empresaActual.id),
           fetchCargos(),
           fetchSubcargos(),
@@ -92,10 +92,10 @@ export function EmailManagement() {
               .eq('empresa_id', empresaActual.id);
             if (error) return [];
             return data || [];
-          })()
+          })(),
         ]);
 
-  setTotal(empresaActual.cantidad_empleados);
+        setTotal(empresaActual.cantidad_empleados);
         setProgress(progreso);
 
         // ...código original para la tabla...
@@ -151,7 +151,7 @@ export function EmailManagement() {
           };
         });
         setRows(newRows);
-      } catch (err) {
+      } catch {
         setRows([]);
         setTotal(0);
         setProgress(0);
@@ -179,7 +179,7 @@ export function EmailManagement() {
           if (idx === 2) navigate("/datos_prueba");
         }}
       />
-      <div className="flex flex-col w-[1125px] items-start gap-[26px]">
+  <div className="flex flex-col w-[1200px] items-start gap-[26px]">
         <TitleSection title="Gestión de análisis y respuestas" />
         <div className="flex flex-col items-start gap-[26px] w-full">
           <Description
@@ -200,7 +200,8 @@ export function EmailManagement() {
       <div
         style={{
           display: "flex",
-          width: TOTAL_TABLE_WIDTH,
+          maxWidth: TOTAL_TABLE_WIDTH,
+          width: "100%",
           flexDirection: "column",
           alignItems: "flex-start",
           gap: 0,
@@ -217,10 +218,11 @@ export function EmailManagement() {
 
         <div
           style={{
-            display: "inline-flex",
+            display: "flex",
             flexDirection: "column",
-            alignItems: "flex-start",
+            alignItems: "stretch",
             gap: 0,
+            width: "100%",
           }}
         >
           {rows.length ? (
@@ -300,7 +302,7 @@ export function EmailManagement() {
       </div>
 
       {/* Botones de acción */}
-      <div className="flex w-[1125px] justify-between items-center mt-8">
+  <div className="flex w-[1200px] justify-between items-center mt-8">
 
         <Button
           variant="email"
@@ -349,13 +351,13 @@ export function EmailManagement() {
               }
               setShowAlert(false);
               setAlertType(null);
-            } catch (err) {
-              setMessageType("error");
-              setMessageTitle("Error");
-              setMessage("Error de red o del servidor al analizar resultados.");
-              setShowAlert(false);
-              setAlertType(null);
-            }
+        } catch {
+          setMessageType("error");
+          setMessageTitle("Error");
+          setMessage("Error de red o del servidor al analizar resultados.");
+          setShowAlert(false);
+          setAlertType(null);
+        }
           }}
           className="w-[534px] shrink-0"
         />

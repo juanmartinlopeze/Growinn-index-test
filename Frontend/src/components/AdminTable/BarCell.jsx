@@ -1,13 +1,14 @@
 import React from "react";
 import ProgressBar from "./ProgressBar";
-import { COMPLETED_WIDTH, ROW_HEIGHT } from "./columnSizes";
+import { COMPLETED_WIDTH, ROW_HEIGHT, TOTAL_TABLE_WIDTH } from "./columnSizes";
 
 export default function BarCell({ percent = 0 }) {
   return (
     <div
       className="bar-cell flex items-center"
       style={{
-        width: COMPLETED_WIDTH,
+        flex: `${COMPLETED_WIDTH} 0 auto`,
+        flexBasis: `${(COMPLETED_WIDTH / TOTAL_TABLE_WIDTH) * 100}%`,
         height: ROW_HEIGHT,
         padding: 12,
         gap: 10,
