@@ -9,6 +9,9 @@ import "./areas_form.css";
 const BASE_URL = (import.meta.env.VITE_API_URL || "http://localhost:3000").replace(/\/$/, "");
 
 export function AreasForm() {
+
+  // Si en el futuro se reciben áreas del backend, descomentar y obtenerlas aquí:
+  // const areaNamesFromBackend = ...
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -51,18 +54,10 @@ export function AreasForm() {
   };
 
   const handleSubmit = async () => {
-    // Si ya vienen áreas del backend, no validar ni pedir nombres
-    let nombresAreas;
-    if (areaNamesFromBackend) {
-      nombresAreas = areaNamesFromBackend.map(a => a.nombre || a);
-    } else {
-      nombresAreas = questions.map((q) => (formData[q.field] || "").trim());
-      // Ya no mostramos alerta aquí, solo prevenimos avanzar si falta info
-      if (nombresAreas.some((nombre) => nombre === "")) {
-        return;
-      }
-    }
 
+    // Si en el futuro se reciben áreas del backend, aquí se puede usar areaNamesFromBackend
+    // Por ahora, solo usamos los nombres del formulario:
+    const nombresAreas = questions.map((q) => (formData[q.field] || "").trim());
     if (nombresAreas.some((nombre) => nombre === "")) {
       setAlertType("complete");
       setAlertMessage("Por favor, completa todos los nombres de las áreas para continuar.");
