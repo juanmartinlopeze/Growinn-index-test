@@ -44,16 +44,23 @@ export function EmailManagement() {
       console.log("📧 URL del servicio de mail:", mailServiceUrl);
       const res = await fetch(mailServiceUrl);
       if (!res.ok) throw new Error(`Status ${res.status}`);
+      // number of participants pending (total - progress)
+      const pending = Math.max(0, (total || 0) - (progress || 0));
       setSuccess(true);
       setMessageType("success");
       setMessageTitle("Correos reenviados");
-      setMessage("Se han reenviado los correos correctamente.");
+      setMessage(
+        `Se han reenviado los correos a ${pending} participantes pendientes.`
+      );
     } catch (err) {
       console.error("Error enviando correos:", err);
       setError("No se pudieron enviar los correos.");
+      const pending = Math.max(0, (total || 0) - (progress || 0));
       setMessageType("error");
-      setMessageTitle("Error");
-      setMessage("No se pudieron enviar los correos.");
+      setMessageTitle("Los correos no fueron enviados");
+      setMessage(
+        `No se han podido reenviar los correos a los ${pending} participantes pendientes.`
+      );
     } finally {
       setLoading(false);
     }
@@ -209,7 +216,11 @@ export function EmailManagement() {
         <Button
           variant="email"
           text={loading ? "Enviando..." : "Reenviar correos"}
-          onClick={handleSendEmails}
+          onClick={() => {
+            // show confirmation alert before sending
+            setAlertType("confirmResend");
+            setShowAlert(true);
+          }}
           disabled={loading}
           style={{
             display: "flex",
@@ -405,53 +416,85 @@ export function EmailManagement() {
 
       {/* Toast flotante bottom-right para mensajes */}
       {message && (
-        <div
-          className="fixed bottom-8 right-8 z-50"
-          style={{
-            display: "flex",
-            width: "386px",
-            height: "113px",
-            padding: "24px",
-            flexDirection: "column",
-            justifyContent: "center",
-            alignItems: "flex-start",
-            gap: "8px",
-            flexShrink: 0,
-            borderRadius: "8px",
-            border: "1px solid #CCC",
-            background: "#FFF",
-            boxShadow: "0 4px 8px 0 rgba(0,0,0,0.12)",
-          }}
-        >
-          {messageType === "success" ? (
-            <div>
-              <h4 className="text-base font-medium text-gray-900 mb-1 text-left">
-                {messageTitle || "Correos reenviados"}
-              </h4>
-              <p className="text-sm text-gray-700 text-left">{message}</p>
-              {success && (
-                <p style={{ color: "green", marginTop: "0.5rem" }}>
-                  ✅ Correos enviados correctamente.
+        <>
+          {/* slide-in from right animation for the toast */}
+          <style>{`
+            @keyframes slideInFromRight {
+              from { transform: translateX(120%); opacity: 0; }
+              to { transform: translateX(0); opacity: 1; }
+            }
+          `}</style>
+
+          <div
+            className="fixed bottom-8 right-8 z-50"
+            style={{
+              display: "flex",
+              width: "386px",
+              height: "113px",
+              padding: "24px",
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "flex-start",
+              gap: "8px",
+              flexShrink: 0,
+              borderRadius: "8px",
+              border: "1px solid #CCC",
+              background: "#FFF",
+              boxShadow: "0 4px 8px 0 rgba(0,0,0,0.12)",
+              animation: "slideInFromRight 350ms ease-out forwards",
+            }}
+          >
+            {messageType === "success" ? (
+              <div>
+                <h4
+                  className="mb-1 text-left"
+                  style={{
+                    color: "var(--Colors-Text-text-primary, #333)",
+                    fontFamily: "Plus Jakarta Sans",
+                    fontSize: "var(--Versin-web-Contenido-Body-sm, 14px)",
+                    fontStyle: "normal",
+                    fontWeight: 700,
+                    lineHeight: "normal",
+                  }}
+                >
+                  {messageTitle || "Correos reenviados"}
+                </h4>
+                <p
+                  className="text-left"
+                  style={{
+                    color: "var(--Colors-Text-text-primary, #333)",
+                    fontFamily: "Plus Jakarta Sans",
+                    fontSize: "var(--Versin-web-Contenido-Body-sm, 14px)",
+                    fontStyle: "normal",
+                    fontWeight: 400,
+                    lineHeight: "normal",
+                  }}
+                >
+                  {message}
                 </p>
-              )}
-            </div>
-          ) : (
-            <>
-              <p
-                className={`text-sm ${
-                  messageType === "error"
-                    ? "text-semantic-error"
-                    : "text-gray-700"
-                }`}
-              >
-                {message}
-              </p>
-              {error && (
-                <p style={{ color: "red", marginTop: "0.5rem" }}>{error}</p>
-              )}
-            </>
-          )}
-        </div>
+                {success && (
+                  <p style={{ color: "green", marginTop: "0.5rem" }}>
+                    ✅ Correos enviados correctamente.
+                  </p>
+                )}
+              </div>
+            ) : (
+              <>
+                <p
+                  style={{
+                    color: "red",
+                    fontFamily: "Plus Jakarta Sans",
+                    fontSize: "var(--Versin-web-Contenido-Body-sm, 14px)",
+                    fontWeight: 700,
+                    margin: 0,
+                  }}
+                >
+                  {error || "No se ha podido enviar los correos."}
+                </p>
+              </>
+            )}
+          </div>
+        </>
       )}
 
       {showAlert && (
@@ -460,13 +503,15 @@ export function EmailManagement() {
           onClose={() => setShowAlert(false)}
           onCancel={() => setShowAlert(false)}
           onConfirm={async () => {
-            // manejar confirmaciones por tipo
+            // handle confirmations by type
             if (alertType === "confirmResend") {
-              setMessageType("success");
-              setMessageTitle("Correos reenviados");
-              setMessage(
-                "Se han reenviado los correos a 75 participantes pendientes"
-              );
+              // user confirmed: call the existing send function
+              try {
+                await handleSendEmails();
+              } catch (e) {
+                // handleSendEmails already sets message/error state; nothing extra needed
+                console.error("Error during confirmed resend:", e);
+              }
             }
             if (alertType === "confirmAnalysis") {
               setMessageType("success");

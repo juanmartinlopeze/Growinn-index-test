@@ -128,14 +128,55 @@ export const Alert = ({
           <div className="alert-icon">{icon || current.icon}</div>
         )}
 
-        <div className="alert-title">
-          <p>{title || current.title}</p>
-        </div>
-        <div className="alert-message">
-          <p>{message || current.message}</p>
+        <div
+          className="alert-title"
+          style={{
+            alignSelf: "stretch",
+            color: "var(--Colors-Text-text-primary, #333)",
+            fontFamily: "Plus Jakarta Sans",
+            fontSize: "var(--Versin-web-Titulos-H4, 24px)",
+            fontStyle: "normal",
+            fontWeight: 500,
+            lineHeight: "normal",
+          }}
+        >
+          <p style={{ margin: 0 }}>{title || current.title}</p>
         </div>
 
-        <div className="alert-actions">
+        <div
+          className="alert-message"
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "flex-start",
+            gap: 8,
+            alignSelf: "stretch",
+          }}
+        >
+          <p
+            style={{
+              margin: 0,
+              color: "var(--Colors-Text-text-primary, #333)",
+              fontFamily: "Plus Jakarta Sans",
+              fontSize: "var(--Versin-web-Contenido-Body, 16px)",
+              fontStyle: "normal",
+              fontWeight: 400,
+              lineHeight: "22px",
+            }}
+          >
+            {message || current.message}
+          </p>
+        </div>
+
+        <div
+          className="alert-actions"
+          style={{
+            display: "flex",
+            alignItems: "flex-start",
+            alignSelf: "stretch",
+            gap: 8,
+          }}
+        >
           {(buttons || current.buttons)?.map((btn, index) => (
             <Button
               key={index}
