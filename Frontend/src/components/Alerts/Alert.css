@@ -97,3 +97,18 @@
 .toast-slide-in {
   animation: slideInFromRight 350ms ease-out forwards;
 }
+
+/* Fade-out animation for toasts when auto-dismissing */
+@keyframes fadeOutToast {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(20%);
+  }
+}
+.toast-fade-out {
+  animation: fadeOutToast 350ms ease-in forwards;
+}

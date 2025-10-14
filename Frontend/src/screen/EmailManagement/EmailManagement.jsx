@@ -121,6 +121,7 @@ export function EmailManagement() {
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState("info");
   const [messageTitle, setMessageTitle] = useState("");
+  const [toastClosing, setToastClosing] = useState(false);
   const [rows, setRows] = useState([]);
 
   useEffect(() => {
@@ -215,6 +216,29 @@ export function EmailManagement() {
     }
     load();
   }, []);
+
+  // Auto-dismiss toast after 5 seconds when message is set
+  useEffect(() => {
+    if (!message) return;
+    setToastClosing(false);
+    // after visibleDuration -> start fade-out
+    const visibleDuration = 5000; // ms
+    const fadeDuration = 350; // must match CSS animation duration
+    const t1 = setTimeout(() => setToastClosing(true), visibleDuration);
+    // after visible + fade duration -> clear message
+    const t2 = setTimeout(() => {
+      setMessage("");
+      setMessageTitle("");
+      setMessageType("info");
+      setSuccess(false);
+      setError(null);
+      setToastClosing(false);
+    }, visibleDuration + fadeDuration);
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+    };
+  }, [message]);
 
   // meta ahora se calcula en SurveyProgress
 
@@ -425,7 +449,9 @@ export function EmailManagement() {
       {message && (
         <>
           <div
-            className="fixed bottom-8 right-8 z-50 toast-slide-in"
+            className={`fixed bottom-8 right-8 z-50 toast-slide-in ${
+              toastClosing ? "toast-fade-out" : ""
+            }`}
             style={{
               display: "flex",
               width: "386px",
