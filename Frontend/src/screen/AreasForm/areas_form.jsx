@@ -51,7 +51,17 @@ export function AreasForm() {
   };
 
   const handleSubmit = async () => {
-    const nombresAreas = questions.map((q) => (formData[q.field] || "").trim());
+    // Si ya vienen áreas del backend, no validar ni pedir nombres
+    let nombresAreas;
+    if (areaNamesFromBackend) {
+      nombresAreas = areaNamesFromBackend.map(a => a.nombre || a);
+    } else {
+      nombresAreas = questions.map((q) => (formData[q.field] || "").trim());
+      // Ya no mostramos alerta aquí, solo prevenimos avanzar si falta info
+      if (nombresAreas.some((nombre) => nombre === "")) {
+        return;
+      }
+    }
 
     if (nombresAreas.some((nombre) => nombre === "")) {
       setAlertType("complete");

@@ -8,7 +8,7 @@ function categorizeResponses(responses) {
     const questionInfo = questionMap[questionId];
 
     if (!questionInfo) {
-      console.warn(`Pregunta ${questionId} no encontrada en questionMap`);
+      console.warn(`Pregunta ${questionId} no encontrada en questionMap. Todas las claves disponibles:`, Object.keys(questionMap));
       return;
     }
 
