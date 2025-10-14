@@ -183,12 +183,6 @@ export function DownloadPage() {
             text="Descargar documento"
             onClick={handleDownload}
           />
-          <Button
-            variant="primary"
-            text="🔍 Debug Completo"
-            onClick={debugState}
-            style={{ marginTop: '10px', backgroundColor: '#059669' }}
-          />
         </div>
       </div>
 
