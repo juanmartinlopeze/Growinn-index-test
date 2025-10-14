@@ -23,6 +23,39 @@ import {
 } from "../../components/index";
 
 export function EmailManagement() {
+  // Estados para feedback de envío de correos
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(false);
+
+  // Función para enviar correos (igual que en ValidationPage)
+  const handleSendEmails = async () => {
+    setLoading(true);
+    setError(null);
+    setSuccess(false);
+    try {
+      const isProduction = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+      const mailServiceUrl = isProduction
+        ? "https://growinn-mail-service.onrender.com/enviar-correos"
+        : "http://localhost:3001/enviar-correos";
+      console.log("🌐 Enviando correos desde:", window.location.hostname);
+      console.log("📧 URL del servicio de mail:", mailServiceUrl);
+      const res = await fetch(mailServiceUrl);
+      if (!res.ok) throw new Error(`Status ${res.status}`);
+      setSuccess(true);
+      setMessageType("success");
+      setMessageTitle("Correos reenviados");
+      setMessage("Se han reenviado los correos correctamente.");
+    } catch (err) {
+      console.error("Error enviando correos:", err);
+      setError("No se pudieron enviar los correos.");
+      setMessageType("error");
+      setMessageTitle("Error");
+      setMessage("No se pudieron enviar los correos.");
+    } finally {
+      setLoading(false);
+    }
+  };
   const navigate = useNavigate();
 
   // Estos valores deben venir de la base de datos en producción
@@ -268,14 +301,13 @@ export function EmailManagement() {
 
       {/* Botones de acción */}
       <div className="flex w-[1125px] justify-between items-center mt-8">
+
         <Button
           variant="email"
-          text="Reenviar correos"
-          onClick={() => {
-            setAlertType("confirmResend");
-            setShowAlert(true);
-          }}
+          text={loading ? "Enviando..." : "Reenviar correos"}
+          onClick={handleSendEmails}
           className="w-[534px] shrink-0"
+          disabled={loading}
         />
 
         <Button
@@ -355,17 +387,27 @@ export function EmailManagement() {
                 {messageTitle || "Correos reenviados"}
               </h4>
               <p className="text-sm text-gray-700 text-left">{message}</p>
+              {success && (
+                <p style={{ color: "green", marginTop: "0.5rem" }}>
+                  ✅ Correos enviados correctamente.
+                </p>
+              )}
             </div>
           ) : (
-            <p
-              className={`text-sm ${
-                messageType === "error"
-                  ? "text-semantic-error"
-                  : "text-gray-700"
-              }`}
-            >
-              {message}
-            </p>
+            <>
+              <p
+                className={`text-sm ${
+                  messageType === "error"
+                    ? "text-semantic-error"
+                    : "text-gray-700"
+                }`}
+              >
+                {message}
+              </p>
+              {error && (
+                <p style={{ color: "red", marginTop: "0.5rem" }}>{error}</p>
+              )}
+            </>
           )}
         </div>
       )}
