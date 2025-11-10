@@ -31,7 +31,7 @@ router.post('/analizar-resultados', async (req, res) => {
 
   // 2. Obtener respuestas de esos usuarios
   const { data: surveyResponses, error } = await supabase
-    .from('survey_responses')
+    .from('survey_results')
     .select('user_id, answers, completed_at')
     .in('user_id', userIds);
 
