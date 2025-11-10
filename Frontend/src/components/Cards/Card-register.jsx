@@ -9,13 +9,18 @@ export default function RegisterCard({ loading, status, msg, onSubmit }) {
 	const handleNext = () => {
 		const form = formRef.current
 		if (!form) return
-		if (form.checkValidity()) {
-			setStep(2)
-			const firstStep2 = form.querySelector('[data-step="2"] input, [data-step="2"] select, [data-step="2"] textarea')
-			firstStep2?.focus()
-		} else {
-			form.reportValidity()
+
+		const step1Controls = form.querySelectorAll('[data-step="1"] input, [data-step="1"] select, [data-step="1"] textarea')
+		for (const el of step1Controls) {
+			if (!el.checkValidity()) {
+				el.reportValidity()
+				return
+			}
 		}
+
+		setStep(2)
+		const firstStep2 = form.querySelector('[data-step="2"] input, [data-step="2"] select, [data-step="2"] textarea')
+		firstStep2?.focus()
 	}
 
 	const handleBack = () => setStep(1)
