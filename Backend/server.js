@@ -83,6 +83,42 @@ safeUse('/',         () => require('./routes/uploadExcel'));
 safeUse('/',         () => require('./routes/excelroute'));
 safeUse('/encuesta', () => require('./routes/survey'));
 
+// ✅ AGREGAR ESTAS DOS RUTAS FALTANTES:
+
+// Ruta de análisis de resultados
+safeUse('/api', () => require('./routes/analizarResultados'));
+
+// Ruta de envío de correos
+app.post('/enviar-correos', async (req, res) => {
+  console.log('\n🔵 === ENVÍO DE CORREOS BACKEND ===');
+  console.log('📦 Request recibido:');
+  console.log('   - Method:', req.method);
+  console.log('   - Body:', JSON.stringify(req.body, null, 2));
+  
+  try {
+    const { empresa_id } = req.body;
+    console.log('🔑 empresa_id extraído:', empresa_id);
+    
+    if (!empresa_id) {
+      console.error('❌ Falta empresa_id');
+      return res.status(400).json({ error: 'Falta empresa_id' });
+    }
+    
+    console.log('📧 Llamando a mailSender...');
+    const sendEmail = require('./mail/mailSender');
+    const result = await sendEmail(empresa_id);
+    
+    console.log('✅ Resultado:', result);
+    console.log('🔵 === FIN ENVÍO ===\n');
+    
+    return res.json(result);
+  } catch (error) {
+    console.error('💥 === ERROR EN ENVÍO ===');
+    console.error('Error:', error);
+    return res.status(500).json({ error: error.message });
+  }
+});
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Auth middleware (aplicativo; no HTTPS)
 async function requireAuth(req, res, next) {
