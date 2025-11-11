@@ -21,14 +21,14 @@ const listFromEnv = (v) =>
   (v || '').split(',').map(s => s.trim().replace(/\/$/, '')).filter(Boolean);
 
 const allowlist = [
-  ...listFromEnv(process.env.FRONTEND_ORIGIN),     // ej: https://growinn-index.onrender.com
-  ...listFromEnv(process.env.ADDITIONAL_ORIGINS),  // ej: http://localhost:5173,http://localhost:3000
+  ...listFromEnv(process.env.FRONTEND_ORIGIN),
+  ...listFromEnv(process.env.ADDITIONAL_ORIGINS),
   ...listFromEnv(process.env.ALLOWED_ORIGINS),
 ];
 
 const corsOptions = {
   origin(origin, cb) {
-    if (!origin) return cb(null, true);               // healthchecks/server-to-server
+    if (!origin) return cb(null, true);
     const o = origin.replace(/\/$/, '');
     if (allowlist.includes(o)) return cb(null, true);
     return cb(new Error(`Not allowed by CORS: ${origin}`));
@@ -48,7 +48,7 @@ app.get('/health', (_req, res) => res.status(200).send('ok'));
 app.get('/ping',   (_req, res) => res.json({ pong: true, ts: Date.now() }));
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Supabase: carga segura (sin relación con HTTPS)
+// Supabase: carga segura
 let supabase, supabaseAdmin, supabaseAuth;
 try {
   const { createClient } = require('@supabase/supabase-js');
@@ -60,12 +60,12 @@ try {
     supabase     = createClient(URL, ANON);
     supabaseAuth = createClient(URL, ANON);
   } else {
-    console.warn('⚠️  Supabase client NO configurado (SUPABASE_URL o SUPABASE_ANON_KEY faltan)');
+    console.warn('⚠️  Supabase client NO configurado');
   }
   if (URL && SERVICE) {
     supabaseAdmin = createClient(URL, SERVICE);
   } else {
-    console.warn('⚠️  Supabase ADMIN NO configurado (SUPABASE_SERVICE_ROLE/_KEY falta)');
+    console.warn('⚠️  Supabase ADMIN NO configurado');
   }
 } catch (e) {
   console.error('❌ Error cargando @supabase/supabase-js:', e.message);
@@ -83,14 +83,30 @@ safeUse('/',         () => require('./routes/excelroute'));
 safeUse('/encuesta', () => require('./routes/survey'));
 safeUse('/api',      () => require('./routes/analizarResultados'));
 
-const surveyRouter = require('./routes/survey');
-const mailRouter = require('./routes/mail');
-const analizarResultadosRouter = require('./routes/analizarResultados');
+// ─────────────────────────────────────────────────────────────────────────────
+// Ruta para enviar correos (directamente aquí, sin archivo mail.js)
+app.post('/enviar-correos', async (req, res) => {
+  try {
+    const { empresa_id } = req.body;
+    if (!empresa_id) {
+      return res.status(400).json({ error: 'Falta empresa_id' });
+    }
+    
+    // Importar la función de envío de correos
+    const sendEmail = require('./mail/mailSender');
+    const result = await sendEmail(empresa_id);
+    
+    return res.json(result);
+  } catch (error) {
+    console.error('❌ Error enviando correos:', error);
+    return res.status(500).json({ 
+      error: 'Error al enviar correos', 
+      details: error.message 
+    });
+  }
+});
 
-app.use('/encuesta', surveyRouter);
-app.use('/', mailRouter);
-app.use('/api', analizarResultadosRouter);
-
+// ─────────────────────────────────────────────────────────────────────────────
 // Servir archivos estáticos del frontend
 const frontendPath = path.join(__dirname, '../Frontend/dist');
 console.log('📁 Buscando frontend en:', frontendPath);
@@ -99,8 +115,7 @@ if (fs.existsSync(frontendPath)) {
   app.use(express.static(frontendPath));
   console.log('✅ Frontend encontrado y sirviendo estáticos');
   
-  // IMPORTANTE: Fallback para SPA (React Router)
-  // Debe estar DESPUÉS de todas las rutas API
+  // Fallback para SPA (React Router) - DESPUÉS de todas las rutas API
   app.get('*', (req, res) => {
     // No aplicar fallback a rutas de API
     if (req.path.startsWith('/api') || 
@@ -126,11 +141,6 @@ if (fs.existsSync(frontendPath)) {
   });
 }
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`🚀 Servidor corriendo en puerto ${PORT}`);
-});
-
 // ─────────────────────────────────────────────────────────────────────────────
 // 404 & errores
 app.use((req, res) => res.status(404).json({ error: 'Not Found', path: req.path }));
@@ -140,9 +150,8 @@ app.use((err, _req, res, _next) => {
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Puerto (solo HTTP)
-const USE_HTTPS = process.env.USE_HTTPS === 'true';
-
-if (USE_HTTPS) {
-  // ...existing HTTPS setup...
-}
+// Puerto
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`🚀 Servidor corriendo en puerto ${PORT}`);
+});
