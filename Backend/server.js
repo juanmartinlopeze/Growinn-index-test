@@ -5,11 +5,16 @@ process.on('uncaughtException',  (e) => console.error('UNCAUGHT EXCEPTION', e));
 
 require('dotenv').config();
 const express = require('express');
-const cors    = require('cors');
+const cors = require('cors');
+const path = require('path');
+const fs = require('fs');
+const https = require('https');
+const http = require('http');
 
 const app = express();
 
-// Body parser
+// Middlewares
+app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -79,6 +84,44 @@ safeUse('/',         () => require('./routes/uploadExcel'));
 safeUse('/',         () => require('./routes/excelroute'));
 safeUse('/encuesta', () => require('./routes/survey'));
 safeUse('/api',      () => require('./routes/analizarResultados'));
+
+const surveyRouter = require('./routes/survey');
+const mailRouter = require('./routes/mail');
+const analizarResultadosRouter = require('./routes/analizarResultados');
+
+app.use('/', surveyRouter);
+app.use('/', mailRouter);
+app.use('/encuesta', surveyRouter);
+app.use('/api', analizarResultadosRouter);
+console.log('✅ Router montado en /api');
+
+// Servir archivos estáticos del frontend (build de producción)
+const frontendBuildPath = path.join(__dirname, '../Frontend/dist');
+if (fs.existsSync(frontendBuildPath)) {
+  app.use(express.static(frontendBuildPath));
+  console.log('✅ Sirviendo frontend desde:', frontendBuildPath);
+  
+  // IMPORTANTE: Fallback para rutas SPA (debe estar DESPUÉS de las rutas API)
+  app.get('*', (req, res) => {
+    // No aplicar fallback a rutas de API
+    if (req.path.startsWith('/api') || 
+        req.path.startsWith('/encuesta') || 
+        req.path.startsWith('/enviar-correos') ||
+        req.path.startsWith('/areas') ||
+        req.path.startsWith('/cargos') ||
+        req.path.startsWith('/subcargos') ||
+        req.path.startsWith('/empresas') ||
+        req.path.startsWith('/usuarios') ||
+        req.path.startsWith('/validate-token')) {
+      return res.status(404).json({ error: 'Ruta API no encontrada' });
+    }
+    
+    // Para todas las demás rutas, servir index.html (React Router se encargará)
+    res.sendFile(path.join(frontendBuildPath, 'index.html'));
+  });
+} else {
+  console.warn('⚠️ No se encontró el build del frontend en:', frontendBuildPath);
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Auth middleware (aplicativo; no HTTPS)
@@ -434,4 +477,13 @@ app.use((err, _req, res, _next) => {
 // ─────────────────────────────────────────────────────────────────────────────
 // Puerto (solo HTTP)
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Servidor HTTP corriendo en puerto ${PORT}`));
+const USE_HTTPS = process.env.USE_HTTPS === 'true';
+
+if (USE_HTTPS) {
+  // ...existing HTTPS setup...
+} else {
+  const httpServer = http.createServer(app);
+  httpServer.listen(PORT, () => {
+    console.log(`Servidor HTTP corriendo en puerto ${PORT}`);
+  });
+}
