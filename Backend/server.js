@@ -1,5 +1,4 @@
 // server.js
-// ─────────────────────────────────────────────────────────────────────────────
 process.on('unhandledRejection', (r) => console.error('UNHANDLED REJECTION', r));
 process.on('uncaughtException',  (e) => console.error('UNCAUGHT EXCEPTION', e));
 
@@ -10,13 +9,9 @@ const path = require('path');
 const fs = require('fs');
 
 const app = express();
-
-// Middlewares
-app.use(cors());
 app.use(express.json());
 
-// ─────────────────────────────────────────────────────────────────────────────
-// CORS configurable por variables (sin HTTPS obligatorio)
+// ── CORS ─────────────────────────────────────────────────────────────────────
 const listFromEnv = (v) =>
   (v || '').split(',').map(s => s.trim().replace(/\/$/, '')).filter(Boolean);
 
@@ -26,7 +21,7 @@ const allowlist = [
   ...listFromEnv(process.env.ALLOWED_ORIGINS),
 ];
 
-const corsOptions = {
+app.use(cors({
   origin(origin, cb) {
     if (!origin) return cb(null, true);
     const o = origin.replace(/\/$/, '');
@@ -37,121 +32,88 @@ const corsOptions = {
   methods: ['GET','POST','PUT','PATCH','DELETE','OPTIONS'],
   allowedHeaders: ['Content-Type','Authorization'],
   exposedHeaders: ['Content-Length'],
-};
-app.use(cors(corsOptions));
-app.options('*', cors(corsOptions));
-app.use((_, res, next) => { res.setHeader('Vary', 'Origin'); next(); });
+}));
+app.options('*', cors());
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Endpoints de vida
+// ── Health ───────────────────────────────────────────────────────────────────
 app.get('/health', (_req, res) => res.status(200).send('ok'));
 app.get('/ping',   (_req, res) => res.json({ pong: true, ts: Date.now() }));
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Supabase: carga segura
-let supabase, supabaseAdmin, supabaseAuth;
-try {
-  const { createClient } = require('@supabase/supabase-js');
-  const URL     = process.env.SUPABASE_URL;
-  const ANON    = process.env.SUPABASE_ANON_KEY;
-  const SERVICE = process.env.SUPABASE_SERVICE_ROLE || process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-  if (URL && ANON) {
-    supabase     = createClient(URL, ANON);
-    supabaseAuth = createClient(URL, ANON);
-  } else {
-    console.warn('⚠️  Supabase client NO configurado');
+// ── Montaje de APIs (TODO bajo /api) ─────────────────────────────────────────
+// IMPORTANTE: mueve rutas que chocaban con el SPA.
+// Antes: safeUse('/encuesta', () => require('./routes/survey'));
+function safeUse(pathPrefix, loader) {
+  try {
+    app.use(pathPrefix, loader());
+    console.log(`✅ Router montado en ${pathPrefix}`);
+  } catch (e) {
+    console.error(`❌ No se pudo montar router en ${pathPrefix}:`, e.message);
   }
-  if (URL && SERVICE) {
-    supabaseAdmin = createClient(URL, SERVICE);
-  } else {
-    console.warn('⚠️  Supabase ADMIN NO configurado');
-  }
-} catch (e) {
-  console.error('❌ Error cargando @supabase/supabase-js:', e.message);
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Montaje defensivo de routers locales
-function safeUse(path, loader) {
-  try { app.use(path, loader()); console.log(`✅ Router montado en ${path}`); }
-  catch (e) { console.error(`❌ No se pudo montar router en ${path}:`, e.message); }
-}
+// monta TODO bajo /api
+safeUse('/api',        () => require('./routes/uploadExcel'));
+safeUse('/api',        () => require('./routes/excelroute'));
+// renombra tu ruta de encuesta a /api/survey (ajusta el archivo si exporta un router base)
+safeUse('/api/survey', () => require('./routes/survey'));
+safeUse('/api',        () => require('./routes/analizarResultados'));
 
-safeUse('/',         () => require('./routes/uploadExcel'));
-safeUse('/',         () => require('./routes/excelroute'));
-safeUse('/encuesta', () => require('./routes/survey'));
-safeUse('/api',      () => require('./routes/analizarResultados'));
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Ruta para enviar correos (directamente aquí, sin archivo mail.js)
-app.post('/enviar-correos', async (req, res) => {
+// endpoint para enviar correos (API)
+app.post('/api/enviar-correos', async (req, res) => {
   try {
     const { empresa_id } = req.body;
-    if (!empresa_id) {
-      return res.status(400).json({ error: 'Falta empresa_id' });
-    }
-    
-    // Importar la función de envío de correos
+    if (!empresa_id) return res.status(400).json({ error: 'Falta empresa_id' });
     const sendEmail = require('./mail/mailSender');
     const result = await sendEmail(empresa_id);
-    
     return res.json(result);
   } catch (error) {
     console.error('❌ Error enviando correos:', error);
-    return res.status(500).json({ 
-      error: 'Error al enviar correos', 
-      details: error.message 
-    });
+    return res.status(500).json({ error: error.message });
   }
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Servir archivos estáticos del frontend
+// ── Servir el frontend (build de Vite) ───────────────────────────────────────
 const frontendPath = path.join(__dirname, '../Frontend/dist');
-console.log('📁 Buscando frontend en:', frontendPath);
+const indexPath    = path.join(frontendPath, 'index.html');
 
-if (fs.existsSync(frontendPath)) {
-  app.use(express.static(frontendPath));
-  console.log('✅ Frontend encontrado y sirviendo estáticos');
-  
-  // Fallback para SPA (React Router) - DESPUÉS de todas las rutas API
+console.log('📁 Frontend path:', frontendPath);
+console.log('📄 Index path:', indexPath);
+
+if (fs.existsSync(frontendPath) && fs.existsSync(indexPath)) {
+  app.use(express.static(frontendPath, { maxAge: '1d', etag: true }));
+  console.log('✅ Sirviendo estáticos desde:', frontendPath);
+
+  // ⚠️ El fallback del SPA debe ir al final y NO debe bloquear /encuesta
   app.get('*', (req, res) => {
-    // No aplicar fallback a rutas de API
-    if (req.path.startsWith('/api') || 
-        req.path.startsWith('/encuesta') || 
-        req.path.startsWith('/enviar-correos') ||
-        req.path.startsWith('/validate-token') ||
-        req.path.startsWith('/areas') ||
-        req.path.startsWith('/cargos') ||
-        req.path.startsWith('/subcargos') ||
-        req.path.startsWith('/empresas') ||
-        req.path.startsWith('/usuarios')) {
+    // Solo excluye verdaderas rutas de API
+    const isApi = req.path.startsWith('/api') || req.path.startsWith('/health') || req.path.startsWith('/ping');
+    if (isApi) {
+      console.log('❌ API route not found:', req.path);
       return res.status(404).json({ error: 'API endpoint no encontrado' });
     }
-    
-    // Para todas las demás rutas, servir index.html
-    console.log('🔄 Fallback SPA para ruta:', req.path);
-    res.sendFile(path.join(frontendPath, 'index.html'));
+    console.log('🔄 SPA fallback para:', req.path);
+    res.sendFile(indexPath, (err) => {
+      if (err) {
+        console.error('❌ Error enviando index.html:', err);
+        res.status(500).send('Error cargando la aplicación');
+      }
+    });
   });
 } else {
-  console.error('❌ No se encontró el build del frontend');
-  app.get('*', (req, res) => {
-    res.status(404).send('Frontend no encontrado. Ejecuta: cd Frontend && npm run build');
+  console.error('❌ Frontend no encontrado en:', frontendPath);
+  console.error('❌ Index.html existe?', fs.existsSync(indexPath));
+  app.get('*', (_req, res) => {
+    res.status(503).send(`
+      <h1>Aplicación no disponible</h1>
+      <p>Frontend no construido. Ejecuta:</p>
+      <pre>cd Frontend && npm run build</pre>
+    `);
   });
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// 404 & errores
-app.use((req, res) => res.status(404).json({ error: 'Not Found', path: req.path }));
-app.use((err, _req, res, _next) => {
-  console.error('ERR:', err);
-  res.status(err.status || 500).json({ error: err.message || 'Internal Error' });
-});
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Puerto
+// ── Start ────────────────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Servidor corriendo en puerto ${PORT}`);
+  console.log(`📍 Modo: ${process.env.NODE_ENV || 'development'}`);
 });
