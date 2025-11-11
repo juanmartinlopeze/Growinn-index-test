@@ -48,8 +48,8 @@ export function EmailManagement() {
       const empresaActual = empresas[empresas.length - 1];
       console.log('🏢 Empresa seleccionada:', empresaActual.id);
 
-      // CORRECCIÓN: Puerto 3000, no 3001
-      const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
+      // ✅ Cambiar a VITE_API_URL
+      const backendUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
       const mailUrl = `${backendUrl}/enviar-correos`;
       
       console.log('🌐 Backend URL:', backendUrl);
@@ -111,91 +111,48 @@ export function EmailManagement() {
     try {
       console.log('\n🔵 === ANÁLISIS DE RESULTADOS INICIO ===');
       
-      console.log('📊 Paso 1: Obteniendo empresas...');
       const empresas = await fetchEmpresas();
-      console.log('✅ Empresas obtenidas:', empresas);
-      
       if (!empresas || empresas.length === 0) {
         console.error('❌ No hay empresas');
-        setMessageType("error");
-        setMessageTitle("Error");
-        setMessage("No hay empresa para analizar.");
-        setShowAlert(false);
-        setAlertType(null);
         return;
       }
       
       const empresaActual = empresas[empresas.length - 1];
-      console.log('🏢 Empresa actual seleccionada:', empresaActual);
-      console.log('🔑 empresa_id que se enviará:', empresaActual.id);
+      console.log('🏢 Empresa:', empresaActual.id);
       
-      const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
+      // ✅ Cambiar a VITE_API_URL
+      const backendUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
       const analyzeUrl = `${backendUrl}/api/analizar-resultados`;
-      console.log('🌐 URL de análisis:', analyzeUrl);
+      console.log('🌐 URL:', analyzeUrl);
       
-      const requestBody = { empresa_id: empresaActual.id };
-      console.log('📦 Body de la petición:', JSON.stringify(requestBody, null, 2));
-      
-      console.log('🚀 Enviando petición POST...');
       const response = await fetch(analyzeUrl, {
         method: "POST",
-        headers: { 
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(requestBody),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ empresa_id: empresaActual.id }),
       });
       
-      console.log('📡 Respuesta recibida:');
-      console.log('   - Status:', response.status);
-      console.log('   - Status Text:', response.statusText);
-      console.log('   - Headers:', Object.fromEntries(response.headers.entries()));
-      
       const data = await response.json();
-      console.log('📄 Data parseada:', JSON.stringify(data, null, 2));
       
       if (response.ok) {
         console.log('✅ Análisis exitoso');
-        console.log('📊 Resultados completos:', data);
-        
-        if (data.resultados) {
-          console.log('📈 Detalles de resultados:');
-          console.log('   - Áreas analizadas:', data.resultados.length);
-          data.resultados.forEach((area, idx) => {
-            console.log(`   - Área ${idx + 1}:`, {
-              nombre: area.area_nombre,
-              promedio: area.promedio_area,
-              jerarquias: area.jerarquias?.length || 0
-            });
-          });
-        }
-        
         setMessageType("success");
         setMessageTitle("Análisis completado");
         setMessage("Resultados generados correctamente.");
       } else {
-        console.error('❌ Error en respuesta del servidor');
-        console.error('   - Error:', data.error);
-        console.error('   - Detalle:', data.detalle);
-        
+        console.error('❌ Error:', data.error);
         setMessageType("error");
         setMessageTitle("Error");
         setMessage(data.error || "Error al analizar resultados");
       }
       
-      console.log('🔵 === ANÁLISIS DE RESULTADOS FIN ===\n');
       setShowAlert(false);
       setAlertType(null);
       
     } catch (error) {
-      console.error('💥 === ERROR CRÍTICO EN ANÁLISIS ===');
-      console.error('Tipo de error:', error.name);
-      console.error('Mensaje:', error.message);
-      console.error('Stack:', error.stack);
-      console.error('Error completo:', error);
-      
+      console.error('💥 Error:', error);
       setMessageType("error");
       setMessageTitle("Error");
-      setMessage("Error de red o del servidor al analizar resultados.");
+      setMessage("Error de red o del servidor.");
       setShowAlert(false);
       setAlertType(null);
     }
