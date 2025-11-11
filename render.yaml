@@ -1,10 +1,11 @@
 services:
   - type: web
-    name: growinn-index
-    env: static
-    buildCommand: npm ci && npm run build
-    staticPublishPath: dist
-    routes:
-      - type: rewrite
-        source: /*
-        destination: /index.html
+    name: growinn-app
+    env: node
+    buildCommand: cd Frontend && npm install && npm run build && cd ../Backend && npm install
+    startCommand: cd Backend && node server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
