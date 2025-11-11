@@ -114,13 +114,17 @@ export function EmailManagement() {
       const empresas = await fetchEmpresas();
       if (!empresas || empresas.length === 0) {
         console.error('❌ No hay empresas');
+        setMessageType("error");
+        setMessageTitle("Error");
+        setMessage("No hay empresa para analizar.");
+        setShowAlert(false);
+        setAlertType(null);
         return;
       }
       
       const empresaActual = empresas[empresas.length - 1];
       console.log('🏢 Empresa:', empresaActual.id);
       
-      // ✅ Cambiar a VITE_API_URL
       const backendUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
       const analyzeUrl = `${backendUrl}/api/analizar-resultados`;
       console.log('🌐 URL:', analyzeUrl);
@@ -135,9 +139,26 @@ export function EmailManagement() {
       
       if (response.ok) {
         console.log('✅ Análisis exitoso');
+        console.log('\n📊 === RESULTADOS COMPLETOS EN JSON ===');
+        console.log(JSON.stringify(data, null, 2));
+        console.log('═══════════════════════════════════════\n');
+        
+        if (data.evaluacion_id) {
+          console.log('💾 Evaluación guardada en DB con ID:', data.evaluacion_id);
+        }
+        console.log('📈 Total respuestas analizadas:', data.total_respuestas);
+        console.log('👥 Total usuarios:', data.total_usuarios);
+        console.log('📅 Fecha evaluación:', data.fecha);
+        
         setMessageType("success");
         setMessageTitle("Análisis completado");
-        setMessage("Resultados generados correctamente.");
+        setMessage(
+          `Resultados generados correctamente. ${
+            data.evaluacion_id 
+              ? 'Evaluación guardada con ID: ' + data.evaluacion_id 
+              : ''
+          }`
+        );
       } else {
         console.error('❌ Error:', data.error);
         setMessageType("error");
