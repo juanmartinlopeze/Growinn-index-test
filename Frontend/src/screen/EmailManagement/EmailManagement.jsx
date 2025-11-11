@@ -125,6 +125,26 @@ export function EmailManagement() {
       const empresaActual = empresas[empresas.length - 1];
       console.log('🏢 Empresa:', empresaActual.id);
       
+      // ✅ VALIDAR QUE HAYA RESPUESTAS ANTES DE ANALIZAR
+      console.log('📊 Verificando progreso de encuestas...');
+      const progreso = await getSurveyProgress(empresaActual.id);
+      console.log('📈 Encuestas completadas:', progreso);
+      console.log('👥 Total empleados:', empresaActual.cantidad_empleados);
+      
+      if (progreso === 0) {
+        console.warn('⚠️  No hay encuestas completadas');
+        setMessageType("error");
+        setMessageTitle("Sin datos para analizar");
+        setMessage(
+          `No hay encuestas completadas. Los usuarios de la empresa deben completar la encuesta antes de poder analizar los resultados.`
+        );
+        setShowAlert(false);
+        setAlertType(null);
+        return;
+      }
+      
+      console.log(`✅ Hay ${progreso} encuestas completadas, procediendo con el análisis...`);
+      
       const backendUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
       const analyzeUrl = `${backendUrl}/api/analizar-resultados`;
       console.log('🌐 URL:', analyzeUrl);
@@ -137,23 +157,23 @@ export function EmailManagement() {
       
       const data = await response.json();
       
+      console.log('📡 Response status:', response.status);
+      console.log('📄 Response data:', JSON.stringify(data, null, 2));
+      
       if (response.ok) {
         console.log('✅ Análisis exitoso');
-        console.log('\n📊 === RESULTADOS COMPLETOS EN JSON ===');
-        console.log(JSON.stringify(data, null, 2));
-        console.log('═══════════════════════════════════════\n');
         
         if (data.evaluacion_id) {
-          console.log('💾 Evaluación guardada en DB con ID:', data.evaluacion_id);
+          console.log('💾 Evaluación guardada con ID:', data.evaluacion_id);
         }
         console.log('📈 Total respuestas analizadas:', data.total_respuestas);
         console.log('👥 Total usuarios:', data.total_usuarios);
-        console.log('📅 Fecha evaluación:', data.fecha);
+        console.log('👥 Usuarios que respondieron:', data.usuarios_respondieron);
         
         setMessageType("success");
         setMessageTitle("Análisis completado");
         setMessage(
-          `Resultados generados correctamente. ${
+          `Análisis completado exitosamente. Se analizaron ${data.total_respuestas} respuestas de ${data.usuarios_respondieron} usuarios. ${
             data.evaluacion_id 
               ? 'Evaluación guardada con ID: ' + data.evaluacion_id 
               : ''
@@ -161,9 +181,20 @@ export function EmailManagement() {
         );
       } else {
         console.error('❌ Error:', data.error);
+        
+        // Mostrar información de debug si está disponible
+        if (data.debug) {
+          console.warn('🔍 Debug info:');
+          console.warn('   Empresa:', data.debug.empresa_id);
+          console.warn('   Usuarios de la empresa:', data.debug.usuarios_empresa);
+          console.warn('   Usuarios con respuestas:', data.debug.usuarios_con_respuestas);
+        }
+        
         setMessageType("error");
-        setMessageTitle("Error");
-        setMessage(data.error || "Error al analizar resultados");
+        setMessageTitle("Error en el análisis");
+        setMessage(
+          data.error || "No se pudo completar el análisis de resultados."
+        );
       }
       
       setShowAlert(false);
@@ -171,9 +202,10 @@ export function EmailManagement() {
       
     } catch (error) {
       console.error('💥 Error:', error);
+      console.error('Stack:', error.stack);
       setMessageType("error");
-      setMessageTitle("Error");
-      setMessage("Error de red o del servidor.");
+      setMessageTitle("Error de conexión");
+      setMessage("No se pudo conectar con el servidor para realizar el análisis.");
       setShowAlert(false);
       setAlertType(null);
     }

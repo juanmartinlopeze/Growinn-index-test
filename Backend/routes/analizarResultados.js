@@ -1,112 +1,110 @@
 const express = require('express');
 const router = express.Router();
-const { supabase, supabaseAdmin } = require('../supabase/supabase');
+const { supabase } = require('../supabase/supabase');
 const categorizeResponses = require('../constants/categorizeAnswer');
 const calculateScore = require('../constants/calculateScore');
 
-// Configurable por ENV; por defecto 'evaluaciones'
-const EVAL_TABLE = process.env.EVAL_TABLE || 'evaluaciones';
-
-/**
- * POST /api/analizar-resultados
- * body: { empresa_id: number, usuario_id?: number, version?: string }
- */
+// POST /api/analizar-resultados
 router.post('/analizar-resultados', async (req, res) => {
-  try {
-    const { empresa_id, usuario_id = null, version = '1.0' } = req.body || {};
-    if (!empresa_id) {
-      return res.status(400).json({ error: 'Falta empresa_id' });
-    }
-    if (!supabase)      return res.status(500).json({ error: 'Supabase no configurado' });
-    if (!supabaseAdmin) return res.status(500).json({ error: 'Supabase admin no configurado para escrituras' });
+  const { empresa_id } = req.body;
+  if (!empresa_id) {
+    return res.status(400).json({ error: 'Falta empresa_id' });
+  }
 
-    // 1) Obtener usuarios de la empresa
+  try {
+    // 1. Obtener usuarios de la empresa
     const { data: usuarios, error: errorUsuarios } = await supabase
       .from('usuarios')
       .select('id, jerarquia_id')
       .eq('empresa_id', empresa_id);
-
     if (errorUsuarios) {
       console.error('Error obteniendo usuarios:', errorUsuarios);
       return res.status(500).json({ error: 'Error obteniendo usuarios', details: errorUsuarios });
     }
-
+    console.log('Usuarios encontrados para empresa', empresa_id, ':', usuarios);
     const userMap = {};
     const userIds = [];
     for (const u of usuarios || []) {
       userMap[u.id] = u.jerarquia_id;
       userIds.push(u.id);
     }
+    console.log('userIds usados para filtrar survey_responses:', userIds);
 
-    // 2) Obtener respuestas de esos usuarios
-    const { data: surveyResponses, error: errorResp } = await supabase
+    // 2. Obtener respuestas de esos usuarios
+    const { data: surveyResponses, error } = await supabase
       .from('survey_responses')
       .select('user_id, answers, completed_at')
-      .in('user_id', userIds.length ? userIds : [-1]); // evita error si vacío
+      .in('user_id', userIds);
 
-    if (errorResp) {
-      console.error('Error obteniendo respuestas:', errorResp);
-      return res.status(500).json({ error: 'Error obteniendo respuestas', details: errorResp });
+    console.log('surveyResponses crudas de la DB:', surveyResponses);
+    if (error) {
+      console.error('Error obteniendo respuestas:', error);
+      return res.status(500).json({ error: 'Error obteniendo respuestas', details: error });
     }
 
-    // 3) Flatten + asignar jerarquía
-    const respuestas = [];
+    // 3. Unificar todas las respuestas individuales en un solo array plano, asignando jerarquia
+    let respuestas = [];
     for (const resp of surveyResponses || []) {
       if (!resp.answers) continue;
       const jerarquia = userMap[resp.user_id] || null;
       for (const [questionId, answer] of Object.entries(resp.answers)) {
         respuestas.push({
-          questionId: String(questionId).toUpperCase(),
+          questionId: questionId.toUpperCase(),
           answer: Number(answer),
           jerarquia,
-          raw: { questionId, answer, user_id: resp.user_id, jerarquia },
+          raw: { questionId, answer, user_id: resp.user_id, jerarquia }
         });
       }
     }
+    console.log('Respuestas planas para categorizar (detallado):');
+    respuestas.forEach(r => console.log(r));
 
-    // 4) Calcular resultados (tu lógica ya existente)
+    // 4. Procesar respuestas
     const categorizado = categorizeResponses(respuestas);
-    const resultados_json = calculateScore(categorizado);
+    const resultados = calculateScore(categorizado);
 
-    // Para métrica adicional
-    const total_respuestas = respuestas.length;
-    const fecha_evaluacion = new Date().toISOString();
-
-    // 5) Guardar en la tabla con Service Role
-    const payload = {
-      empresa_id,
-      usuario_id,                    // opcional
-      fecha_evaluacion,              // timestamptz
-      resultados_json,               // jsonb
-      version,                       // '1.0' por defecto
-      created_at: fecha_evaluacion,
-      updated_at: fecha_evaluacion,
+    // 5. Guardar en la tabla evaluaciones
+    const fechaEvaluacion = new Date().toISOString();
+    
+    const evaluacionData = {
+      empresa_id: empresa_id,
+      usuario_id: null, // o puedes asignar un usuario específico si lo necesitas
+      fecha_evaluacion: fechaEvaluacion,
+      resultados_json: resultados,
+      version: "1.0"
     };
 
-    const { data: inserted, error: insertError } = await supabaseAdmin
-      .from(EVAL_TABLE)
-      .insert(payload)
-      .select('id')
+    console.log('💾 Guardando evaluación en DB...');
+    
+    const { data: evaluacionGuardada, error: errorEvaluacion } = await supabase
+      .from('evaluaciones')
+      .insert([evaluacionData])
+      .select()
       .single();
 
-    if (insertError) {
-      console.error('❌ Error al guardar evaluación:', insertError);
-      return res.status(500).json({ error: 'No se pudo guardar la evaluación' });
+    if (errorEvaluacion) {
+      console.error('❌ Error guardando evaluación:', errorEvaluacion);
+      // No retornamos error, solo advertimos
+      console.warn('⚠️  Continuando sin guardar en evaluaciones');
+    } else {
+      console.log('✅ Evaluación guardada con ID:', evaluacionGuardada.id);
     }
 
-    // 6) Responder al front como espera tu componente
-    return res.json({
-      ok: true,
-      evaluacion_id: inserted.id,
-      total_respuestas,
-      total_usuarios: userIds.length,
-      fecha: fecha_evaluacion,
-      // opcional para depurar:
-      // resultados_json,
+    // 6. Retornar resultados con información adicional
+    return res.json({ 
+      resultados,
+      evaluacion_id: evaluacionGuardada?.id || null,
+      total_respuestas: respuestas.length,
+      total_usuarios: usuarios.length,
+      fecha: fechaEvaluacion,
     });
-  } catch (err) {
-    console.error('💥 Error en /api/analizar-resultados:', err);
-    return res.status(500).json({ error: 'Error interno durante el análisis' });
+
+  } catch (error) {
+    console.error('💥 Error en análisis:', error);
+    return res.status(500).json({ 
+      error: 'Error al analizar resultados',
+      detalle: error.message 
+    });
   }
 });
 
