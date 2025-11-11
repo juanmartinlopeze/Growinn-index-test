@@ -1,5 +1,5 @@
-// server.js
 // ─────────────────────────────────────────────────────────────────────────────
+// server.js
 process.on('unhandledRejection', (r) => console.error('UNHANDLED REJECTION', r));
 process.on('uncaughtException',  (e) => console.error('UNCAUGHT EXCEPTION', e));
 
@@ -13,19 +13,32 @@ const app = express();
 app.use(express.json({ limit: '10mb' }));
 
 // ─────────────────────────────────────────────────────────────────────────────
-// CORS configurable por variables (sin HTTPS obligatorio)
+// CORS configurable por variables, con defaults a tus dominios de prod
+const DEFAULT_FRONTEND = 'https://growinn-index.onrender.com';
+const DEFAULT_BACKEND  = 'https://backend-growinn-index.onrender.com'; // por si necesitas llamadas entre dominios
+
 const listFromEnv = (v) =>
   (v || '').split(',').map(s => s.trim().replace(/\/$/, '')).filter(Boolean);
 
-const allowlist = [
+const envAllow = [
   ...listFromEnv(process.env.FRONTEND_ORIGIN),     // ej: https://growinn-index.onrender.com
-  ...listFromEnv(process.env.ADDITIONAL_ORIGINS),  // ej: http://localhost:5173,http://localhost:3000
+  ...listFromEnv(process.env.ADDITIONAL_ORIGINS),  // ej: http://localhost:5173,https://backend-growinn-index.onrender.com
   ...listFromEnv(process.env.ALLOWED_ORIGINS),
 ];
 
+// Allowlist final (sin duplicados, sin trailing slash)
+const allowlist = Array.from(new Set([
+  DEFAULT_FRONTEND,
+  // En dev permitir localhost
+  'http://localhost:5173',
+  'http://localhost:3000',
+  ...envAllow,
+])).map(o => o.replace(/\/$/, ''));
+
 const corsOptions = {
   origin(origin, cb) {
-    if (!origin) return cb(null, true);               // healthchecks/server-to-server
+    // Permitir herramientas/healthchecks sin origin
+    if (!origin) return cb(null, true);
     const o = origin.replace(/\/$/, '');
     if (allowlist.includes(o)) return cb(null, true);
     return cb(new Error(`Not allowed by CORS: ${origin}`));
@@ -45,7 +58,7 @@ app.get('/health', (_req, res) => res.status(200).send('ok'));
 app.get('/ping',   (_req, res) => res.json({ pong: true, ts: Date.now() }));
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Supabase: carga segura (sin relación con HTTPS)
+// Supabase: carga segura
 let supabase, supabaseAdmin, supabaseAuth;
 try {
   const { createClient } = require('@supabase/supabase-js');
@@ -79,9 +92,11 @@ safeUse('/',         () => require('./routes/uploadExcel'));
 safeUse('/',         () => require('./routes/excelroute'));
 safeUse('/encuesta', () => require('./routes/survey'));
 safeUse('/api',      () => require('./routes/analizarResultados'));
+// Si tienes el endpoint de correo en un router aparte, también podrías:
+// safeUse('/',      () => require('./routes/mailer')); // que exponga POST /enviar-correos
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Auth middleware (aplicativo; no HTTPS)
+/** Auth middleware (aplicativo; opcional) */
 async function requireAuth(req, res, next) {
   if (!supabaseAuth) return res.status(500).json({ error: 'Auth no configurado' });
   const auth  = req.headers.authorization || '';
@@ -95,6 +110,7 @@ async function requireAuth(req, res, next) {
   next();
 }
 
+// Ejemplo de ruta protegida (si la necesitas)
 app.get('/auth/me', requireAuth, (req, res) => res.json({ user: req.user }));
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -432,6 +448,6 @@ app.use((err, _req, res, _next) => {
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Puerto (solo HTTP)
+// Puerto
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Servidor HTTP corriendo en puerto ${PORT}`));

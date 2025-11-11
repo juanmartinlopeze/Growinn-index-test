@@ -22,186 +22,28 @@ import {
   Alert,
 } from "../../components/index";
 
+// ======== Resolución de URL de backend (prod / local) ========
+const PROD_FRONTEND = "https://growinn-index.onrender.com";
+const PROD_BACKEND  = "https://backend-growinn-index.onrender.com";
+
+function resolveBackendUrl() {
+  // Permite override por variable de entorno
+  if (import.meta.env.VITE_BACKEND_URL) return import.meta.env.VITE_BACKEND_URL;
+
+  // Si estás en localhost, usa el backend local
+  if (window.location.hostname === "localhost") return "http://localhost:3000";
+
+  // En cualquier otro caso (producción), usa el backend de prod
+  return PROD_BACKEND;
+}
+
 export function EmailManagement() {
   // Estados para feedback de envío de correos
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
 
-  // Función para enviar correos
-  const handleSendEmails = async () => {
-    console.log('\n🔵 === ENVÍO DE CORREOS (EmailManagement) ===');
-    setLoading(true);
-    setError(null);
-    setSuccess(false);
-    
-    try {
-      console.log('📊 Obteniendo empresas...');
-      const empresas = await fetchEmpresas();
-      console.log('✅ Empresas obtenidas:', empresas);
-      
-      if (!empresas || empresas.length === 0) {
-        console.error('❌ No hay empresas');
-        throw new Error("No hay empresa para enviar correos");
-      }
-      
-      const empresaActual = empresas[empresas.length - 1];
-      console.log('🏢 Empresa seleccionada:', empresaActual.id);
-
-      // CORRECCIÓN: Puerto 3000, no 3001
-      const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
-      const mailUrl = `${backendUrl}/enviar-correos`;
-      
-      console.log('🌐 Backend URL:', backendUrl);
-      console.log('📧 URL del servicio de mail:', mailUrl);
-
-      const requestBody = { empresa_id: empresaActual.id };
-      console.log('📦 Body:', JSON.stringify(requestBody, null, 2));
-
-      console.log('🚀 Enviando petición POST...');
-      const response = await fetch(mailUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(requestBody),
-      });
-
-      console.log('📡 Respuesta:');
-      console.log('   - Status:', response.status);
-      console.log('   - Status Text:', response.statusText);
-
-      const data = await response.json();
-      console.log('📄 Data:', JSON.stringify(data, null, 2));
-
-      if (response.ok) {
-        console.log('✅ Correos enviados');
-        const pending = Math.max(0, (total || 0) - (progress || 0));
-        setSuccess(true);
-        setError(null);
-        setMessageType("success");
-        setMessageTitle("Correos reenviados");
-        setMessage(
-          `Se han reenviado los correos a ${pending} participantes pendientes.`
-        );
-      } else {
-        console.error('❌ Error:', data.error);
-        throw new Error(data.error || "Error al enviar correos");
-      }
-
-      console.log('🔵 === FIN ENVÍO ===\n');
-    } catch (err) {
-      console.error('💥 Error:', err);
-      console.error('Tipo:', err.name);
-      console.error('Mensaje:', err.message);
-      
-      setError(err.message);
-      setSuccess(false);
-      const pending = Math.max(0, (total || 0) - (progress || 0));
-      setMessageType("error");
-      setMessageTitle("Los correos no fueron enviados");
-      setMessage(
-        `No se han podido reenviar los correos a los ${pending} participantes pendientes.`
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Función para iniciar el análisis
-  const handleAnalyzeResults = async () => {
-    try {
-      console.log('\n🔵 === ANÁLISIS DE RESULTADOS INICIO ===');
-      
-      console.log('📊 Paso 1: Obteniendo empresas...');
-      const empresas = await fetchEmpresas();
-      console.log('✅ Empresas obtenidas:', empresas);
-      
-      if (!empresas || empresas.length === 0) {
-        console.error('❌ No hay empresas');
-        setMessageType("error");
-        setMessageTitle("Error");
-        setMessage("No hay empresa para analizar.");
-        setShowAlert(false);
-        setAlertType(null);
-        return;
-      }
-      
-      const empresaActual = empresas[empresas.length - 1];
-      console.log('🏢 Empresa actual seleccionada:', empresaActual);
-      console.log('🔑 empresa_id que se enviará:', empresaActual.id);
-      
-      const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
-      const analyzeUrl = `${backendUrl}/api/analizar-resultados`;
-      console.log('🌐 URL de análisis:', analyzeUrl);
-      
-      const requestBody = { empresa_id: empresaActual.id };
-      console.log('📦 Body de la petición:', JSON.stringify(requestBody, null, 2));
-      
-      console.log('🚀 Enviando petición POST...');
-      const response = await fetch(analyzeUrl, {
-        method: "POST",
-        headers: { 
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(requestBody),
-      });
-      
-      console.log('📡 Respuesta recibida:');
-      console.log('   - Status:', response.status);
-      console.log('   - Status Text:', response.statusText);
-      console.log('   - Headers:', Object.fromEntries(response.headers.entries()));
-      
-      const data = await response.json();
-      console.log('📄 Data parseada:', JSON.stringify(data, null, 2));
-      
-      if (response.ok) {
-        console.log('✅ Análisis exitoso');
-        console.log('📊 Resultados completos:', data);
-        
-        if (data.resultados) {
-          console.log('📈 Detalles de resultados:');
-          console.log('   - Áreas analizadas:', data.resultados.length);
-          data.resultados.forEach((area, idx) => {
-            console.log(`   - Área ${idx + 1}:`, {
-              nombre: area.area_nombre,
-              promedio: area.promedio_area,
-              jerarquias: area.jerarquias?.length || 0
-            });
-          });
-        }
-        
-        setMessageType("success");
-        setMessageTitle("Análisis completado");
-        setMessage("Resultados generados correctamente.");
-      } else {
-        console.error('❌ Error en respuesta del servidor');
-        console.error('   - Error:', data.error);
-        console.error('   - Detalle:', data.detalle);
-        
-        setMessageType("error");
-        setMessageTitle("Error");
-        setMessage(data.error || "Error al analizar resultados");
-      }
-      
-      console.log('🔵 === ANÁLISIS DE RESULTADOS FIN ===\n');
-      setShowAlert(false);
-      setAlertType(null);
-      
-    } catch (error) {
-      console.error('💥 === ERROR CRÍTICO EN ANÁLISIS ===');
-      console.error('Tipo de error:', error.name);
-      console.error('Mensaje:', error.message);
-      console.error('Stack:', error.stack);
-      console.error('Error completo:', error);
-      
-      setMessageType("error");
-      setMessageTitle("Error");
-      setMessage("Error de red o del servidor al analizar resultados.");
-      setShowAlert(false);
-      setAlertType(null);
-    }
-  };
-
-  const navigate = useNavigate();
+  const backendUrl = resolveBackendUrl();
 
   // Estados para progreso y alertas
   const [progress, setProgress] = useState(0);
@@ -213,6 +55,183 @@ export function EmailManagement() {
   const [messageTitle, setMessageTitle] = useState("");
   const [toastClosing, setToastClosing] = useState(false);
   const [rows, setRows] = useState([]);
+
+  const navigate = useNavigate();
+
+  // Función para enviar correos
+  const handleSendEmails = async () => {
+    console.log("\n🔵 === ENVÍO DE CORREOS (EmailManagement) ===");
+    setLoading(true);
+    setError(null);
+    setSuccess(false);
+
+    try {
+      console.log("📊 Obteniendo empresas...");
+      const empresas = await fetchEmpresas();
+      console.log("✅ Empresas obtenidas:", empresas);
+
+      if (!empresas || empresas.length === 0) {
+        console.error("❌ No hay empresas");
+        throw new Error("No hay empresa para enviar correos");
+      }
+
+      const empresaActual = empresas[empresas.length - 1];
+      console.log("🏢 Empresa seleccionada:", empresaActual?.id);
+
+      const mailUrl = `${backendUrl}/enviar-correos`;
+      console.log("🌐 Backend URL:", backendUrl);
+      console.log("📧 URL del servicio de mail:", mailUrl);
+
+      const requestBody = { empresa_id: empresaActual.id };
+      console.log("📦 Body:", JSON.stringify(requestBody, null, 2));
+
+      console.log("🚀 Enviando petición POST...");
+      const response = await fetch(mailUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(requestBody),
+      });
+
+      console.log("📡 Respuesta:");
+      console.log("   - Status:", response.status);
+      console.log("   - Status Text:", response.statusText);
+
+      // Intenta parsear JSON, si no hay JSON igual maneja ok/err
+      let data = null;
+      try {
+        data = await response.json();
+      } catch (_) {
+        data = null;
+      }
+      console.log("📄 Data:", data ? JSON.stringify(data, null, 2) : "(sin cuerpo)");
+
+      const pending = Math.max(0, (total ?? 0) - (progress ?? 0));
+
+      if (response.ok) {
+        console.log("✅ Correos enviados");
+        setSuccess(true);
+        setError(null);
+        setMessageType("success");
+        setMessageTitle("Correos reenviados");
+        setMessage(`Se han reenviado los correos a ${pending} participantes pendientes.`);
+      } else {
+        const msg = data?.error || "Error al enviar correos";
+        console.error("❌ Error:", msg);
+        throw new Error(msg);
+      }
+
+      console.log("🔵 === FIN ENVÍO ===\n");
+    } catch (err) {
+      console.error("💥 Error:", err);
+      console.error("Tipo:", err.name);
+      console.error("Mensaje:", err.message);
+
+      const pending = Math.max(0, (total ?? 0) - (progress ?? 0));
+      setError(err.message);
+      setSuccess(false);
+      setMessageType("error");
+      setMessageTitle("Los correos no fueron enviados");
+      setMessage(`No se han podido reenviar los correos a los ${pending} participantes pendientes.`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Función para iniciar el análisis
+  const handleAnalyzeResults = async () => {
+    try {
+      console.log("\n🔵 === ANÁLISIS DE RESULTADOS INICIO ===");
+
+      console.log("📊 Paso 1: Obteniendo empresas...");
+      const empresas = await fetchEmpresas();
+      console.log("✅ Empresas obtenidas:", empresas);
+
+      if (!empresas || empresas.length === 0) {
+        console.error("❌ No hay empresas");
+        setMessageType("error");
+        setMessageTitle("Error");
+        setMessage("No hay empresa para analizar.");
+        setShowAlert(false);
+        setAlertType(null);
+        return;
+      }
+
+      const empresaActual = empresas[empresas.length - 1];
+      console.log("🏢 Empresa actual seleccionada:", empresaActual);
+      console.log("🔑 empresa_id que se enviará:", empresaActual.id);
+
+      const analyzeUrl = `${backendUrl}/api/analizar-resultados`;
+      console.log("🌐 URL de análisis:", analyzeUrl);
+
+      const requestBody = { empresa_id: empresaActual.id };
+      console.log("📦 Body de la petición:", JSON.stringify(requestBody, null, 2));
+
+      console.log("🚀 Enviando petición POST...");
+      const response = await fetch(analyzeUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(requestBody),
+      });
+
+      console.log("📡 Respuesta recibida:");
+      console.log("   - Status:", response.status);
+      console.log("   - Status Text:", response.statusText);
+      console.log("   - Headers:", Object.fromEntries(response.headers.entries()));
+
+      let data = null;
+      try {
+        data = await response.json();
+      } catch (_) {
+        data = null;
+      }
+      console.log("📄 Data parseada:", data ? JSON.stringify(data, null, 2) : "(sin cuerpo)");
+
+      if (response.ok) {
+        console.log("✅ Análisis exitoso");
+        console.log("📊 Resultados completos:", data);
+
+        if (data?.resultados) {
+          console.log("📈 Detalles de resultados:");
+          console.log("   - Áreas analizadas:", data.resultados.length);
+          data.resultados.forEach((area, idx) => {
+            console.log(`   - Área ${idx + 1}:`, {
+              nombre: area.area_nombre,
+              promedio: area.promedio_area,
+              jerarquias: area.jerarquias?.length || 0,
+            });
+          });
+        }
+
+        setMessageType("success");
+        setMessageTitle("Análisis completado");
+        setMessage("Resultados generados correctamente.");
+      } else {
+        console.error("❌ Error en respuesta del servidor");
+        console.error("   - Error:", data?.error);
+        console.error("   - Detalle:", data?.detalle);
+
+        setMessageType("error");
+        setMessageTitle("Error");
+        setMessage(data?.error || "Error al analizar resultados");
+      }
+
+      console.log("🔵 === ANÁLISIS DE RESULTADOS FIN ===\n");
+      setShowAlert(false);
+      setAlertType(null);
+    } catch (error) {
+      console.error("💥 === ERROR CRÍTICO EN ANÁLISIS ===");
+      console.error("Tipo de error:", error.name);
+      console.error("Mensaje:", error.message);
+      console.error("Stack:", error.stack);
+      console.error("Error completo:", error);
+
+      setMessageType("error");
+      setMessageTitle("Error");
+      setMessage("Error de red o del servidor al analizar resultados.");
+      setShowAlert(false);
+      setAlertType(null);
+    }
+  };
 
   useEffect(() => {
     async function load() {
@@ -226,21 +245,12 @@ export function EmailManagement() {
         }
         const empresaActual = empresas[empresas.length - 1];
         console.log("EMPRESA ACTUAL PARA PROGRESO:", empresaActual);
-        const [areas, cargos, subcargos, progreso, _usuariosEmpresa] =
-          await Promise.all([
-            fetchAreas(empresaActual.id),
-            fetchCargos(),
-            fetchSubcargos(),
-            getSurveyProgress(empresaActual.id),
-            (async () => {
-              const { data, error } = await supabase
-                .from("usuarios")
-                .select("id")
-                .eq("empresa_id", empresaActual.id);
-              if (error) return [];
-              return data || [];
-            })(),
-          ]);
+        const [areas, cargos, subcargos, progreso] = await Promise.all([
+          fetchAreas(empresaActual.id),
+          fetchCargos(),
+          fetchSubcargos(),
+          getSurveyProgress(empresaActual.id),
+        ]);
 
         setTotal(empresaActual.cantidad_empleados);
         setProgress(progreso);
@@ -268,8 +278,7 @@ export function EmailManagement() {
                 ? subs.reduce((s, x) => s + (x.personas || 0), 0)
                 : cargo.personas || 0;
             const answered = 0;
-            const percent =
-              total > 0 ? Math.round((answered / total) * 100) : 0;
+            const percent = total > 0 ? Math.round((answered / total) * 100) : 0;
             return { answered, total, percent };
           });
           const assignedSum = roles.reduce((s, r) => s + (r.total || 0), 0);
