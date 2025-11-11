@@ -22,6 +22,8 @@ import {
   Alert,
 } from "../../components/index";
 
+// Esta es una version completa con todas las mejoras necesarias para que envie correos y genere el analisis correctamente.
+
 export function EmailManagement() {
   // Estados para feedback de envío de correos
   const [loading, setLoading] = useState(false);

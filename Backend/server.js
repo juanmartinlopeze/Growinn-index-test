@@ -1,3 +1,4 @@
+//En Esta version del server esta completa todos los enpoints de empresas, areas, cargos y subcargos, ademas los llamados y todo esta completo.
 // server.js
 // ─────────────────────────────────────────────────────────────────────────────
 process.on('unhandledRejection', (r) => console.error('UNHANDLED REJECTION', r));
