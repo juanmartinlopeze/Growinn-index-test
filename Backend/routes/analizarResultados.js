@@ -6,12 +6,31 @@ const calculateScore = require('../constants/calculateScore');
 
 // POST /api/analizar-resultados
 router.post('/analizar-resultados', async (req, res) => {
-  const { empresa_id } = req.body;
-  if (!empresa_id) {
-    return res.status(400).json({ error: 'Falta empresa_id' });
-  }
+  console.log('\n🔵 === BACKEND: ANÁLISIS DE RESULTADOS ===');
+  console.log('📦 Request recibido:');
+  console.log('   - Method:', req.method);
+  console.log('   - URL:', req.url);
+  console.log('   - Headers:', JSON.stringify(req.headers, null, 2));
+  console.log('   - Body:', JSON.stringify(req.body, null, 2));
+  console.log('   - Query params:', JSON.stringify(req.query, null, 2));
+  console.log('   - Params:', JSON.stringify(req.params, null, 2));
 
   try {
+    const { empresa_id } = req.body;
+    console.log('🔑 empresa_id extraído:', empresa_id);
+    console.log('   - Tipo:', typeof empresa_id);
+    console.log('   - Valor:', empresa_id);
+
+    if (!empresa_id) {
+      console.error('❌ Falta empresa_id');
+      return res.status(400).json({ 
+        error: 'Falta el parámetro empresa_id',
+        recibido: req.body
+      });
+    }
+
+    console.log('💾 Consultando base de datos...');
+    
     // 1. Obtener usuarios de la empresa
     const { data: usuarios, error: errorUsuarios } = await supabase
       .from('usuarios')
@@ -32,7 +51,7 @@ router.post('/analizar-resultados', async (req, res) => {
 
     // 2. Obtener respuestas de esos usuarios
     const { data: surveyResponses, error } = await supabase
-      .from('survey_responses')
+      .from('survey_results')
       .select('user_id, answers, completed_at')
       .in('user_id', userIds);
 
@@ -59,62 +78,28 @@ router.post('/analizar-resultados', async (req, res) => {
     console.log('Respuestas planas para categorizar (detallado):');
     respuestas.forEach(r => console.log(r));
 
-    // 4. Procesar respuestas
+    // Procesar respuestas
     const categorizado = categorizeResponses(respuestas);
     const resultados = calculateScore(categorizado);
 
-    console.log('Resultados calculados:', Object.keys(resultados));
-
-    // 5. Guardar en tabla evaluaciones
-    const usuario_id = req.user?.id || req.body.usuario_id || null;
+    console.log('✅ Análisis completado exitosamente');
+    console.log('📊 Enviando resultados...');
     
-    const payload = {
-      empresa_id,
-      usuario_id,
-      fecha_evaluacion: new Date().toISOString(),
-      resultados_json: resultados,
-      version: '1.0'
-    };
-
-    console.log('💾 Guardando evaluación en DB...');
-    console.log('Payload:', {
-      empresa_id: payload.empresa_id,
-      usuario_id: payload.usuario_id,
-      fecha_evaluacion: payload.fecha_evaluacion,
-      categorias: Object.keys(payload.resultados_json),
-      version: payload.version
-    });
-
-    const { data: saved, error: saveError } = await supabase
-      .from('evaluaciones')
-      .insert([payload])
-      .select()
-      .single();
-
-    if (saveError) {
-      console.error('❌ Error guardando evaluación en DB:', saveError);
-      // Devolver resultados aunque falle el guardado
-      return res.status(200).json({ 
-        resultados, 
-        warning: 'Evaluación calculada pero no guardada en DB',
-        error_guardado: saveError.message 
-      });
-    }
-
-    console.log('✅ Evaluación guardada exitosamente con ID:', saved?.id);
-
-    return res.status(200).json({ 
-      resultados, 
-      evaluacion_id: saved?.id,
-      mensaje: 'Análisis completado y guardado exitosamente',
-      fecha_evaluacion: saved?.fecha_evaluacion
-    });
-
-  } catch (err) {
-    console.error('💥 Error inesperado en análisis:', err);
-    return res.status(500).json({ 
-      error: 'Error inesperado al procesar análisis', 
-      details: err.message 
+    return res.json({ resultados });
+    
+    console.log('🔵 === FIN ANÁLISIS ===\n');
+    
+  } catch (error) {
+    console.error('💥 === ERROR EN ANÁLISIS BACKEND ===');
+    console.error('Tipo:', error.name);
+    console.error('Mensaje:', error.message);
+    console.error('Stack:', error.stack);
+    console.error('Error completo:', error);
+    
+    res.status(500).json({ 
+      error: 'Error al analizar resultados',
+      detalle: error.message,
+      tipo: error.name
     });
   }
 });

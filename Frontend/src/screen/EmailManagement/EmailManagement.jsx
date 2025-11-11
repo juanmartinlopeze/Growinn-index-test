@@ -28,33 +28,73 @@ export function EmailManagement() {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
 
-  // Función para enviar correos (igual que en ValidationPage)
+  // Función para enviar correos
   const handleSendEmails = async () => {
+    console.log('\n🔵 === ENVÍO DE CORREOS (EmailManagement) ===');
     setLoading(true);
     setError(null);
     setSuccess(false);
+    
     try {
-      const isProduction =
-        window.location.hostname !== "localhost" &&
-        window.location.hostname !== "127.0.0.1";
-      const mailServiceUrl = isProduction
-        ? "https://growinn-mail-service.onrender.com/enviar-correos"
-        : "http://localhost:3001/enviar-correos";
-      console.log("🌐 Enviando correos desde:", window.location.hostname);
-      console.log("📧 URL del servicio de mail:", mailServiceUrl);
-      const res = await fetch(mailServiceUrl);
-      if (!res.ok) throw new Error(`Status ${res.status}`);
-      // number of participants pending (total - progress)
-      const pending = Math.max(0, (total || 0) - (progress || 0));
-      setSuccess(true);
-      setMessageType("success");
-      setMessageTitle("Correos reenviados");
-      setMessage(
-        `Se han reenviado los correos a ${pending} participantes pendientes.`
-      );
+      console.log('📊 Obteniendo empresas...');
+      const empresas = await fetchEmpresas();
+      console.log('✅ Empresas obtenidas:', empresas);
+      
+      if (!empresas || empresas.length === 0) {
+        console.error('❌ No hay empresas');
+        throw new Error("No hay empresa para enviar correos");
+      }
+      
+      const empresaActual = empresas[empresas.length - 1];
+      console.log('🏢 Empresa seleccionada:', empresaActual.id);
+
+      // CORRECCIÓN: Puerto 3000, no 3001
+      const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
+      const mailUrl = `${backendUrl}/enviar-correos`;
+      
+      console.log('🌐 Backend URL:', backendUrl);
+      console.log('📧 URL del servicio de mail:', mailUrl);
+
+      const requestBody = { empresa_id: empresaActual.id };
+      console.log('📦 Body:', JSON.stringify(requestBody, null, 2));
+
+      console.log('🚀 Enviando petición POST...');
+      const response = await fetch(mailUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(requestBody),
+      });
+
+      console.log('📡 Respuesta:');
+      console.log('   - Status:', response.status);
+      console.log('   - Status Text:', response.statusText);
+
+      const data = await response.json();
+      console.log('📄 Data:', JSON.stringify(data, null, 2));
+
+      if (response.ok) {
+        console.log('✅ Correos enviados');
+        const pending = Math.max(0, (total || 0) - (progress || 0));
+        setSuccess(true);
+        setError(null);
+        setMessageType("success");
+        setMessageTitle("Correos reenviados");
+        setMessage(
+          `Se han reenviado los correos a ${pending} participantes pendientes.`
+        );
+      } else {
+        console.error('❌ Error:', data.error);
+        throw new Error(data.error || "Error al enviar correos");
+      }
+
+      console.log('🔵 === FIN ENVÍO ===\n');
     } catch (err) {
-      console.error("Error enviando correos:", err);
-      setError("No se pudieron enviar los correos.");
+      console.error('💥 Error:', err);
+      console.error('Tipo:', err.name);
+      console.error('Mensaje:', err.message);
+      
+      setError(err.message);
+      setSuccess(false);
       const pending = Math.max(0, (total || 0) - (progress || 0));
       setMessageType("error");
       setMessageTitle("Los correos no fueron enviados");
@@ -66,11 +106,17 @@ export function EmailManagement() {
     }
   };
 
-  // Función para iniciar el análisis (se llamará desde el Alert cuando se confirme)
+  // Función para iniciar el análisis
   const handleAnalyzeResults = async () => {
     try {
+      console.log('\n🔵 === ANÁLISIS DE RESULTADOS INICIO ===');
+      
+      console.log('📊 Paso 1: Obteniendo empresas...');
       const empresas = await fetchEmpresas();
+      console.log('✅ Empresas obtenidas:', empresas);
+      
       if (!empresas || empresas.length === 0) {
+        console.error('❌ No hay empresas');
         setMessageType("error");
         setMessageTitle("Error");
         setMessage("No hay empresa para analizar.");
@@ -78,32 +124,75 @@ export function EmailManagement() {
         setAlertType(null);
         return;
       }
+      
       const empresaActual = empresas[empresas.length - 1];
-      console.log("empresa_id enviado al análisis:", empresaActual.id);
-      const response = await fetch(
-        `${
-          import.meta.env.VITE_BACKEND_URL || "http://localhost:3000"
-        }/api/analizar-resultados`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ empresa_id: empresaActual.id }),
-        }
-      );
+      console.log('🏢 Empresa actual seleccionada:', empresaActual);
+      console.log('🔑 empresa_id que se enviará:', empresaActual.id);
+      
+      const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
+      const analyzeUrl = `${backendUrl}/api/analizar-resultados`;
+      console.log('🌐 URL de análisis:', analyzeUrl);
+      
+      const requestBody = { empresa_id: empresaActual.id };
+      console.log('📦 Body de la petición:', JSON.stringify(requestBody, null, 2));
+      
+      console.log('🚀 Enviando petición POST...');
+      const response = await fetch(analyzeUrl, {
+        method: "POST",
+        headers: { 
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(requestBody),
+      });
+      
+      console.log('📡 Respuesta recibida:');
+      console.log('   - Status:', response.status);
+      console.log('   - Status Text:', response.statusText);
+      console.log('   - Headers:', Object.fromEntries(response.headers.entries()));
+      
       const data = await response.json();
+      console.log('📄 Data parseada:', JSON.stringify(data, null, 2));
+      
       if (response.ok) {
+        console.log('✅ Análisis exitoso');
+        console.log('📊 Resultados completos:', data);
+        
+        if (data.resultados) {
+          console.log('📈 Detalles de resultados:');
+          console.log('   - Áreas analizadas:', data.resultados.length);
+          data.resultados.forEach((area, idx) => {
+            console.log(`   - Área ${idx + 1}:`, {
+              nombre: area.area_nombre,
+              promedio: area.promedio_area,
+              jerarquias: area.jerarquias?.length || 0
+            });
+          });
+        }
+        
         setMessageType("success");
         setMessageTitle("Análisis completado");
         setMessage("Resultados generados correctamente.");
-        console.log("Resultados del análisis:", data.resultados);
       } else {
+        console.error('❌ Error en respuesta del servidor');
+        console.error('   - Error:', data.error);
+        console.error('   - Detalle:', data.detalle);
+        
         setMessageType("error");
         setMessageTitle("Error");
         setMessage(data.error || "Error al analizar resultados");
       }
+      
+      console.log('🔵 === ANÁLISIS DE RESULTADOS FIN ===\n');
       setShowAlert(false);
       setAlertType(null);
-    } catch {
+      
+    } catch (error) {
+      console.error('💥 === ERROR CRÍTICO EN ANÁLISIS ===');
+      console.error('Tipo de error:', error.name);
+      console.error('Mensaje:', error.message);
+      console.error('Stack:', error.stack);
+      console.error('Error completo:', error);
+      
       setMessageType("error");
       setMessageTitle("Error");
       setMessage("Error de red o del servidor al analizar resultados.");
@@ -111,9 +200,10 @@ export function EmailManagement() {
       setAlertType(null);
     }
   };
+
   const navigate = useNavigate();
 
-  // Estos valores deben venir de la base de datos en producción
+  // Estados para progreso y alertas
   const [progress, setProgress] = useState(0);
   const [total, setTotal] = useState(0);
   const [showAlert, setShowAlert] = useState(false);
@@ -155,7 +245,6 @@ export function EmailManagement() {
         setTotal(empresaActual.cantidad_empleados);
         setProgress(progreso);
 
-        // ...código original para la tabla...
         const areaIds = new Set((areas || []).map((a) => a.id));
         const cargoMap = new Map();
         (cargos || []).forEach((c) => {
@@ -178,7 +267,6 @@ export function EmailManagement() {
               subs.length > 0
                 ? subs.reduce((s, x) => s + (x.personas || 0), 0)
                 : cargo.personas || 0;
-            // answered is unknown here (responses), default 0
             const answered = 0;
             const percent =
               total > 0 ? Math.round((answered / total) * 100) : 0;
@@ -217,15 +305,13 @@ export function EmailManagement() {
     load();
   }, []);
 
-  // Auto-dismiss toast after 5 seconds when message is set
+  // Auto-dismiss toast after 5 seconds
   useEffect(() => {
     if (!message) return;
     setToastClosing(false);
-    // after visibleDuration -> start fade-out
-    const visibleDuration = 5000; // ms
-    const fadeDuration = 350; // must match CSS animation duration
+    const visibleDuration = 5000;
+    const fadeDuration = 350;
     const t1 = setTimeout(() => setToastClosing(true), visibleDuration);
-    // after visible + fade duration -> clear message
     const t2 = setTimeout(() => {
       setMessage("");
       setMessageTitle("");
@@ -239,8 +325,6 @@ export function EmailManagement() {
       clearTimeout(t2);
     };
   }, [message]);
-
-  // meta ahora se calcula en SurveyProgress
 
   return (
     <section className="w-full h-full flex flex-col justify-center items-start px-[10%] pt-[10%] gap-5 relative">
@@ -287,7 +371,6 @@ export function EmailManagement() {
           variant="email"
           text={loading ? "Enviando..." : "Reenviar correos"}
           onClick={() => {
-            // show confirmation alert before sending
             setAlertType("confirmResend");
             setShowAlert(true);
           }}
@@ -315,7 +398,6 @@ export function EmailManagement() {
           variant="analytics"
           text="Analizar resultados"
           onClick={() => {
-            // show confirmation alert before analyzing
             setAlertType("confirmAnalysis");
             setShowAlert(true);
           }}
@@ -339,8 +421,7 @@ export function EmailManagement() {
         />
       </div>
 
-      {/* Header strip for the table: left, 3 center, right */}
-      {/* Table container: header + rows (dynamic) */}
+      {/* Tabla */}
       <div
         style={{
           display: "flex",
@@ -379,7 +460,6 @@ export function EmailManagement() {
               />
             ))
           ) : (
-            // fallback: show a few placeholders
             <>
               <TableRowExample areaLabel="Área 1" percent={0} />
               <TableRowExample areaLabel="Área 2" percent={0} />
@@ -387,7 +467,7 @@ export function EmailManagement() {
           )}
         </div>
 
-        {/* Footer row */}
+        {/* Footer */}
         <div
           className="inline-flex items-center w-full"
           style={{ marginTop: 0 }}
@@ -445,80 +525,83 @@ export function EmailManagement() {
         </div>
       </div>
 
-      {/* Toast flotante bottom-right para mensajes */}
+      {/* Toast flotante */}
       {message && (
-        <>
-          <div
-            className={`fixed bottom-8 right-8 z-50 toast-slide-in ${
-              toastClosing ? "toast-fade-out" : ""
-            }`}
-            style={{
-              display: "flex",
-              width: "386px",
-              height: "113px",
-              padding: "24px",
-              flexDirection: "column",
-              justifyContent: "center",
-              alignItems: "flex-start",
-              gap: "8px",
-              flexShrink: 0,
-              borderRadius: "8px",
-              border: "1px solid #CCC",
-              background: "#FFF",
-              boxShadow: "0 4px 8px 0 rgba(0,0,0,0.12)",
-            }}
-          >
-            {messageType === "success" ? (
-              <div>
-                <h4
-                  className="mb-1 text-left"
-                  style={{
-                    color: "var(--Colors-Text-text-primary, #333)",
-                    fontFamily: "Plus Jakarta Sans",
-                    fontSize: "var(--Versin-web-Contenido-Body-sm, 14px)",
-                    fontStyle: "normal",
-                    fontWeight: 700,
-                    lineHeight: "normal",
-                  }}
-                >
-                  {messageTitle || "Correos reenviados"}
-                </h4>
-                <p
-                  className="text-left"
-                  style={{
-                    color: "var(--Colors-Text-text-primary, #333)",
-                    fontFamily: "Plus Jakarta Sans",
-                    fontSize: "var(--Versin-web-Contenido-Body-sm, 14px)",
-                    fontStyle: "normal",
-                    fontWeight: 400,
-                    lineHeight: "normal",
-                  }}
-                >
-                  {message}
-                </p>
-                {success && (
-                  <p style={{ color: "green", marginTop: "0.5rem" }}>
-                    ✅ Correos enviados correctamente.
-                  </p>
-                )}
-              </div>
-            ) : (
-              <>
-                <p
-                  style={{
-                    color: "red",
-                    fontFamily: "Plus Jakarta Sans",
-                    fontSize: "var(--Versin-web-Contenido-Body-sm, 14px)",
-                    fontWeight: 700,
-                    margin: 0,
-                  }}
-                >
-                  {error || "No se ha podido enviar los correos."}
-                </p>
-              </>
-            )}
-          </div>
-        </>
+        <div
+          className={`fixed bottom-8 right-8 z-50 toast-slide-in ${
+            toastClosing ? "toast-fade-out" : ""
+          }`}
+          style={{
+            display: "flex",
+            width: "386px",
+            height: "113px",
+            padding: "24px",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "flex-start",
+            gap: "8px",
+            flexShrink: 0,
+            borderRadius: "8px",
+            border: "1px solid #CCC",
+            background: "#FFF",
+            boxShadow: "0 4px 8px 0 rgba(0,0,0,0.12)",
+          }}
+        >
+          {messageType === "success" ? (
+            <div>
+              <h4
+                className="mb-1 text-left"
+                style={{
+                  color: "var(--Colors-Text-text-primary, #333)",
+                  fontFamily: "Plus Jakarta Sans",
+                  fontSize: "var(--Versin-web-Contenido-Body-sm, 14px)",
+                  fontStyle: "normal",
+                  fontWeight: 700,
+                  lineHeight: "normal",
+                }}
+              >
+                {messageTitle || "Éxito"}
+              </h4>
+              <p
+                className="text-left"
+                style={{
+                  color: "var(--Colors-Text-text-primary, #333)",
+                  fontFamily: "Plus Jakarta Sans",
+                  fontSize: "var(--Versin-web-Contenido-Body-sm, 14px)",
+                  fontStyle: "normal",
+                  fontWeight: 400,
+                  lineHeight: "normal",
+                }}
+              >
+                {message}
+              </p>
+            </div>
+          ) : (
+            <div>
+              <h4
+                className="mb-1 text-left"
+                style={{
+                  color: "red",
+                  fontFamily: "Plus Jakarta Sans",
+                  fontSize: "var(--Versin-web-Contenido-Body-sm, 14px)",
+                  fontWeight: 700,
+                }}
+              >
+                {messageTitle || "Error"}
+              </h4>
+              <p
+                style={{
+                  color: "var(--Colors-Text-text-primary, #333)",
+                  fontFamily: "Plus Jakarta Sans",
+                  fontSize: "var(--Versin-web-Contenido-Body-sm, 14px)",
+                  fontWeight: 400,
+                }}
+              >
+                {message}
+              </p>
+            </div>
+          )}
+        </div>
       )}
 
       {showAlert && (
@@ -527,18 +610,14 @@ export function EmailManagement() {
           onClose={() => setShowAlert(false)}
           onCancel={() => setShowAlert(false)}
           onConfirm={async () => {
-            // handle confirmations by type
             if (alertType === "confirmResend") {
-              // user confirmed: call the existing send function
               try {
                 await handleSendEmails();
               } catch (e) {
-                // handleSendEmails already sets message/error state; nothing extra needed
                 console.error("Error during confirmed resend:", e);
               }
             }
             if (alertType === "confirmAnalysis") {
-              // user confirmed: call analyze function
               await handleAnalyzeResults();
             }
             setShowAlert(false);
@@ -547,7 +626,6 @@ export function EmailManagement() {
         />
       )}
 
-      {/* Header strip for the table: left, 3 center, right */}
       <img className="line-bckg-img" src="/BgLine-decoration2.png" alt="" />
       <img className="line-bckg-img2" src="/BgLine-decoration3.png" alt="" />
       <img className="squares-bckg-img" src="/squaresBckg.png" alt="" />
