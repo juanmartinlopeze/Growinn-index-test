@@ -8,19 +8,17 @@ const express = require('express');
 const cors    = require('cors');
 
 const app = express();
-
-// Body parser
-app.use(express.json({ limit: '10mb' }));
+app.use(express.json());
 
 // ─────────────────────────────────────────────────────────────────────────────
-// CORS configurable por variables (sin HTTPS obligatorio)
+// CORS configurable por variables
 const listFromEnv = (v) =>
   (v || '').split(',').map(s => s.trim().replace(/\/$/, '')).filter(Boolean);
 
 const allowlist = [
   ...listFromEnv(process.env.FRONTEND_ORIGIN),     // ej: https://growinn-index.onrender.com
   ...listFromEnv(process.env.ADDITIONAL_ORIGINS),  // ej: http://localhost:5173,http://localhost:3000
-  ...listFromEnv(process.env.ALLOWED_ORIGINS),
+  ...listFromEnv(process.env.ALLOWED_ORIGINS),     // compat con tu config anterior
 ];
 
 const corsOptions = {
@@ -45,22 +43,22 @@ app.get('/health', (_req, res) => res.status(200).send('ok'));
 app.get('/ping',   (_req, res) => res.json({ pong: true, ts: Date.now() }));
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Supabase: carga segura (sin relación con HTTPS)
+// Supabase: carga segura
 let supabase, supabaseAdmin, supabaseAuth;
 try {
   const { createClient } = require('@supabase/supabase-js');
   const URL     = process.env.SUPABASE_URL;
   const ANON    = process.env.SUPABASE_ANON_KEY;
-  const SERVICE = process.env.SUPABASE_SERVICE_ROLE || process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const SERVICE = process.env.SUPABASE_SERVICE_ROLE || process.env.SUPABASE_SERVICE_ROLE_KEY; // 👈 lee ambos
 
   if (URL && ANON) {
-    supabase     = createClient(URL, ANON);
-    supabaseAuth = createClient(URL, ANON);
+    supabase     = createClient(URL, ANON);   // lecturas si RLS lo permite
+    supabaseAuth = createClient(URL, ANON);   // verificación de JWT
   } else {
     console.warn('⚠️  Supabase client NO configurado (SUPABASE_URL o SUPABASE_ANON_KEY faltan)');
   }
   if (URL && SERVICE) {
-    supabaseAdmin = createClient(URL, SERVICE);
+    supabaseAdmin = createClient(URL, SERVICE); // writes/omite RLS
   } else {
     console.warn('⚠️  Supabase ADMIN NO configurado (SUPABASE_SERVICE_ROLE/_KEY falta)');
   }
@@ -75,13 +73,12 @@ function safeUse(path, loader) {
   catch (e) { console.error(`❌ No se pudo montar router en ${path}:`, e.message); }
 }
 
-safeUse('/',         () => require('./routes/uploadExcel'));
-safeUse('/',         () => require('./routes/excelroute'));
-safeUse('/encuesta', () => require('./routes/survey'));
-safeUse('/api',      () => require('./routes/analizarResultados'));
+safeUse('/',        () => require('./routes/uploadExcel'));
+safeUse('/',        () => require('./routes/excelroute'));
+safeUse('/encuesta',() => require('./routes/survey'));
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Auth middleware (aplicativo; no HTTPS)
+// Auth middleware (opcional)
 async function requireAuth(req, res, next) {
   if (!supabaseAuth) return res.status(500).json({ error: 'Auth no configurado' });
   const auth  = req.headers.authorization || '';
@@ -120,6 +117,7 @@ app.post('/empresas', async (req, res) => {
       return res.status(400).json({ error: 'Faltan datos requeridos o áreas vacías' });
     }
 
+    // Crear empresa
     const { data: empresaData, error: empresaError } = await admin
       .from('empresas')
       .insert([{
@@ -134,6 +132,7 @@ app.post('/empresas', async (req, res) => {
     if (empresaError) throw empresaError;
     const empresa_id = empresaData.id;
 
+    // Insertar áreas y devolver lo insertado (ANTES devolvía null)
     const areaInserts = areas.map((nombre) => ({
       nombre, empresa_id, jerarquia1, jerarquia2, jerarquia3, jerarquia4,
     }));
@@ -141,10 +140,11 @@ app.post('/empresas', async (req, res) => {
     const { data: areasData, error: areasError } = await admin
       .from('areas')
       .insert(areaInserts)
-      .select('id,nombre,empresa_id,jerarquia1,jerarquia2,jerarquia3,jerarquia4');
+      .select('id,nombre,empresa_id,jerarquia1,jerarquia2,jerarquia3,jerarquia4'); // 👈 clave
 
     if (areasError) throw areasError;
 
+    // Actualizar contador de áreas en empresa
     const totalAreas = areas.length;
     const { error: updateError } = await admin
       .from('empresas')
@@ -152,6 +152,7 @@ app.post('/empresas', async (req, res) => {
       .eq('id', empresa_id);
     if (updateError) throw updateError;
 
+    // Empresa actualizada
     const { data: updatedEmpresa, error: fetchUpdatedError } = await admin
       .from('empresas')
       .select('*')
@@ -432,6 +433,6 @@ app.use((err, _req, res, _next) => {
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Puerto (solo HTTP)
+// Puerto Render
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Servidor HTTP corriendo en puerto ${PORT}`));
+app.listen(PORT, () => console.log(`Servidor corriendo en puerto ${PORT}`));
