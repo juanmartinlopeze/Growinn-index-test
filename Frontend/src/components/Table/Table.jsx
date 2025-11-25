@@ -35,14 +35,17 @@ export function Table() {
   const [empresaId, setEmpresaId] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const saved = loadStepData("step3") || {};
-  const [areas, setAreas] = useState(saved.areas || []);
-  const [cargos, setCargos] = useState(saved.cargos || []);
-  const [subcargos, setSubcargos] = useState(saved.subcargos || []);
+  // ❌ NO cargar del localStorage al inicio - siempre desde la API
+  const [areas, setAreas] = useState([]);
+  const [cargos, setCargos] = useState([]);
+  const [subcargos, setSubcargos] = useState([]);
 
+  // Solo guardar en localStorage DESPUÉS de cargar desde la API
   useEffect(() => {
-    saveStepData("step3", { areas, cargos, subcargos });
-  }, [areas, cargos, subcargos]);
+    if (!isLoading && empresaId) {
+      saveStepData("step3", { empresaId, areas, cargos, subcargos });
+    }
+  }, [areas, cargos, subcargos, empresaId, isLoading]);
 
  
   const [modal, setModal] = useState(false);
@@ -106,6 +109,14 @@ export function Table() {
       }
       
       const empresaActual = empresas[empresas.length - 1];
+      
+      // ✅ Verificar si cambió la empresa y limpiar localStorage
+      const saved = loadStepData("step3");
+      if (saved?.empresaId && saved.empresaId !== empresaActual.id) {
+        console.log('🧹 Nueva empresa detectada - limpiando datos antiguos');
+        saveStepData("step3", null);
+      }
+      
       setEmpresaId(empresaActual.id);
       setEmpresaData(empresaActual);
 
@@ -120,11 +131,19 @@ export function Table() {
       const areaIds = new Set(areasData.map(a => a.id));
       const cargosFiltrados = cargosData.filter(c => areaIds.has(c.area_id));
 
+      // ✅ Filtrar subcargos que pertenezcan a cargos válidos
+      const cargoIds = new Set(cargosFiltrados.map(c => c.id));
+      const subcargosFiltrados = subcargosData.filter(s => cargoIds.has(s.cargo_id));
+
       setAreas(areasData);
       setCargos(cargosFiltrados);
-      setSubcargos(subcargosData);
+      setSubcargos(subcargosFiltrados);
       
-      console.log('✅ Carga optimizada completada');
+      console.log('✅ Carga optimizada completada:', {
+        areas: areasData.length,
+        cargos: cargosFiltrados.length,
+        subcargos: subcargosFiltrados.length
+      });
     } catch (e) {
       console.error("❌ Error cargando datos:", e);
       setEmpresaId(null);
@@ -334,7 +353,21 @@ export function Table() {
     return map;
   }, [subcargos]);
 
-  // Mostrar loading state
+  // ✅ Función para forzar recarga limpia - ANTES del return condicional
+  const handleReloadClean = useCallback(async () => {
+    const confirmed = await showAlert(
+      "delete",
+      "Recargar datos",
+      "¿Deseas recargar la tabla desde cero? Esto limpiará cualquier dato corrupto."
+    );
+    if (!confirmed) return;
+    
+    saveStepData("step3", null);
+    await loadAllData();
+    showAlert("complete", "Datos recargados", "✅ Tabla recargada correctamente");
+  }, [loadAllData, showAlert]);
+
+  // Mostrar loading state - DESPUÉS de todos los hooks
   if (isLoading) {
     return (
       <div className="table-container">
@@ -356,6 +389,15 @@ export function Table() {
             onCancel={alertInfo.onCancel}
           />
         )}
+        <div className="table-header-actions">
+          <button 
+            onClick={handleReloadClean} 
+            className="reload-button"
+            title="Recargar tabla desde cero"
+          >
+            🔄 Recargar tabla
+          </button>
+        </div>
         <table>
           <thead>
             <tr>

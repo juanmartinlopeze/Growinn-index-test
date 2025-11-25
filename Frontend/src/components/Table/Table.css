@@ -6,6 +6,35 @@
 	align-items: center;
 }
 
+.table-header-actions {
+	width: 100%;
+	display: flex;
+	justify-content: flex-end;
+	padding: 10px 0;
+	margin-bottom: 10px;
+}
+
+.reload-button {
+	background: #f0f0f0;
+	color: #333;
+	border: 1px solid #ddd;
+	padding: 8px 16px;
+	font-size: 14px;
+	font-weight: 500;
+	border-radius: 6px;
+	cursor: pointer;
+	transition: all 0.3s ease;
+	display: flex;
+	align-items: center;
+	gap: 6px;
+}
+
+.reload-button:hover {
+	background: #e0e0e0;
+	border-color: #bbb;
+	transform: translateY(-1px);
+}
+
 /* Loading state styles */
 .loading-spinner {
 	display: flex;

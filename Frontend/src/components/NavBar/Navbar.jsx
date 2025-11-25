@@ -345,13 +345,13 @@ export function NavBar() {
     supabase.auth.getUser().then(({ data }) => {
       setUser(data?.user || null);
     });
-    const { data: listener } = supabase.auth.onAuthStateChange(
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (_event, session) => {
         setUser(session?.user || null);
       }
     );
     return () => {
-      listener?.unsubscribe();
+      subscription?.unsubscribe();
     };
   }, []);
 
