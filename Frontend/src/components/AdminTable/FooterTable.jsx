@@ -1,4 +1,3 @@
-import React from "react";
 import {
   AREA_WIDTH,
   ROLE_WIDTH,
