@@ -7,8 +7,8 @@ export default function SurveyScreen() {
 		<section className='survey-screen-container'>
 			<TitleSection title='Encuesta de Innovación' />
 			<SurveyTest />
-			<img className='line-bckg-img' src='/BgLine-decoration.png' alt='' />
-			<img className='dots-bckg-img' src='/BgPoints-decoration.png' alt='' />
+			<img className='line-bckg-img' src='/images/decorative/BgLine-decoration.png' alt='' />
+			<img className='dots-bckg-img' src='/images/decorative/BgPoints-decoration.png' alt='' />
 		</section>
 	)
 }

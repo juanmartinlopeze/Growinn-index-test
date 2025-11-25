@@ -20,7 +20,7 @@ const ProgressBar = ({ empleadosAsignados, empleadosPlaneados }) => {
         style={{ width: `${porcentaje}%` }}
       ></div>
       <div className="progress-bar-text">
-        <img src="/icon-people.png" alt="Icono personas" />
+        <img src="/icons/icon-people.png" alt="Icono personas" />
         {empleadosAsignados} / {empleadosPlaneados}
       </div>
     </div>

@@ -71,8 +71,8 @@ export function DatosPrueba() {
           <Button variant="next" text="Siguiente" to="/download_page" />
         </section>
       </section>
-      <img className="line-bckg-img" src="/BgLine-decoration.png" alt="" />
-      <img className="dots-bckg-img" src="/BgPoints-decoration.png" alt="" />
+      <img className="line-bckg-img" src="/images/decorative/BgLine-decoration.png" alt="" />
+      <img className="dots-bckg-img" src="/images/decorative/BgPoints-decoration.png" alt="" />
     </>
   );
 }

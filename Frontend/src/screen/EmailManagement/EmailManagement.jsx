@@ -638,9 +638,9 @@ export function EmailManagement() {
         />
       )}
 
-      <img className="line-bckg-img" src="/BgLine-decoration2.png" alt="" />
-      <img className="line-bckg-img2" src="/BgLine-decoration3.png" alt="" />
-      <img className="squares-bckg-img" src="/squaresBckg.png" alt="" />
+      <img className="line-bckg-img" src="/images/decorative/BgLine-decoration2.png" alt="" />
+      <img className="line-bckg-img2" src="/images/decorative/BgLine-decoration3.png" alt="" />
+      <img className="squares-bckg-img" src="/images/decorative/squaresBckg.png" alt="" />
     </section>
   );
 }

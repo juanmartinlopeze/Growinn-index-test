@@ -156,7 +156,7 @@ export const FileUploadPreview = ({ onFileChange, file, accept }) => {
         {!file ? (
           <>
             <img
-              src="/Icon-FileUpload.svg"
+              src="/icons/Icon-FileUpload.svg"
               alt="Subir archivo"
               className="upload-icon"
             />

@@ -52,7 +52,7 @@ export function HomeInnlab() {
 						style={{ display: 'block', border: 'none' }}
 					></iframe> */}
           <img
-            src="/hierarchy-table.png"
+            src="/images/ui/hierarchy-table.png"
             alt="A table with four columns showing user data, progress bars, and color-coded status indicators (green, yellow, red)."
           />
         </div>
@@ -62,8 +62,8 @@ export function HomeInnlab() {
           <Button variant="next" text="Siguiente" to="/innlab_form" />
         </section>
       </section>
-      <img className="line-bckg-img" src="/BgLine-decoration.png" alt="" />
-      <img className="dots-bckg-img" src="/BgPoints-decoration.png" alt="" />
+      <img className="line-bckg-img" src="/images/decorative/BgLine-decoration.png" alt="" />
+      <img className="dots-bckg-img" src="/images/decorative/BgPoints-decoration.png" alt="" />
     </>
   );
 }

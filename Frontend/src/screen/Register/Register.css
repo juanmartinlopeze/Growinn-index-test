@@ -5,7 +5,7 @@
 
 .left-register-container {
 	width: 50%;
-	background: url('/register-login-bckg.png') no-repeat;
+	background: url('/images/backgrounds/register-login-bckg.png') no-repeat;
 	background-size: cover;
 	display: flex;
 	flex-direction: column;
