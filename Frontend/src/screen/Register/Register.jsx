@@ -143,32 +143,66 @@ export function Register() {
 			options: {
 				data: {
 					full_name: name,
-					company,
-					organization_type,
-					adress,
-					category,
-					sector,
+					// Store step 2 data in metadata to save after email verification
+					pending_empresa: {
+						company,
+						organization_type,
+						adress,
+						category,
+						sector,
+					},
 				},
 				emailRedirectTo: `${location.origin}/auth/callback`,
 			},
 		})
 
-		setLoading(false)
-
 		if (error) {
 			setMsg(mapSupabaseError(error))
 			setStatus('error')
+			setLoading(false)
 			return
 		}
 
 		setLastEmail(email)
+
+		// If we have a session (email confirmation disabled), save empresa data immediately
 		if (data.session) {
-			setMsg('Cuenta creada. ¡Todo listo!')
-			setStatus('success')
+			try {
+				const backendUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000'
+				const response = await fetch(`${backendUrl}/register/empresa`, {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+						Authorization: `Bearer ${data.session.access_token}`,
+					},
+					body: JSON.stringify({
+						company,
+						organization_type,
+						adress,
+						category,
+						sector,
+					}),
+				})
+
+				if (!response.ok) {
+					const errorData = await response.json()
+					throw new Error(errorData.error || 'Error al guardar datos de empresa')
+				}
+
+				setMsg('Cuenta creada. ¡Todo listo!')
+				setStatus('success')
+			} catch (empresaError) {
+				console.error('Error saving empresa:', empresaError)
+				setMsg('Cuenta creada pero hubo un problema al guardar los datos de la empresa.')
+				setStatus('success')
+			}
 		} else {
+			// Email confirmation required - data will be saved after verification
 			setMsg('Te enviamos un correo para confirmar tu cuenta.')
 			setStatus('verify')
 		}
+
+		setLoading(false)
 	}
 
 	function mapSupabaseError(err) {
