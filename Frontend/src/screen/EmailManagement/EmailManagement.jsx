@@ -42,18 +42,28 @@ export function EmailManagement() {
         ? "https://growinn-mail-service.onrender.com/enviar-correos"
         : "http://localhost:3001/enviar-correos";
 
+      // Obtener empresa actual por user_id
+      const empresas = await fetchEmpresas();
+      const userId = localStorage.getItem('user_id');
+      const empresaActual = empresas.find(e => String(e.user_id) === String(userId));
+      if (!empresaActual) throw new Error('No se encontró empresa para el usuario actual');
+
       console.log("🌐 Enviando correos desde:", window.location.hostname);
       console.log("📧 URL del servicio de mail:", mailServiceUrl);
+      console.log("🏢 Empresa actual:", empresaActual.id);
 
-      const res = await fetch(mailServiceUrl);
+      // Enviar el id de la empresa en el body (POST)
+      const res = await fetch(mailServiceUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ empresa_id: empresaActual.id })
+      });
       if (!res.ok) throw new Error(`Status ${res.status}`);
-      // ...existing code...
       setMessageType("success");
       setMessageTitle("Correos reenviados");
       setMessage("Correos enviados correctamente.");
     } catch (err) {
       console.error('💥 Error:', err);
-      // ...existing code...
       setMessageType("error");
       setMessageTitle("Los correos no fueron enviados");
       setMessage("No se han podido reenviar los correos a los participantes pendientes.");

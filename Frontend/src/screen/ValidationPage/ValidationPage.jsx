@@ -86,11 +86,23 @@ export function ValidationPage() {
       const mailServiceUrl = isProduction 
         ? "https://growinn-mail-service.onrender.com/enviar-correos"
         : "http://localhost:3001/enviar-correos";
-      
+
+      // Obtener empresa actual por user_id
+      const empresas = await fetch('/api/empresas').then(r => r.json());
+      const userId = localStorage.getItem('user_id');
+      const empresaActual = empresas.find(e => String(e.user_id) === String(userId));
+      if (!empresaActual) throw new Error('No se encontró empresa para el usuario actual');
+
       console.log("🌐 Enviando correos desde:", window.location.hostname);
       console.log("📧 URL del servicio de mail:", mailServiceUrl);
-      
-      const res = await fetch(mailServiceUrl);
+      console.log("🏢 Empresa actual:", empresaActual.id);
+
+      // Enviar el id de la empresa en el body (POST)
+      const res = await fetch(mailServiceUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ empresa_id: empresaActual.id })
+      });
       if (!res.ok) throw new Error(`Status ${res.status}`);
       setSuccess(true);
     } catch (err) {
