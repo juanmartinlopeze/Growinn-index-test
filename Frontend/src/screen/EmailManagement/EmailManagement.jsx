@@ -25,93 +25,38 @@ import {
 // Esta es una version completa con todas las mejoras necesarias para que envie correos y genere el analisis correctamente.
 
 export function EmailManagement() {
-  // Estados para feedback de envío de correos
+  // Estado para feedback de envío de correos
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(false);
 
   // Función para enviar correos
   const handleSendEmails = async () => {
     console.log('\n🔵 === ENVÍO DE CORREOS (EmailManagement) ===');
     setLoading(true);
-    setError(null);
-    setSuccess(false);
+    // ...existing code...
 
+    // ...existing code...
     try {
-      console.log('📊 Obteniendo empresas...');
-      const empresas = await fetchEmpresas();
-      console.log('✅ Empresas obtenidas:', empresas);
+      // Detectar si estamos en producción o desarrollo
+      const isProduction = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+      const mailServiceUrl = isProduction 
+        ? "https://growinn-mail-service.onrender.com/enviar-correos"
+        : "http://localhost:3001/enviar-correos";
 
-      if (!empresas || empresas.length === 0) {
-        console.error('❌ No hay empresas');
-        throw new Error("No hay empresa para enviar correos");
-      }
+      console.log("🌐 Enviando correos desde:", window.location.hostname);
+      console.log("📧 URL del servicio de mail:", mailServiceUrl);
 
-      // Filtrar empresa por user_id de localStorage
-      const userId = localStorage.getItem('user_id');
-      console.log('🟡 user_id localStorage:', userId);
-      console.log('🟡 Empresas:', empresas.map(e => ({ id: e.id, user_id: e.user_id })));
-      const empresaActual = empresas.find(e => String(e.user_id) === String(userId));
-      console.log('🟡 Empresa encontrada por user_id:', empresaActual);
-      if (!empresaActual) {
-        console.error('❌ No se encontró empresa para el usuario actual');
-        throw new Error("No se encontró empresa para el usuario actual");
-      }
-      console.log('🏢 Empresa seleccionada:', empresaActual.id);
-
-      // ✅ Cambiar a VITE_API_URL
-      const backendUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
-      const mailUrl = `${backendUrl}/enviar-correos`;
-
-      console.log('🌐 Backend URL:', backendUrl);
-      console.log('📧 URL del servicio de mail:', mailUrl);
-
-      const requestBody = { empresa_id: empresaActual.id };
-      console.log('📦 Body:', JSON.stringify(requestBody, null, 2));
-
-      console.log('🚀 Enviando petición POST...');
-      const response = await fetch(mailUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(requestBody),
-      });
-
-      console.log('📡 Respuesta:');
-      console.log('   - Status:', response.status);
-      console.log('   - Status Text:', response.statusText);
-
-      const data = await response.json();
-      console.log('📄 Data:', JSON.stringify(data, null, 2));
-
-      if (response.ok) {
-        console.log('✅ Correos enviados');
-        const pending = Math.max(0, (total || 0) - (progress || 0));
-        setSuccess(true);
-        setError(null);
-        setMessageType("success");
-        setMessageTitle("Correos reenviados");
-        setMessage(
-          `Se han reenviado los correos a ${pending} participantes pendientes.`
-        );
-      } else {
-        console.error('❌ Error:', data.error);
-        throw new Error(data.error || "Error al enviar correos");
-      }
-
-      console.log('🔵 === FIN ENVÍO ===\n');
+      const res = await fetch(mailServiceUrl);
+      if (!res.ok) throw new Error(`Status ${res.status}`);
+      // ...existing code...
+      setMessageType("success");
+      setMessageTitle("Correos reenviados");
+      setMessage("Correos enviados correctamente.");
     } catch (err) {
       console.error('💥 Error:', err);
-      console.error('Tipo:', err.name);
-      console.error('Mensaje:', err.message);
-
-      setError(err.message);
-      setSuccess(false);
-      const pending = Math.max(0, (total || 0) - (progress || 0));
+      // ...existing code...
       setMessageType("error");
       setMessageTitle("Los correos no fueron enviados");
-      setMessage(
-        `No se han podido reenviar los correos a los ${pending} participantes pendientes.`
-      );
+      setMessage("No se han podido reenviar los correos a los participantes pendientes.");
     } finally {
       setLoading(false);
     }
@@ -379,8 +324,7 @@ export function EmailManagement() {
       setMessage("");
       setMessageTitle("");
       setMessageType("info");
-      setSuccess(false);
-      setError(null);
+      // ...existing code...
       setToastClosing(false);
     }, visibleDuration + fadeDuration);
     return () => {
