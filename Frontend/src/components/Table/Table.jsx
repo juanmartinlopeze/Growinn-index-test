@@ -108,7 +108,14 @@ export function Table() {
         setAreas([]); setCargos([]); setSubcargos([]);
         return;
       }
-      const empresaActual = empresas[empresas.length - 1];
+      // Buscar empresa asociada al usuario actual
+      let empresaActual = null;
+      const userId = window.localStorage.getItem('user_id');
+      if (userId) {
+        empresaActual = empresas.find(e => String(e.user_id) === String(userId));
+      }
+      // Si no se encuentra, usar la última como fallback
+      if (!empresaActual) empresaActual = empresas[empresas.length - 1];
       setEmpresaId(empresaActual.id);
       setEmpresaData(empresaActual);
 
