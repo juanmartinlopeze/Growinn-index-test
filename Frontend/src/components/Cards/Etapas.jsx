@@ -1,11 +1,9 @@
-import Analisis from '../../assets/icons/etapas-analisis.svg'
-import Areas from '../../assets/icons/etapas-areas.svg'
-import Jerarquias from '../../assets/icons/etapas-jerarquias-cargos.svg'
-import Registro from '../../assets/icons/etapas-registro.svg'
-import Tabla from '../../assets/icons/etapas-tabla.svg'
-import Validacion from '../../assets/icons/etapas-validacion.svg'
-
-
+import Analisis from '../../assets/icons/etapas-analisis.svg?react'
+import Areas from '../../assets/icons/etapas-areas.svg?react'
+import Jerarquias from '../../assets/icons/etapas-jerarquias-cargos.svg?react'
+import Registro from '../../assets/icons/etapas-registro.svg?react'
+import Tabla from '../../assets/icons/etapas-tabla.svg?react'
+import Validacion from '../../assets/icons/etapas-validacion.svg?react'
 
 export function Etapas({ variant, number, title, description }) {
 	const iconMap = {
