@@ -36,24 +36,33 @@ export function EmailManagement() {
     setLoading(true);
     setError(null);
     setSuccess(false);
-    
+
     try {
       console.log('📊 Obteniendo empresas...');
       const empresas = await fetchEmpresas();
       console.log('✅ Empresas obtenidas:', empresas);
-      
+
       if (!empresas || empresas.length === 0) {
         console.error('❌ No hay empresas');
         throw new Error("No hay empresa para enviar correos");
       }
-      
-      const empresaActual = empresas[empresas.length - 1];
+
+      // Filtrar empresa por user_id de localStorage
+      const userId = localStorage.getItem('user_id');
+      console.log('🟡 user_id localStorage:', userId);
+      console.log('🟡 Empresas:', empresas.map(e => ({ id: e.id, user_id: e.user_id })));
+      const empresaActual = empresas.find(e => String(e.user_id) === String(userId));
+      console.log('🟡 Empresa encontrada por user_id:', empresaActual);
+      if (!empresaActual) {
+        console.error('❌ No se encontró empresa para el usuario actual');
+        throw new Error("No se encontró empresa para el usuario actual");
+      }
       console.log('🏢 Empresa seleccionada:', empresaActual.id);
 
       // ✅ Cambiar a VITE_API_URL
       const backendUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
       const mailUrl = `${backendUrl}/enviar-correos`;
-      
+
       console.log('🌐 Backend URL:', backendUrl);
       console.log('📧 URL del servicio de mail:', mailUrl);
 
@@ -94,7 +103,7 @@ export function EmailManagement() {
       console.error('💥 Error:', err);
       console.error('Tipo:', err.name);
       console.error('Mensaje:', err.message);
-      
+
       setError(err.message);
       setSuccess(false);
       const pending = Math.max(0, (total || 0) - (progress || 0));
@@ -112,7 +121,7 @@ export function EmailManagement() {
   const handleAnalyzeResults = async () => {
     try {
       console.log('\n🔵 === ANÁLISIS DE RESULTADOS INICIO ===');
-      
+
       const empresas = await fetchEmpresas();
       if (!empresas || empresas.length === 0) {
         console.error('❌ No hay empresas');
@@ -123,16 +132,30 @@ export function EmailManagement() {
         setAlertType(null);
         return;
       }
-      
-      const empresaActual = empresas[empresas.length - 1];
+
+      // Filtrar empresa por user_id de localStorage
+      const userId = localStorage.getItem('user_id');
+      console.log('🟡 user_id localStorage:', userId);
+      console.log('🟡 Empresas:', empresas.map(e => ({ id: e.id, user_id: e.user_id })));
+      const empresaActual = empresas.find(e => String(e.user_id) === String(userId));
+      console.log('🟡 Empresa encontrada por user_id:', empresaActual);
+      if (!empresaActual) {
+        console.error('❌ No se encontró empresa para el usuario actual');
+        setMessageType("error");
+        setMessageTitle("Error");
+        setMessage("No se encontró empresa para analizar.");
+        setShowAlert(false);
+        setAlertType(null);
+        return;
+      }
       console.log('🏢 Empresa:', empresaActual.id);
-      
+
       // ✅ VALIDAR QUE HAYA RESPUESTAS ANTES DE ANALIZAR
       console.log('📊 Verificando progreso de encuestas...');
       const progreso = await getSurveyProgress(empresaActual.id);
       console.log('📈 Encuestas completadas:', progreso);
       console.log('👥 Total empleados:', empresaActual.cantidad_empleados);
-      
+
       if (progreso === 0) {
         console.warn('⚠️  No hay encuestas completadas');
         setMessageType("error");
@@ -144,34 +167,34 @@ export function EmailManagement() {
         setAlertType(null);
         return;
       }
-      
+
       console.log(`✅ Hay ${progreso} encuestas completadas, procediendo con el análisis...`);
-      
+
       const backendUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
       const analyzeUrl = `${backendUrl}/api/analizar-resultados`;
       console.log('🌐 URL:', analyzeUrl);
-      
+
       const response = await fetch(analyzeUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ empresa_id: empresaActual.id }),
       });
-      
+
       const data = await response.json();
-      
+
       console.log('📡 Response status:', response.status);
       console.log('📄 Response data:', JSON.stringify(data, null, 2));
-      
+
       if (response.ok) {
         console.log('✅ Análisis exitoso');
-        
+
         if (data.evaluacion_id) {
           console.log('💾 Evaluación guardada con ID:', data.evaluacion_id);
         }
         console.log('📈 Total respuestas analizadas:', data.total_respuestas);
         console.log('👥 Total usuarios:', data.total_usuarios);
         console.log('👥 Usuarios que respondieron:', data.usuarios_respondieron);
-        
+
         setMessageType("success");
         setMessageTitle("Análisis completado");
         setMessage(
@@ -183,7 +206,7 @@ export function EmailManagement() {
         );
       } else {
         console.error('❌ Error:', data.error);
-        
+
         // Mostrar información de debug si está disponible
         if (data.debug) {
           console.warn('🔍 Debug info:');
@@ -191,17 +214,17 @@ export function EmailManagement() {
           console.warn('   Usuarios de la empresa:', data.debug.usuarios_empresa);
           console.warn('   Usuarios con respuestas:', data.debug.usuarios_con_respuestas);
         }
-        
+
         setMessageType("error");
         setMessageTitle("Error en el análisis");
         setMessage(
           data.error || "No se pudo completar el análisis de resultados."
         );
       }
-      
+
       setShowAlert(false);
       setAlertType(null);
-      
+
     } catch (error) {
       console.error('💥 Error:', error);
       console.error('Stack:', error.stack);
@@ -236,7 +259,18 @@ export function EmailManagement() {
           setProgress(0);
           return;
         }
-        const empresaActual = empresas[empresas.length - 1];
+        // Filtrar empresa por user_id de localStorage
+        const userId = localStorage.getItem('user_id');
+        console.log('🟡 user_id localStorage:', userId);
+        console.log('🟡 Empresas:', empresas.map(e => ({ id: e.id, user_id: e.user_id })));
+        const empresaActual = empresas.find(e => String(e.user_id) === String(userId));
+        console.log('🟡 Empresa encontrada por user_id:', empresaActual);
+        if (!empresaActual) {
+          setRows([]);
+          setTotal(0);
+          setProgress(0);
+          return;
+        }
         console.log("EMPRESA ACTUAL PARA PROGRESO:", empresaActual);
         // Traer datos principales y respuestas
         const [areas, cargos, subcargos, progreso, usuariosEmpresa, surveyResponses] = await Promise.all([
