@@ -137,6 +137,57 @@ async function requireAuth(req, res, next) {
 
 app.get('/auth/me', requireAuth, (req, res) => res.json({ user: req.user }));
 
+/* ───────── REGISTRO ───────── */
+app.post('/register/empresa', requireAuth, async (req, res) => {
+  try {
+    const admin = dbWrite();
+    if (!admin) return res.status(500).json({ error: 'Supabase admin no configurado' });
+
+    const { company, organization_type, adress, category, sector } = req.body;
+    const user_id = req.user.id;
+
+    if (!company) {
+      return res.status(400).json({ error: 'El nombre de la empresa es requerido' });
+    }
+
+    // Check if user already has an empresa
+    const { data: existing } = await admin
+      .from('empresas')
+      .select('id')
+      .eq('user_id', user_id)
+      .single();
+
+    if (existing) {
+      return res.status(409).json({ error: 'El usuario ya tiene una empresa registrada' });
+    }
+
+    // Create empresa record with defaults for fields not collected during registration
+    const { data: empresaData, error: empresaError } = await admin
+      .from('empresas')
+      .insert([{
+        nombre: company,
+        organization_type,
+        direccion: adress,
+        category,
+        sector,
+        user_id,
+        // Set defaults for fields not collected in registration
+        cantidad_empleados: 0,
+        jerarquia: 1,
+        areas: 0,
+      }])
+      .select('*')
+      .single();
+
+    if (empresaError) throw empresaError;
+
+    res.status(201).json({ empresa: empresaData });
+  } catch (error) {
+    console.error('Error al crear empresa en registro:', error);
+    res.status(500).json({ error: 'Error al crear empresa', detalle: error.message });
+  }
+});
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Helpers DB
 const dbRead  = () => supabaseAdmin || supabase; // preferimos admin si está

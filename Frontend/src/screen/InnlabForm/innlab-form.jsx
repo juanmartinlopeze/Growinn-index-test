@@ -227,7 +227,6 @@ export function InnlabForm() {
       // 🏢 Crear empresa en Supabase
       console.log("🏢 Creando empresa con datos:", formData);
       const empresaCreada = await createEmpresa(formData);
-      console.log("✅ Empresa creada con ID:", empresaCreada.id);
       
       // 💾 Guardar datos completos en localStorage incluyendo el ID
       const empresaDataConId = {
@@ -253,9 +252,9 @@ export function InnlabForm() {
       });
       
     } catch (error) {
-      console.error("❌ Error creando empresa:", error);
+      console.error("Error guardando empresa:", error);
       setAlertType("error");
-      setAlertMessage("Error creando la empresa. Por favor, intenta de nuevo.");
+      setAlertMessage("Error guardando la empresa. Por favor, intenta de nuevo.");
       setShowAlert(true);
     } finally {
       setIsCreatingEmpresa(false);
