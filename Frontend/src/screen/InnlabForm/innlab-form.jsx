@@ -318,12 +318,12 @@ export function InnlabForm() {
 
       <img
         className="linea-curva"
-        src="/BgLine-decoration.png"
+        src="/images/decorative/BgLine-decoration.png"
         alt="Imagen decorativa"
       />
       <img
         className="puntos"
-        src="/BgPoints-decoration.png"
+        src="/images/decorative/BgPoints-decoration.png"
         alt="imagen decorativa"
       />
 

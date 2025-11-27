@@ -192,8 +192,8 @@ export function AreasForm() {
         />
       </div>
 
-      <img className="linea-curva" src="/BgLine-decoration.png" alt="Decoración" />
-      <img className="puntos" src="/BgPoints-decoration.png" alt="Decoración" />
+      <img className="linea-curva" src="/images/decorative/BgLine-decoration.png" alt="Decoración" />
+      <img className="puntos" src="/images/decorative/BgPoints-decoration.png" alt="Decoración" />
 
       {showAlert && (
         <Alert type={alertType} message={alertMessage} onClose={() => setShowAlert(false)} />

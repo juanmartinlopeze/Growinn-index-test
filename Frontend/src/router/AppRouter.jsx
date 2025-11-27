@@ -1,13 +1,17 @@
 import { Route, Routes } from 'react-router-dom'
 import AuthCallback from '../screen/AuthCallback'
 import { AreasForm, DatosPrueba, DownloadPage, HomeInnlab, InnlabForm, Register, UploadPage, ValidationPage, EmailManagement } from '../screen/index'
+import LandingPage from '../screen/LandingPage/LandingPage'
+import Demo from '../screen/Demo/Demo'
 import Login from '../screen/Login/Login'
 import SurveyScreen from '../screen/SurveyScreen/SurveyScreen'
 const AppRouter = () => {
 	return (
 		<>
 			<Routes>
-				<Route path='/' element={<HomeInnlab />} />
+				<Route path='/' element={<LandingPage />} />
+				<Route path='/home' element={<HomeInnlab />} />
+            <Route path='/demo' element={<Demo />} />
 				<Route path='/innlab_form' element={<InnlabForm />} />
 				<Route path='/areas_form' element={<AreasForm />} />
 				<Route path='/datos_prueba' element={<DatosPrueba />} />

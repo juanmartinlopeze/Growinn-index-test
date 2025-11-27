@@ -41,7 +41,7 @@ export function StepBreadcrumb({
             idx < steps.length - 1 && (
               <li key={`chevron-${idx}`}>
                 <img
-                  src="/chevron-icons.png"
+                  src="/icons/chevron-icons.png"
                   alt="Chevron"
                   className="breadcrumb-separator"
                   style={{ width: "24px", height: "24px" }}
