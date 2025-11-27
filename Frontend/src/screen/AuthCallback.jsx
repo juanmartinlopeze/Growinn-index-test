@@ -13,7 +13,7 @@ export default function AuthCallback() {
 
         // Get current session
         const { data: { session }, error: sessionError } = await supabase.auth.getSession()
-
+        console.log('🟠 session:', session);
         if (sessionError) throw sessionError
         if (!session) {
           throw new Error('No session found after email verification')
@@ -21,9 +21,12 @@ export default function AuthCallback() {
 
         // Get the user with metadata
         const { data: { user }, error: userError } = await supabase.auth.getUser()
-
+        console.log('🟠 userError:', userError);
+        console.log('🟠 user:', user);
         if (userError) throw userError
         if (!user) throw new Error('No user found')
+        // Guardar el user_id en localStorage para el resto de la app
+        window.localStorage.setItem('user_id', user.id);
 
         // Check if user has pending empresa data in metadata
         if (user?.user_metadata?.pending_empresa) {

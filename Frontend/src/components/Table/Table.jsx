@@ -111,11 +111,14 @@ export function Table() {
       // Buscar empresa asociada al usuario actual
       let empresaActual = null;
       const userId = window.localStorage.getItem('user_id');
+      console.log('🟢 user_id en localStorage:', userId);
+      console.log('🟢 empresas desde API:', empresas);
       if (userId) {
         empresaActual = empresas.find(e => String(e.user_id) === String(userId));
       }
       // Si no se encuentra, usar la última como fallback
       if (!empresaActual) empresaActual = empresas[empresas.length - 1];
+      console.log('🟢 empresa seleccionada:', empresaActual);
       setEmpresaId(empresaActual.id);
       setEmpresaData(empresaActual);
 

@@ -110,6 +110,13 @@ export default function Login() {
 			return
 		}
 
+		// Obtener el usuario y guardar el user_id en localStorage
+		const { data: { user }, error: userError } = await supabase.auth.getUser();
+		console.log('🟢 Login user:', user);
+		if (user && user.id) {
+			window.localStorage.setItem('user_id', user.id);
+		}
+
 		setMsg('Sesión iniciada.')
 		setMsgKind('success')
 		window.location.replace('/')
