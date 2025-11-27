@@ -1,4 +1,4 @@
-import Analisis from '../../assets/Icons/etapas-analisis.svg?react'
+
 import Areas from '../../assets/Icons/etapas-areas.svg?react'
 import Jerarquias from '../../assets/Icons/etapas-jerarquias-cargos.svg?react'
 import Registro from '../../assets/Icons/etapas-registro.svg?react'
