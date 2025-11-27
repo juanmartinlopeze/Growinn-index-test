@@ -40,8 +40,9 @@ export function Table() {
   const [cargos, setCargos] = useState([]);
   const [subcargos, setSubcargos] = useState([]);
 
-  // Solo guardar en localStorage DESPUÉS de cargar desde la API
+  // Solo guardar en localStorage DESPUÉS de cargar desde la API (opcional, solo para persistencia temporal)
   useEffect(() => {
+    // No cargar nunca desde localStorage, solo guardar para persistencia temporal
     if (!isLoading && empresaId) {
       saveStepData("step3", { empresaId, areas, cargos, subcargos });
     }
@@ -100,23 +101,14 @@ export function Table() {
     setIsLoading(true);
     try {
       console.log('🔄 Iniciando carga optimizada de datos...');
-      
+      // Siempre cargar desde la API, nunca desde localStorage
       const empresas = await fetchEmpresas();
       if (!empresas?.length) {
         setEmpresaId(null);
         setAreas([]); setCargos([]); setSubcargos([]);
         return;
       }
-      
       const empresaActual = empresas[empresas.length - 1];
-      
-      // ✅ Verificar si cambió la empresa y limpiar localStorage
-      const saved = loadStepData("step3");
-      if (saved?.empresaId && saved.empresaId !== empresaActual.id) {
-        console.log('🧹 Nueva empresa detectada - limpiando datos antiguos');
-        saveStepData("step3", null);
-      }
-      
       setEmpresaId(empresaActual.id);
       setEmpresaData(empresaActual);
 
@@ -138,12 +130,25 @@ export function Table() {
       setAreas(areasData);
       setCargos(cargosFiltrados);
       setSubcargos(subcargosFiltrados);
-      
+
+      // Debug: mostrar datos completos
       console.log('✅ Carga optimizada completada:', {
         areas: areasData.length,
         cargos: cargosFiltrados.length,
-        subcargos: subcargosFiltrados.length
+        subcargos: subcargosFiltrados.length,
+        areasData,
+        cargosFiltrados,
+        subcargosFiltrados
       });
+      if (areasData.length === 0) {
+        console.warn('⚠️ No se encontraron áreas para la empresa:', empresaActual.id);
+      }
+      if (cargosFiltrados.length === 0) {
+        console.warn('⚠️ No se encontraron cargos para las áreas:', areasData.map(a => a.id));
+      }
+      if (subcargosFiltrados.length === 0) {
+        console.warn('⚠️ No se encontraron subcargos para los cargos:', cargosFiltrados.map(c => c.id));
+      }
     } catch (e) {
       console.error("❌ Error cargando datos:", e);
       setEmpresaId(null);
