@@ -1,124 +1,209 @@
+// server-mail.js
 require('dotenv').config();
-const fs      = require('fs');
+
+const fs = require('fs');
 const cors = require('cors');
-const path    = require('path');
+const path = require('path');
 const express = require('express');
 const { v4: uuid } = require('uuid');
 const { supabaseAdmin } = require('../supabase/supabase');
 const { MailerSend, EmailParams, Sender, Recipient } = require('mailersend');
 
-const app        = express(); 
-
-// Configuración de CORS más flexible para producción
-const corsOptions = {
-  origin: process.env.NODE_ENV === 'production' 
-    ? [process.env.FRONTEND_URL, process.env.ALLOWED_ORIGINS?.split(',')].flat().filter(Boolean)
-    : ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:3000'],
-  credentials: true
-};
-
-app.use(cors(corsOptions));
-app.use(express.json()); // Para parsear JSON en el body
-
-const PORT       = process.env.PORT || 3001;
+const app = express();
+const PORT = process.env.PORT || 3001;
 const mailerSend = new MailerSend({ apiKey: process.env.MAILERSEND_API_KEY });
 
-console.log("🔑 MailerSend API Key:", process.env.MAILERSEND_API_KEY ? "✅ Configurado" : "❌ No encontrado");
-console.log("📧 From Email:", process.env.FROM_EMAIL);
-console.log("🌐 Base URL:", process.env.BASE_URL);
+// ===============================
+// Utilidades/Helpers
+// ===============================
+const parseCsv = (val) =>
+  (val || '')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
 
-// Carga la plantilla _una sola vez_
+function getFrontendBaseUrl() {
+  // Prioridad: FRONTEND_URL -> RENDER_EXTERNAL_URL -> (fallback opcional: BASE_URL)
+  const base =
+    process.env.FRONTEND_URL ||
+    process.env.RENDER_EXTERNAL_URL ||
+    process.env.BASE_URL;
+
+  if (!base) {
+    throw new Error(
+      'No hay FRONTEND_URL/RENDER_EXTERNAL_URL/BASE_URL configurada. Define FRONTEND_URL en Render.'
+    );
+  }
+  if (/localhost|127\.0\.0\.1/i.test(base)) {
+    console.warn(`⚠️ FRONTEND_URL/BASE_URL apunta a localhost: ${base} (no servirá fuera de tu PC)`);
+  }
+  return base.replace(/\/+$/, ''); // sin slash final
+}
+
+function buildSurveyLink(token) {
+  const base = getFrontendBaseUrl(); // p.ej. https://growinn-index.onrender.com
+  const url = new URL('/encuesta', base); // ruta de tu SPA
+  url.searchParams.set('token', token);
+  return url.toString();
+}
+
+// ===============================
+// CORS
+// ===============================
+const devOrigins = [
+  'http://localhost:5173',
+  'http://localhost:5174',
+  'http://localhost:3000',
+  'http://localhost:3001',
+
+];
+
+const allowedOrigins =
+  process.env.NODE_ENV === 'production'
+    ? [
+        process.env.FRONTEND_URL,        // https://growinn-index.onrender.com
+        process.env.RENDER_EXTERNAL_URL, // url pública de este servicio (si lo llamas desde navegador)
+        ...parseCsv(process.env.ALLOWED_ORIGINS),
+      ].filter(Boolean)
+    : devOrigins;
+
+app.use(
+  cors({
+    origin(origin, cb) {
+      // Permite server-to-server (sin Origin) y orígenes permitidos
+      if (!origin || allowedOrigins.includes(origin)) return cb(null, true);
+      return cb(new Error(`CORS bloqueado para origen: ${origin}`));
+    },
+    credentials: true,
+  })
+);
+
+app.use(express.json()); // Para parsear JSON
+
+// ===============================
+// Logs de arranque
+// ===============================
+console.log('🔑 MailerSend API Key:', process.env.MAILERSEND_API_KEY ? '✅ Configurado' : '❌ No encontrado');
+console.log('📧 From Email:', process.env.FROM_EMAIL || '(sin definir)');
+console.log('🌐 FRONTEND_URL:', process.env.FRONTEND_URL || '(sin definir)');
+console.log('🌐 RENDER_EXTERNAL_URL:', process.env.RENDER_EXTERNAL_URL || '(sin definir)');
+console.log('🌐 ALLOWED_ORIGINS:', process.env.ALLOWED_ORIGINS || '(sin definir)');
+
+// ===============================
+// Plantilla de email (cargada 1 vez)
+// ===============================
 const templatePath = path.join(__dirname, 'template.html');
-const rawTemplate  = fs.readFileSync(templatePath, 'utf8');
+const rawTemplate = fs.readFileSync(templatePath, 'utf8');
 
-// Ruta de health check para Render
+// ===============================
+// Rutas
+// ===============================
+
+// Health check (Render)
 app.get('/health', (req, res) => {
-  res.status(200).json({ 
-    status: 'OK', 
+  res.status(200).json({
+    status: 'OK',
     timestamp: new Date().toISOString(),
-    service: 'mail-service'
+    service: 'mail-service',
   });
 });
 
-// Ruta principal para información del servicio
+// Info
 app.get('/', (req, res) => {
   res.json({
     service: 'Growinn Mail Service',
     version: '1.0.0',
     endpoints: [
       'GET /health - Health check',
-      'GET /enviar-correos - Enviar correos de encuesta'
-    ]
+      'GET /enviar-correos - Enviar correos de encuesta',
+      'GET /preview-link?token=UUID - Previsualiza el link generado (no envía correo)',
+    ],
   });
 });
 
+// Preview del link (útil para probar sin enviar correo)
+app.get('/preview-link', (req, res) => {
+  try {
+    const token = req.query.token || uuid();
+    const link = buildSurveyLink(token);
+    res.json({ token, link });
+  } catch (err) {
+    console.error('❌ Error /preview-link:', err);
+    res.status(500).json({ error: String(err?.message || err) });
+  }
+});
+
+// Enviar correos
 app.get('/enviar-correos', async (req, res) => {
   try {
-    // 1️⃣ Trae usuarios con correo y su id
+    // 1) Usuarios con correo válido
     const { data: usuarios, error } = await supabaseAdmin
       .from('usuarios')
       .select('id, correo, nombre_completo')
-      .not('correo', 'is', null);
+      .not('correo', 'is', null)
+      .neq('correo', '');
 
     if (error) throw error;
-    if (!usuarios.length) return res.send('No hay usuarios con correo.');
+    if (!usuarios?.length) return res.send('No hay usuarios con correo.');
 
     const from = new Sender(process.env.FROM_EMAIL, 'INNLAB');
-    console.log("📤 Preparando envío de correos...");
-    console.log("👥 Usuarios encontrados:", usuarios.length);
-    console.log("📧 Email remitente:", process.env.FROM_EMAIL);
+    console.log('📤 Preparando envío de correos...');
+    console.log('👥 Usuarios encontrados:', usuarios.length);
+    console.log('📧 Remitente:', process.env.FROM_EMAIL);
 
     for (const user of usuarios) {
-      // 2️⃣ Genera token y lo guarda en survey_tokens
-      const token = uuid();
-      const { error: errToken } = await supabaseAdmin
-        .from('survey_tokens')
-        .insert([{ user_id: user.id, token }]);
-
-      if (errToken) {
-        console.error(`❌ Error guardando token para ${user.correo}:`, errToken);
-        continue; // sigue con el próximo usuario
-      }
-
-      // 3️⃣ Construye el enlace dinámico
-      const surveyLink = `${process.env.BASE_URL}/encuesta?token=${token}`;
-
-      // 4️⃣ Reemplaza placeholders en la plantilla
-      const htmlBody = rawTemplate
-        .replace(/{{\s*nombre_completo\s*}}/g, user.nombre_completo)
-        .replace(/{{\s*survey_link\s*}}/g, surveyLink);
-
-      // 5️⃣ Prepara y envía el correo
-      const emailParams = new EmailParams()
-        .setFrom(from)
-        .setTo([ new Recipient(user.correo, user.nombre_completo) ])
-        .setSubject(`Hola ${user.nombre_completo}, ¡tu encuesta te espera!`)
-        .setText(`Hola ${user.nombre_completo}, completa la encuesta aquí: ${surveyLink}`)
-        .setHtml(htmlBody);
-
       try {
-        console.log(`📤 Intentando enviar correo a: ${user.correo}`);
+        // 2) Crear token y guardar
+        const token = uuid();
+        const { error: errToken } = await supabaseAdmin
+          .from('survey_tokens')
+          .insert([{ user_id: user.id, token }]);
+        if (errToken) {
+          console.error(`❌ Error guardando token para ${user.correo}:`, errToken);
+          continue;
+        }
+
+        // 3) Enlace público
+        const surveyLink = buildSurveyLink(token);
+
+        // 4) Plantilla
+        const htmlBody = rawTemplate
+          .replace(/{{\s*nombre_completo\s*}}/g, user.nombre_completo || 'allí')
+          .replace(/{{\s*survey_link\s*}}/g, surveyLink);
+
+        // 5) Envío
+        const emailParams = new EmailParams()
+          .setFrom(from)
+          .setTo([new Recipient(user.correo, user.nombre_completo)])
+          .setSubject(`Hola ${user.nombre_completo || ''}, ¡tu encuesta te espera!`)
+          .setText(`Hola ${user.nombre_completo || ''}, completa la encuesta aquí: ${surveyLink}`)
+          .setHtml(htmlBody);
+
+        console.log(`📤 Enviando a: ${user.correo}`);
         await mailerSend.email.send(emailParams);
-        console.log(`✅ Correo enviado exitosamente a ${user.correo}`);
-      } catch (err) {
+        console.log(`✅ Enviado a ${user.correo}`);
+      } catch (errEnvio) {
         console.error(`❌ Error enviando a ${user.correo}:`, {
-          message: err.message,
-          status: err.statusCode,
-          body: err.body,
-          headers: err.headers
+          message: errEnvio?.message,
+          status: errEnvio?.statusCode,
+          body: errEnvio?.body,
+          headers: errEnvio?.headers,
         });
       }
     }
 
     res.send('✅ Envío de encuestas completado.');
   } catch (err) {
-    console.error(err);
+    console.error('💥 Error /enviar-correos:', err);
     res.status(500).send('Error interno.');
   }
 });
 
+// ===============================
+// Server
+// ===============================
 app.listen(PORT, () => {
   console.log(`🚀 Mail Service listening on port ${PORT}`);
   console.log(`📧 Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`🌐 CORS origins configured`);
+  console.log('🌐 CORS origins:', allowedOrigins);
 });

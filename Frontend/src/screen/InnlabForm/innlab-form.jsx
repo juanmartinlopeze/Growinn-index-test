@@ -14,6 +14,7 @@ import { StepBreadcrumb } from "../../components/StepBreadcrumb/breadcrumb";
 import {
   saveStepData,
   loadStepData,
+  clearProgress,
 } from "../../components/Utils/breadcrumbUtils";
 import { createEmpresa } from "../../lib/api";
 
@@ -218,8 +219,13 @@ export function InnlabForm() {
 
     try {
       setIsCreatingEmpresa(true);
-
-      // Create or update empresa in Supabase
+      
+      // 🧹 Limpiar localStorage ANTES de crear nueva empresa
+      console.log("🧹 Limpiando datos antiguos del localStorage...");
+      clearProgress();
+      
+      // 🏢 Crear empresa en Supabase
+      console.log("🏢 Creando empresa con datos:", formData);
       const empresaCreada = await createEmpresa(formData);
       
       // 💾 Guardar datos completos en localStorage incluyendo el ID

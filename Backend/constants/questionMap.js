@@ -55,14 +55,12 @@ const questionMap = {
   Q19: { categoria: "Recursos", subdimension: "Espacios" },
   Q28: { categoria: "Recursos", subdimension: "Expertos" },
   Q37: { categoria: "Recursos", subdimension: "Recompensas" },
-  Q46: { categoria: "Recursos", subdimension: "Tecnología" },
 
   // Resultados
   Q11: { categoria: "Resultados", subdimension: "Exito externo" },
   Q20: { categoria: "Resultados", subdimension: "Éxito financiero" },
   Q29: { categoria: "Resultados", subdimension: "Éxito General" },
   Q38: { categoria: "Resultados", subdimension: "Éxito Personal" },
-  Q47: { categoria: "Resultados", subdimension: "Fracasos y cierres" }
 };
 
 module.exports = questionMap;

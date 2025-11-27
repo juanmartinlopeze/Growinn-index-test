@@ -22,39 +22,81 @@ import {
   Alert,
 } from "../../components/index";
 
+// Esta es una version completa con todas las mejoras necesarias para que envie correos y genere el analisis correctamente.
+
 export function EmailManagement() {
   // Estados para feedback de envío de correos
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
 
-  // Función para enviar correos (igual que en ValidationPage)
+  // Función para enviar correos
   const handleSendEmails = async () => {
+    console.log('\n🔵 === ENVÍO DE CORREOS (EmailManagement) ===');
     setLoading(true);
     setError(null);
     setSuccess(false);
+    
     try {
-      const isProduction =
-        window.location.hostname !== "localhost" &&
-        window.location.hostname !== "127.0.0.1";
-      const mailServiceUrl = isProduction
-        ? "https://growinn-mail-service.onrender.com/enviar-correos"
-        : "http://localhost:3001/enviar-correos";
-      console.log("🌐 Enviando correos desde:", window.location.hostname);
-      console.log("📧 URL del servicio de mail:", mailServiceUrl);
-      const res = await fetch(mailServiceUrl);
-      if (!res.ok) throw new Error(`Status ${res.status}`);
-      // number of participants pending (total - progress)
-      const pending = Math.max(0, (total || 0) - (progress || 0));
-      setSuccess(true);
-      setMessageType("success");
-      setMessageTitle("Correos reenviados");
-      setMessage(
-        `Se han reenviado los correos a ${pending} participantes pendientes.`
-      );
+      console.log('📊 Obteniendo empresas...');
+      const empresas = await fetchEmpresas();
+      console.log('✅ Empresas obtenidas:', empresas);
+      
+      if (!empresas || empresas.length === 0) {
+        console.error('❌ No hay empresas');
+        throw new Error("No hay empresa para enviar correos");
+      }
+      
+      const empresaActual = empresas[empresas.length - 1];
+      console.log('🏢 Empresa seleccionada:', empresaActual.id);
+
+      // ✅ Cambiar a VITE_API_URL
+      const backendUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
+      const mailUrl = `${backendUrl}/enviar-correos`;
+      
+      console.log('🌐 Backend URL:', backendUrl);
+      console.log('📧 URL del servicio de mail:', mailUrl);
+
+      const requestBody = { empresa_id: empresaActual.id };
+      console.log('📦 Body:', JSON.stringify(requestBody, null, 2));
+
+      console.log('🚀 Enviando petición POST...');
+      const response = await fetch(mailUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(requestBody),
+      });
+
+      console.log('📡 Respuesta:');
+      console.log('   - Status:', response.status);
+      console.log('   - Status Text:', response.statusText);
+
+      const data = await response.json();
+      console.log('📄 Data:', JSON.stringify(data, null, 2));
+
+      if (response.ok) {
+        console.log('✅ Correos enviados');
+        const pending = Math.max(0, (total || 0) - (progress || 0));
+        setSuccess(true);
+        setError(null);
+        setMessageType("success");
+        setMessageTitle("Correos reenviados");
+        setMessage(
+          `Se han reenviado los correos a ${pending} participantes pendientes.`
+        );
+      } else {
+        console.error('❌ Error:', data.error);
+        throw new Error(data.error || "Error al enviar correos");
+      }
+
+      console.log('🔵 === FIN ENVÍO ===\n');
     } catch (err) {
-      console.error("Error enviando correos:", err);
-      setError("No se pudieron enviar los correos.");
+      console.error('💥 Error:', err);
+      console.error('Tipo:', err.name);
+      console.error('Mensaje:', err.message);
+      
+      setError(err.message);
+      setSuccess(false);
       const pending = Math.max(0, (total || 0) - (progress || 0));
       setMessageType("error");
       setMessageTitle("Los correos no fueron enviados");
@@ -66,11 +108,14 @@ export function EmailManagement() {
     }
   };
 
-  // Función para iniciar el análisis (se llamará desde el Alert cuando se confirme)
+  // Función para iniciar el análisis
   const handleAnalyzeResults = async () => {
     try {
+      console.log('\n🔵 === ANÁLISIS DE RESULTADOS INICIO ===');
+      
       const empresas = await fetchEmpresas();
       if (!empresas || empresas.length === 0) {
+        console.error('❌ No hay empresas');
         setMessageType("error");
         setMessageTitle("Error");
         setMessage("No hay empresa para analizar.");
@@ -78,42 +123,99 @@ export function EmailManagement() {
         setAlertType(null);
         return;
       }
+      
       const empresaActual = empresas[empresas.length - 1];
-      console.log("empresa_id enviado al análisis:", empresaActual.id);
-      const response = await fetch(
-        `${
-          import.meta.env.VITE_BACKEND_URL || "http://localhost:3000"
-        }/api/analizar-resultados`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ empresa_id: empresaActual.id }),
-        }
-      );
+      console.log('🏢 Empresa:', empresaActual.id);
+      
+      // ✅ VALIDAR QUE HAYA RESPUESTAS ANTES DE ANALIZAR
+      console.log('📊 Verificando progreso de encuestas...');
+      const progreso = await getSurveyProgress(empresaActual.id);
+      console.log('📈 Encuestas completadas:', progreso);
+      console.log('👥 Total empleados:', empresaActual.cantidad_empleados);
+      
+      if (progreso === 0) {
+        console.warn('⚠️  No hay encuestas completadas');
+        setMessageType("error");
+        setMessageTitle("Sin datos para analizar");
+        setMessage(
+          `No hay encuestas completadas. Los usuarios de la empresa deben completar la encuesta antes de poder analizar los resultados.`
+        );
+        setShowAlert(false);
+        setAlertType(null);
+        return;
+      }
+      
+      console.log(`✅ Hay ${progreso} encuestas completadas, procediendo con el análisis...`);
+      
+      const backendUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
+      const analyzeUrl = `${backendUrl}/api/analizar-resultados`;
+      console.log('🌐 URL:', analyzeUrl);
+      
+      const response = await fetch(analyzeUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ empresa_id: empresaActual.id }),
+      });
+      
       const data = await response.json();
+      
+      console.log('📡 Response status:', response.status);
+      console.log('📄 Response data:', JSON.stringify(data, null, 2));
+      
       if (response.ok) {
+        console.log('✅ Análisis exitoso');
+        
+        if (data.evaluacion_id) {
+          console.log('💾 Evaluación guardada con ID:', data.evaluacion_id);
+        }
+        console.log('📈 Total respuestas analizadas:', data.total_respuestas);
+        console.log('👥 Total usuarios:', data.total_usuarios);
+        console.log('👥 Usuarios que respondieron:', data.usuarios_respondieron);
+        
         setMessageType("success");
         setMessageTitle("Análisis completado");
-        setMessage("Resultados generados correctamente.");
-        console.log("Resultados del análisis:", data.resultados);
+        setMessage(
+          `Análisis completado exitosamente. Se analizaron ${data.total_respuestas} respuestas de ${data.usuarios_respondieron} usuarios. ${
+            data.evaluacion_id 
+              ? 'Evaluación guardada con ID: ' + data.evaluacion_id 
+              : ''
+          }`
+        );
       } else {
+        console.error('❌ Error:', data.error);
+        
+        // Mostrar información de debug si está disponible
+        if (data.debug) {
+          console.warn('🔍 Debug info:');
+          console.warn('   Empresa:', data.debug.empresa_id);
+          console.warn('   Usuarios de la empresa:', data.debug.usuarios_empresa);
+          console.warn('   Usuarios con respuestas:', data.debug.usuarios_con_respuestas);
+        }
+        
         setMessageType("error");
-        setMessageTitle("Error");
-        setMessage(data.error || "Error al analizar resultados");
+        setMessageTitle("Error en el análisis");
+        setMessage(
+          data.error || "No se pudo completar el análisis de resultados."
+        );
       }
+      
       setShowAlert(false);
       setAlertType(null);
-    } catch {
+      
+    } catch (error) {
+      console.error('💥 Error:', error);
+      console.error('Stack:', error.stack);
       setMessageType("error");
-      setMessageTitle("Error");
-      setMessage("Error de red o del servidor al analizar resultados.");
+      setMessageTitle("Error de conexión");
+      setMessage("No se pudo conectar con el servidor para realizar el análisis.");
       setShowAlert(false);
       setAlertType(null);
     }
   };
+
   const navigate = useNavigate();
 
-  // Estos valores deben venir de la base de datos en producción
+  // Estados para progreso y alertas
   const [progress, setProgress] = useState(0);
   const [total, setTotal] = useState(0);
   const [showAlert, setShowAlert] = useState(false);
@@ -136,26 +238,42 @@ export function EmailManagement() {
         }
         const empresaActual = empresas[empresas.length - 1];
         console.log("EMPRESA ACTUAL PARA PROGRESO:", empresaActual);
-        const [areas, cargos, subcargos, progreso, _usuariosEmpresa] =
-          await Promise.all([
-            fetchAreas(empresaActual.id),
-            fetchCargos(),
-            fetchSubcargos(),
-            getSurveyProgress(empresaActual.id),
-            (async () => {
-              const { data, error } = await supabase
-                .from("usuarios")
-                .select("id")
-                .eq("empresa_id", empresaActual.id);
-              if (error) return [];
-              return data || [];
-            })(),
-          ]);
+        // Traer datos principales y respuestas
+        const [areas, cargos, subcargos, progreso, usuariosEmpresa, surveyResponses] = await Promise.all([
+          fetchAreas(empresaActual.id),
+          fetchCargos(),
+          fetchSubcargos(),
+          getSurveyProgress(empresaActual.id),
+          (async () => {
+            const { data, error } = await supabase
+              .from("usuarios")
+              .select("id, cargo_id, jerarquia_id")
+              .eq("empresa_id", empresaActual.id);
+            if (error) return [];
+            return data || [];
+          })(),
+          (async () => {
+            // Traer respuestas de usuarios de la empresa
+            const userIds = (await supabase
+              .from("usuarios")
+              .select("id")
+              .eq("empresa_id", empresaActual.id)).data?.map(u => u.id) || [];
+            if (!userIds.length) return [];
+            const { data, error } = await supabase
+              .from("survey_responses")
+              .select("user_id")
+              .in("user_id", userIds);
+            if (error) return [];
+            return data || [];
+          })(),
+        ]);
 
         setTotal(empresaActual.cantidad_empleados);
         setProgress(progreso);
 
-        // ...código original para la tabla...
+        // Crear set de usuarios que respondieron
+        const respondedUserIds = new Set(surveyResponses.map(r => r.user_id));
+
         const areaIds = new Set((areas || []).map((a) => a.id));
         const cargoMap = new Map();
         (cargos || []).forEach((c) => {
@@ -168,38 +286,37 @@ export function EmailManagement() {
           if (!subMap.has(s.cargo_id)) subMap.set(s.cargo_id, []);
           subMap.get(s.cargo_id).push(s);
         });
+
+        // Crear mapa de usuarios por cargo y jerarquía
+        const usuariosPorCargoJerarquia = {};
+        (usuariosEmpresa || []).forEach(u => {
+          if (!usuariosPorCargoJerarquia[u.cargo_id]) usuariosPorCargoJerarquia[u.cargo_id] = {};
+          usuariosPorCargoJerarquia[u.cargo_id][u.jerarquia_id] = usuariosPorCargoJerarquia[u.cargo_id][u.jerarquia_id] || [];
+          usuariosPorCargoJerarquia[u.cargo_id][u.jerarquia_id].push(u.id);
+        });
+
         const newRows = (areas || []).map((area) => {
           const roles = ["J1", "J2", "J3"].map((j) => {
             const key = `${area.id}-${j}`;
             const cargo = cargoMap.get(key);
             if (!cargo) return { answered: 0, total: 0, percent: 0 };
             const subs = subMap.get(cargo.id) || [];
-            const total =
-              subs.length > 0
-                ? subs.reduce((s, x) => s + (x.personas || 0), 0)
-                : cargo.personas || 0;
-            // answered is unknown here (responses), default 0
-            const answered = 0;
-            const percent =
-              total > 0 ? Math.round((answered / total) * 100) : 0;
+            // Usuarios asignados a este cargo y jerarquía
+            const usuariosAsignados = (usuariosPorCargoJerarquia[cargo.id]?.[j] || []);
+            const total = subs.length > 0
+              ? subs.reduce((s, x) => s + (x.personas || 0), 0)
+              : cargo.personas || 0;
+            // Usuarios que respondieron en este cargo y jerarquía
+            const answered = usuariosAsignados.filter(uid => respondedUserIds.has(uid)).length;
+            const percent = total > 0 ? Math.round((answered / total) * 100) : 0;
             return { answered, total, percent };
           });
-          const assignedSum = roles.reduce((s, r) => s + (r.total || 0), 0);
-          const totalAssignedAll = (areas || []).reduce((s, a) => {
-            const rs = ["J1", "J2", "J3"].map((j) => {
-              const c = cargoMap.get(`${a.id}-${j}`);
-              if (!c) return 0;
-              const sub = subMap.get(c.id) || [];
-              return sub.length > 0
-                ? sub.reduce((ss, x) => ss + (x.personas || 0), 0)
-                : c.personas || 0;
-            });
-            return s + rs.reduce((ss, v) => ss + v, 0);
-          }, 0);
-          const percent =
-            totalAssignedAll > 0
-              ? Math.round((assignedSum / totalAssignedAll) * 100)
-              : 0;
+          // Nuevo cálculo: porcentaje de completado real por área
+          const totalRespondidosArea = roles.reduce((s, r) => s + (r.answered || 0), 0);
+          const totalAsignadosArea = roles.reduce((s, r) => s + (r.total || 0), 0);
+          const percent = totalAsignadosArea > 0
+            ? Math.round((totalRespondidosArea / totalAsignadosArea) * 100)
+            : 0;
           return {
             areaId: area.id,
             areaLabel: area.nombre,
@@ -217,15 +334,13 @@ export function EmailManagement() {
     load();
   }, []);
 
-  // Auto-dismiss toast after 5 seconds when message is set
+  // Auto-dismiss toast after 5 seconds
   useEffect(() => {
     if (!message) return;
     setToastClosing(false);
-    // after visibleDuration -> start fade-out
-    const visibleDuration = 5000; // ms
-    const fadeDuration = 350; // must match CSS animation duration
+    const visibleDuration = 5000;
+    const fadeDuration = 350;
     const t1 = setTimeout(() => setToastClosing(true), visibleDuration);
-    // after visible + fade duration -> clear message
     const t2 = setTimeout(() => {
       setMessage("");
       setMessageTitle("");
@@ -239,8 +354,6 @@ export function EmailManagement() {
       clearTimeout(t2);
     };
   }, [message]);
-
-  // meta ahora se calcula en SurveyProgress
 
   return (
     <section className="w-full h-full flex flex-col justify-center items-start px-[10%] pt-[10%] gap-5 relative">
@@ -287,7 +400,6 @@ export function EmailManagement() {
           variant="email"
           text={loading ? "Enviando..." : "Reenviar correos"}
           onClick={() => {
-            // show confirmation alert before sending
             setAlertType("confirmResend");
             setShowAlert(true);
           }}
@@ -315,7 +427,6 @@ export function EmailManagement() {
           variant="analytics"
           text="Analizar resultados"
           onClick={() => {
-            // show confirmation alert before analyzing
             setAlertType("confirmAnalysis");
             setShowAlert(true);
           }}
@@ -339,8 +450,7 @@ export function EmailManagement() {
         />
       </div>
 
-      {/* Header strip for the table: left, 3 center, right */}
-      {/* Table container: header + rows (dynamic) */}
+      {/* Tabla */}
       <div
         style={{
           display: "flex",
@@ -379,7 +489,6 @@ export function EmailManagement() {
               />
             ))
           ) : (
-            // fallback: show a few placeholders
             <>
               <TableRowExample areaLabel="Área 1" percent={0} />
               <TableRowExample areaLabel="Área 2" percent={0} />
@@ -387,7 +496,7 @@ export function EmailManagement() {
           )}
         </div>
 
-        {/* Footer row */}
+        {/* Footer */}
         <div
           className="inline-flex items-center w-full"
           style={{ marginTop: 0 }}
@@ -445,80 +554,83 @@ export function EmailManagement() {
         </div>
       </div>
 
-      {/* Toast flotante bottom-right para mensajes */}
+      {/* Toast flotante */}
       {message && (
-        <>
-          <div
-            className={`fixed bottom-8 right-8 z-50 toast-slide-in ${
-              toastClosing ? "toast-fade-out" : ""
-            }`}
-            style={{
-              display: "flex",
-              width: "386px",
-              height: "113px",
-              padding: "24px",
-              flexDirection: "column",
-              justifyContent: "center",
-              alignItems: "flex-start",
-              gap: "8px",
-              flexShrink: 0,
-              borderRadius: "8px",
-              border: "1px solid #CCC",
-              background: "#FFF",
-              boxShadow: "0 4px 8px 0 rgba(0,0,0,0.12)",
-            }}
-          >
-            {messageType === "success" ? (
-              <div>
-                <h4
-                  className="mb-1 text-left"
-                  style={{
-                    color: "var(--Colors-Text-text-primary, #333)",
-                    fontFamily: "Plus Jakarta Sans",
-                    fontSize: "var(--Versin-web-Contenido-Body-sm, 14px)",
-                    fontStyle: "normal",
-                    fontWeight: 700,
-                    lineHeight: "normal",
-                  }}
-                >
-                  {messageTitle || "Correos reenviados"}
-                </h4>
-                <p
-                  className="text-left"
-                  style={{
-                    color: "var(--Colors-Text-text-primary, #333)",
-                    fontFamily: "Plus Jakarta Sans",
-                    fontSize: "var(--Versin-web-Contenido-Body-sm, 14px)",
-                    fontStyle: "normal",
-                    fontWeight: 400,
-                    lineHeight: "normal",
-                  }}
-                >
-                  {message}
-                </p>
-                {success && (
-                  <p style={{ color: "green", marginTop: "0.5rem" }}>
-                    ✅ Correos enviados correctamente.
-                  </p>
-                )}
-              </div>
-            ) : (
-              <>
-                <p
-                  style={{
-                    color: "red",
-                    fontFamily: "Plus Jakarta Sans",
-                    fontSize: "var(--Versin-web-Contenido-Body-sm, 14px)",
-                    fontWeight: 700,
-                    margin: 0,
-                  }}
-                >
-                  {error || "No se ha podido enviar los correos."}
-                </p>
-              </>
-            )}
-          </div>
-        </>
+        <div
+          className={`fixed bottom-8 right-8 z-50 toast-slide-in ${
+            toastClosing ? "toast-fade-out" : ""
+          }`}
+          style={{
+            display: "flex",
+            width: "386px",
+            height: "113px",
+            padding: "24px",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "flex-start",
+            gap: "8px",
+            flexShrink: 0,
+            borderRadius: "8px",
+            border: "1px solid #CCC",
+            background: "#FFF",
+            boxShadow: "0 4px 8px 0 rgba(0,0,0,0.12)",
+          }}
+        >
+          {messageType === "success" ? (
+            <div>
+              <h4
+                className="mb-1 text-left"
+                style={{
+                  color: "var(--Colors-Text-text-primary, #333)",
+                  fontFamily: "Plus Jakarta Sans",
+                  fontSize: "var(--Versin-web-Contenido-Body-sm, 14px)",
+                  fontStyle: "normal",
+                  fontWeight: 700,
+                  lineHeight: "normal",
+                }}
+              >
+                {messageTitle || "Éxito"}
+              </h4>
+              <p
+                className="text-left"
+                style={{
+                  color: "var(--Colors-Text-text-primary, #333)",
+                  fontFamily: "Plus Jakarta Sans",
+                  fontSize: "var(--Versin-web-Contenido-Body-sm, 14px)",
+                  fontStyle: "normal",
+                  fontWeight: 400,
+                  lineHeight: "normal",
+                }}
+              >
+                {message}
+              </p>
+            </div>
+          ) : (
+            <div>
+              <h4
+                className="mb-1 text-left"
+                style={{
+                  color: "red",
+                  fontFamily: "Plus Jakarta Sans",
+                  fontSize: "var(--Versin-web-Contenido-Body-sm, 14px)",
+                  fontWeight: 700,
+                }}
+              >
+                {messageTitle || "Error"}
+              </h4>
+              <p
+                style={{
+                  color: "var(--Colors-Text-text-primary, #333)",
+                  fontFamily: "Plus Jakarta Sans",
+                  fontSize: "var(--Versin-web-Contenido-Body-sm, 14px)",
+                  fontWeight: 400,
+                }}
+              >
+                {message}
+              </p>
+            </div>
+          )}
+        </div>
       )}
 
       {showAlert && (
@@ -527,18 +639,14 @@ export function EmailManagement() {
           onClose={() => setShowAlert(false)}
           onCancel={() => setShowAlert(false)}
           onConfirm={async () => {
-            // handle confirmations by type
             if (alertType === "confirmResend") {
-              // user confirmed: call the existing send function
               try {
                 await handleSendEmails();
               } catch (e) {
-                // handleSendEmails already sets message/error state; nothing extra needed
                 console.error("Error during confirmed resend:", e);
               }
             }
             if (alertType === "confirmAnalysis") {
-              // user confirmed: call analyze function
               await handleAnalyzeResults();
             }
             setShowAlert(false);
@@ -547,7 +655,6 @@ export function EmailManagement() {
         />
       )}
 
-      {/* Header strip for the table: left, 3 center, right */}
       <img className="line-bckg-img" src="/BgLine-decoration2.png" alt="" />
       <img className="line-bckg-img2" src="/BgLine-decoration3.png" alt="" />
       <img className="squares-bckg-img" src="/squaresBckg.png" alt="" />

@@ -1,3 +1,4 @@
+//En Esta version del server esta completa todos los enpoints de empresas, areas, cargos y subcargos, ademas los llamados y todo esta completo.
 // server.js
 // ─────────────────────────────────────────────────────────────────────────────
 process.on('unhandledRejection', (r) => console.error('UNHANDLED REJECTION', r));
@@ -5,7 +6,7 @@ process.on('uncaughtException',  (e) => console.error('UNCAUGHT EXCEPTION', e));
 
 require('dotenv').config();
 const express = require('express');
-const cors    = require('cors');
+const cors = require('cors');
 
 const app = express();
 
@@ -13,30 +14,50 @@ const app = express();
 app.use(express.json({ limit: '10mb' }));
 
 // ─────────────────────────────────────────────────────────────────────────────
-// CORS configurable por variables (sin HTTPS obligatorio)
-const listFromEnv = (v) =>
-  (v || '').split(',').map(s => s.trim().replace(/\/$/, '')).filter(Boolean);
+// CORS configurable por entorno
+const isDevelopment = process.env.NODE_ENV !== 'production';
 
-const allowlist = [
-  ...listFromEnv(process.env.FRONTEND_ORIGIN),     // ej: https://growinn-index.onrender.com
-  ...listFromEnv(process.env.ADDITIONAL_ORIGINS),  // ej: http://localhost:5173,http://localhost:3000
-  ...listFromEnv(process.env.ALLOWED_ORIGINS),
-];
+if (isDevelopment) {
+  // En desarrollo: permitir cualquier origen
+  app.use(cors({
+    origin: true,
+    credentials: true,
+    methods: ['GET','POST','PUT','PATCH','DELETE','OPTIONS'],
+    allowedHeaders: ['Content-Type','Authorization'],
+    exposedHeaders: ['Content-Length'],
+  }));
+  console.log('🔓 CORS: Permitiendo todos los orígenes (desarrollo)');
+} else {
+  // En producción: usar allowlist
+  const listFromEnv = (v) =>
+    (v || '').split(',').map(s => s.trim().replace(/\/$/, '')).filter(Boolean);
 
-const corsOptions = {
-  origin(origin, cb) {
-    if (!origin) return cb(null, true);               // healthchecks/server-to-server
-    const o = origin.replace(/\/$/, '');
-    if (allowlist.includes(o)) return cb(null, true);
-    return cb(new Error(`Not allowed by CORS: ${origin}`));
-  },
-  credentials: true,
-  methods: ['GET','POST','PUT','PATCH','DELETE','OPTIONS'],
-  allowedHeaders: ['Content-Type','Authorization'],
-  exposedHeaders: ['Content-Length'],
-};
-app.use(cors(corsOptions));
-app.options('*', cors(corsOptions));
+  const allowlist = [
+    ...listFromEnv(process.env.FRONTEND_ORIGIN),
+    ...listFromEnv(process.env.ADDITIONAL_ORIGINS),
+    ...listFromEnv(process.env.ALLOWED_ORIGINS),
+  ];
+
+  console.log('🔒 CORS allowlist (producción):', allowlist);
+
+  const corsOptions = {
+    origin(origin, cb) {
+      if (!origin) return cb(null, true);
+      const o = origin.replace(/\/$/, '');
+      if (allowlist.includes(o)) return cb(null, true);
+      console.warn('❌ CORS bloqueado:', origin);
+      return cb(new Error(`Not allowed by CORS: ${origin}`));
+    },
+    credentials: true,
+    methods: ['GET','POST','PUT','PATCH','DELETE','OPTIONS'],
+    allowedHeaders: ['Content-Type','Authorization'],
+    exposedHeaders: ['Content-Length'],
+  };
+  
+  app.use(cors(corsOptions));
+}
+
+app.options('*', cors());
 app.use((_, res, next) => { res.setHeader('Vary', 'Origin'); next(); });
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -45,7 +66,7 @@ app.get('/health', (_req, res) => res.status(200).send('ok'));
 app.get('/ping',   (_req, res) => res.json({ pong: true, ts: Date.now() }));
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Supabase: carga segura (sin relación con HTTPS)
+// Supabase
 let supabase, supabaseAdmin, supabaseAuth;
 try {
   const { createClient } = require('@supabase/supabase-js');
@@ -57,19 +78,19 @@ try {
     supabase     = createClient(URL, ANON);
     supabaseAuth = createClient(URL, ANON);
   } else {
-    console.warn('⚠️  Supabase client NO configurado (SUPABASE_URL o SUPABASE_ANON_KEY faltan)');
+    console.warn('⚠️  Supabase client NO configurado');
   }
   if (URL && SERVICE) {
     supabaseAdmin = createClient(URL, SERVICE);
   } else {
-    console.warn('⚠️  Supabase ADMIN NO configurado (SUPABASE_SERVICE_ROLE/_KEY falta)');
+    console.warn('⚠️  Supabase ADMIN NO configurado');
   }
 } catch (e) {
   console.error('❌ Error cargando @supabase/supabase-js:', e.message);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Montaje defensivo de routers locales
+// Montaje de routers
 function safeUse(path, loader) {
   try { app.use(path, loader()); console.log(`✅ Router montado en ${path}`); }
   catch (e) { console.error(`❌ No se pudo montar router en ${path}:`, e.message); }
@@ -79,6 +100,25 @@ safeUse('/',         () => require('./routes/uploadExcel'));
 safeUse('/',         () => require('./routes/excelroute'));
 safeUse('/encuesta', () => require('./routes/survey'));
 safeUse('/api',      () => require('./routes/analizarResultados'));
+
+// Ruta enviar correos
+app.post('/enviar-correos', async (req, res) => {
+  console.log('\n🔵 === ENVÍO DE CORREOS ===');
+  console.log('📦 Body:', JSON.stringify(req.body, null, 2));
+  try {
+    const { empresa_id } = req.body;
+    if (!empresa_id) {
+      return res.status(400).json({ error: 'Falta empresa_id' });
+    }
+    const sendEmail = require('./mail/mailSender');
+    const result = await sendEmail(empresa_id);
+    console.log('✅ Correos enviados');
+    return res.json(result);
+  } catch (error) {
+    console.error('❌ Error enviando correos:', error);
+    return res.status(500).json({ error: error.message });
+  }
+});
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Auth middleware (aplicativo; no HTTPS)
@@ -483,6 +523,6 @@ app.use((err, _req, res, _next) => {
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Puerto (solo HTTP)
+// Puerto
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Servidor HTTP corriendo en puerto ${PORT}`));
+app.listen(PORT, () => console.log(`🚀 Servidor HTTP corriendo en puerto ${PORT}`));
