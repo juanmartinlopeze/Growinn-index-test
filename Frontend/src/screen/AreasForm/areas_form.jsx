@@ -4,6 +4,7 @@ import { StepBreadcrumb } from "../../components/StepBreadcrumb/breadcrumb";
 import { Button, TitleSection, Subtitle, Description, Alert } from "../../components/index";
 import { useLocation, useNavigate } from "react-router-dom";
 import { FormAreas } from "../../components/FormAreas/form_areas";
+import { supabase } from "../../lib/supabaseClient";
 import "./areas_form.css";
 
 const BASE_URL = (import.meta.env.VITE_API_URL || "http://localhost:3000").replace(/\/$/, "");
@@ -74,6 +75,17 @@ export function AreasForm() {
 
     try {
       setIsCreatingAreas(true);
+
+      // Delete existing areas for this empresa before creating new ones
+      const { error: deleteError } = await supabase
+        .from('areas')
+        .delete()
+        .eq('empresa_id', empresa_id);
+
+      if (deleteError) {
+        console.error('Error deleting existing areas:', deleteError);
+        // Continue anyway - we'll just have duplicates
+      }
 
       // POST de todas las áreas en paralelo
       const created = await Promise.all(

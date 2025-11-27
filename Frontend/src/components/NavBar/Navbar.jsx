@@ -205,7 +205,6 @@ export function NavBar() {
 	const [user, setUser] = useState(null)
 	const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 	const navigate = useNavigate()
-
 	useEffect(() => {
 		supabase.auth.getUser().then(({ data }) => {
 			setUser(data?.user || null)

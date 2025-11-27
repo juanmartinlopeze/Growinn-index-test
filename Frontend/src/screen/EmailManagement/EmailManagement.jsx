@@ -238,24 +238,41 @@ export function EmailManagement() {
         }
         const empresaActual = empresas[empresas.length - 1];
         console.log("EMPRESA ACTUAL PARA PROGRESO:", empresaActual);
-        const [areas, cargos, subcargos, progreso, _usuariosEmpresa] =
-          await Promise.all([
-            fetchAreas(empresaActual.id),
-            fetchCargos(),
-            fetchSubcargos(),
-            getSurveyProgress(empresaActual.id),
-            (async () => {
-              const { data, error } = await supabase
-                .from("usuarios")
-                .select("id")
-                .eq("empresa_id", empresaActual.id);
-              if (error) return [];
-              return data || [];
-            })(),
-          ]);
+        // Traer datos principales y respuestas
+        const [areas, cargos, subcargos, progreso, usuariosEmpresa, surveyResponses] = await Promise.all([
+          fetchAreas(empresaActual.id),
+          fetchCargos(),
+          fetchSubcargos(),
+          getSurveyProgress(empresaActual.id),
+          (async () => {
+            const { data, error } = await supabase
+              .from("usuarios")
+              .select("id, cargo_id, jerarquia_id")
+              .eq("empresa_id", empresaActual.id);
+            if (error) return [];
+            return data || [];
+          })(),
+          (async () => {
+            // Traer respuestas de usuarios de la empresa
+            const userIds = (await supabase
+              .from("usuarios")
+              .select("id")
+              .eq("empresa_id", empresaActual.id)).data?.map(u => u.id) || [];
+            if (!userIds.length) return [];
+            const { data, error } = await supabase
+              .from("survey_responses")
+              .select("user_id")
+              .in("user_id", userIds);
+            if (error) return [];
+            return data || [];
+          })(),
+        ]);
 
         setTotal(empresaActual.cantidad_empleados);
         setProgress(progreso);
+
+        // Crear set de usuarios que respondieron
+        const respondedUserIds = new Set(surveyResponses.map(r => r.user_id));
 
         const areaIds = new Set((areas || []).map((a) => a.id));
         const cargoMap = new Map();
@@ -269,37 +286,37 @@ export function EmailManagement() {
           if (!subMap.has(s.cargo_id)) subMap.set(s.cargo_id, []);
           subMap.get(s.cargo_id).push(s);
         });
+
+        // Crear mapa de usuarios por cargo y jerarquía
+        const usuariosPorCargoJerarquia = {};
+        (usuariosEmpresa || []).forEach(u => {
+          if (!usuariosPorCargoJerarquia[u.cargo_id]) usuariosPorCargoJerarquia[u.cargo_id] = {};
+          usuariosPorCargoJerarquia[u.cargo_id][u.jerarquia_id] = usuariosPorCargoJerarquia[u.cargo_id][u.jerarquia_id] || [];
+          usuariosPorCargoJerarquia[u.cargo_id][u.jerarquia_id].push(u.id);
+        });
+
         const newRows = (areas || []).map((area) => {
           const roles = ["J1", "J2", "J3"].map((j) => {
             const key = `${area.id}-${j}`;
             const cargo = cargoMap.get(key);
             if (!cargo) return { answered: 0, total: 0, percent: 0 };
             const subs = subMap.get(cargo.id) || [];
-            const total =
-              subs.length > 0
-                ? subs.reduce((s, x) => s + (x.personas || 0), 0)
-                : cargo.personas || 0;
-            const answered = 0;
-            const percent =
-              total > 0 ? Math.round((answered / total) * 100) : 0;
+            // Usuarios asignados a este cargo y jerarquía
+            const usuariosAsignados = (usuariosPorCargoJerarquia[cargo.id]?.[j] || []);
+            const total = subs.length > 0
+              ? subs.reduce((s, x) => s + (x.personas || 0), 0)
+              : cargo.personas || 0;
+            // Usuarios que respondieron en este cargo y jerarquía
+            const answered = usuariosAsignados.filter(uid => respondedUserIds.has(uid)).length;
+            const percent = total > 0 ? Math.round((answered / total) * 100) : 0;
             return { answered, total, percent };
           });
-          const assignedSum = roles.reduce((s, r) => s + (r.total || 0), 0);
-          const totalAssignedAll = (areas || []).reduce((s, a) => {
-            const rs = ["J1", "J2", "J3"].map((j) => {
-              const c = cargoMap.get(`${a.id}-${j}`);
-              if (!c) return 0;
-              const sub = subMap.get(c.id) || [];
-              return sub.length > 0
-                ? sub.reduce((ss, x) => ss + (x.personas || 0), 0)
-                : c.personas || 0;
-            });
-            return s + rs.reduce((ss, v) => ss + v, 0);
-          }, 0);
-          const percent =
-            totalAssignedAll > 0
-              ? Math.round((assignedSum / totalAssignedAll) * 100)
-              : 0;
+          // Nuevo cálculo: porcentaje de completado real por área
+          const totalRespondidosArea = roles.reduce((s, r) => s + (r.answered || 0), 0);
+          const totalAsignadosArea = roles.reduce((s, r) => s + (r.total || 0), 0);
+          const percent = totalAsignadosArea > 0
+            ? Math.round((totalRespondidosArea / totalAsignadosArea) * 100)
+            : 0;
           return {
             areaId: area.id,
             areaLabel: area.nombre,
