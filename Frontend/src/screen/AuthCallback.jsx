@@ -32,7 +32,7 @@ export default function AuthCallback() {
           const { company, organization_type, adress, category, sector } = user.user_metadata.pending_empresa
 
           // Save empresa to database
-          const backendUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000'
+          const backendUrl = import.meta.env.VITE_API_URL || 'http://growinn-index.onrender.com/'
           const response = await fetch(`${backendUrl}/register/empresa`, {
             method: 'POST',
             headers: {
