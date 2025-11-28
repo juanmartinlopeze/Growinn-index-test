@@ -87,8 +87,33 @@ export function ValidationPage() {
         ? "https://growinn-mail-service.onrender.com/enviar-correos"
         : "http://localhost:3001/enviar-correos";
 
-      // Obtener empresa actual por user_id
-      const empresas = await fetch('/api/empresas').then(r => r.json());
+      // ⚠️ Cambia estas URLs por las reales de tu backend
+      const API_BASE_URL = isProduction
+        ? "https://backend-growinn-index.onrender.com"     // por ej: https://growinn-backend.onrender.com
+        : "http://localhost:3000";          // puerto donde corre tu API en local
+
+      const empresasRes = await fetch(`${API_BASE_URL}/empresas`);
+      const empresasText = await empresasRes.text();
+      console.log('🔵 [handleSendEmails] Respuesta de /api/empresas (cruda):', empresasText);
+      console.log('🔵 [handleSendEmails] Status /api/empresas:', empresasRes.status);
+      console.log('🔵 [handleSendEmails] Headers /api/empresas:', Array.from(empresasRes.headers.entries()));
+
+      if (!empresasRes.ok) {
+        // Si devuelve HTML de error
+        if (empresasText.startsWith('<!DOCTYPE')) {
+          throw new Error(`Error en /api/empresas (${empresasRes.status}). La API está devolviendo HTML en vez de JSON.`);
+        }
+        throw new Error(empresasText || `Error en /api/empresas (status ${empresasRes.status})`);
+      }
+
+      let empresas;
+      try {
+        empresas = JSON.parse(empresasText);
+      } catch (e) {
+        console.error('🔴 [handleSendEmails] /api/empresas no devolvió JSON válido:', e);
+        throw new Error('La ruta /api/empresas no está devolviendo JSON válido (revisa el backend o el proxy).');
+      }
+
       const userId = localStorage.getItem('user_id');
       const empresaActual = empresas.find(e => String(e.user_id) === String(userId));
       if (!empresaActual) throw new Error('No se encontró empresa para el usuario actual');
@@ -97,21 +122,28 @@ export function ValidationPage() {
       console.log("📧 URL del servicio de mail:", mailServiceUrl);
       console.log("🏢 Empresa actual:", empresaActual.id);
 
-      // Enviar el id de la empresa en el body (POST)
-      const res = await fetch(mailServiceUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ empresa_id: empresaActual.id })
-      });
-      if (!res.ok) throw new Error(`Status ${res.status}`);
+      const res = await fetch(mailServiceUrl); // GET por defecto, sin body
+      const responseText = await res.text();
+      console.log('🔵 [handleSendEmails] Respuesta completa del backend:', responseText);
+      console.log('🔵 [handleSendEmails] Status:', res.status);
+      console.log('🔵 [handleSendEmails] Headers:', Array.from(res.headers.entries()));
+
+      if (!res.ok) {
+        if (responseText.startsWith('<!DOCTYPE')) {
+          console.error('🔴 [handleSendEmails] Respuesta HTML recibida:', responseText);
+          throw new Error(`Error del servidor (${res.status})`);
+        }
+        throw new Error(responseText || `Status ${res.status}`);
+      }
+
       setSuccess(true);
-    } catch (err) {
-      console.error("Error enviando correos:", err);
-      setError("No se pudieron enviar los correos.");
-    } finally {
-      setLoading(false);
-    }
-  };
+          } catch (err) {
+            console.error("Error enviando correos:", err);
+            setError(err.message || "No se pudieron enviar los correos.");
+          } finally {
+            setLoading(false);
+          }
+        };
 
   return (
     <section className="validation-page-section">

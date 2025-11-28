@@ -110,7 +110,7 @@ app.post('/enviar-correos', async (req, res) => {
     if (!empresa_id) {
       return res.status(400).json({ error: 'Falta empresa_id' });
     }
-    const sendEmail = require('./mail/mailSender');
+    const { sendEmail } = require('./mail/mailSender');
     const result = await sendEmail(empresa_id);
     console.log('✅ Correos enviados');
     return res.json(result);

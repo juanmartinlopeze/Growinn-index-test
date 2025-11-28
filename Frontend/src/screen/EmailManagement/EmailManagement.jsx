@@ -53,11 +53,10 @@ export function EmailManagement() {
       console.log("🏢 Empresa actual:", empresaActual.id);
 
       // Enviar el id de la empresa en el body (POST)
-      const res = await fetch(mailServiceUrl, {
-        method: "POST",
+      const res = await fetch(`${mailServiceUrl}?empresa_id=${empresaActual.id}`, {
+        method: "GET",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ empresa_id: empresaActual.id })
-      });
+            });
       if (!res.ok) throw new Error(`Status ${res.status}`);
       setMessageType("success");
       setMessageTitle("Correos reenviados");
