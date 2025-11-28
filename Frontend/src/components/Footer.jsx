@@ -1,4 +1,5 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
 import { ICONS } from '../constants/assetPaths'
 
 export const Footer = () => {
@@ -24,10 +25,11 @@ export const Footer = () => {
 				{/* top row: headline + CTA + logo (stacks on small screens) */}
 				<div className='flex flex-col md:flex-row md:items-center md:justify-between gap-12'>
 					<div className='flex flex-col gap-10'>
-						<h2 className='text-white text-lg font-regular'>Transforma tu empresa con INNLAB</h2>
+						<h2 className='text-white text-lg font-regular text-left'>Transforma tu empresa con INNLAB</h2>
 
-						<button
-							className='inline-flex items-center justify-center w-[235px] gap-3 bg-white rounded-full px-5 py-2 text-sm hover:scale-105 transition-transform duration-200'
+						<Link
+							to='/home'
+							className='inline-flex items-center justify-center w-max gap-3 bg-white rounded-full px-5 py-2 text-sm hover:scale-105 transition-transform duration-200'
 							aria-label='Descubrir cómo transformar tu empresa'
 						>
 							<span className='text-[#333333] text-sm'>Quiero descubrir cómo</span>
@@ -35,7 +37,7 @@ export const Footer = () => {
 							<div className='inline-flex items-center bg-black rounded-full p-2'>
 								<img src={ICONS.arrowRight} className='w-5 h-5' alt='arrow' />
 							</div>
-						</button>
+						</Link>
 					</div>
 
 					{/* logo aligned to the right on md+ */}

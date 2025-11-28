@@ -1,22 +1,9 @@
 import useEmblaCarousel from 'embla-carousel-react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import PropTypes from 'prop-types'
-import carrouselImage1 from '../../assets/images/carrousels/carrouselej1.jpg'
-import carrouselImage2 from '../../assets/images/carrousels/carrouselej2.jpg'
+import { CAROUSEL_SLIDES } from '../../constants/assetPaths'
 
-// Sample data for demo carousel
-const DEFAULT_SLIDES = [
-	{
-		id: 1,
-		image: carrouselImage1,
-	},
-	{
-		id: 2,
-		image: carrouselImage2,
-	},
-]
-
-const DemoCarousel = ({ slides = DEFAULT_SLIDES }) => {
+const DemoCarousel = ({ slides = CAROUSEL_SLIDES }) => {
 	const [emblaRef, emblaApi] = useEmblaCarousel({
 		loop: true,
 		align: 'center',
@@ -31,19 +18,11 @@ const DemoCarousel = ({ slides = DEFAULT_SLIDES }) => {
 
 	return (
 		<div className='relative w-full'>
-			<button
-				onClick={scrollPrev}
-				className='absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white rounded-full p-2 shadow-lg hover:bg-gray-100 transition-colors'
-				aria-label='Previous slide'
-			>
+			<button onClick={scrollPrev} className='absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white rounded-full p-2 shadow-lg hover:bg-gray-100 transition-colors' aria-label='Previous slide'>
 				<ChevronLeft className='w-6 h-6 text-gray-700' />
 			</button>
 
-			<button
-				onClick={scrollNext}
-				className='absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white rounded-full p-2 shadow-lg hover:bg-gray-100 transition-colors'
-				aria-label='Next slide'
-			>
+			<button onClick={scrollNext} className='absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white rounded-full p-2 shadow-lg hover:bg-gray-100 transition-colors' aria-label='Next slide'>
 				<ChevronRight className='w-6 h-6 text-gray-700' />
 			</button>
 
